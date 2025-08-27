@@ -1,0 +1,76 @@
+/* Federal Standard Color Palette */
+:root {
+  /* Row 1 - Greens and Muted Tones */
+  --fs-14257: #6b7a5a; /* Muted earthy olive green */
+  --fs-14260: #7a8a6b; /* Medium desaturated green */
+  --fs-14272: #8a9a7a; /* Muted sage green */
+  --fs-14277: #9aaa8a; /* Gray-green, leaning towards gray */
+  --fs-14325: #aaba9a; /* Light muted green */
+  --fs-14449: #baca9a; /* Very pale pastel green */
+
+  /* Row 2 - Pale Greens and Dark Blues */
+  --fs-14533: #cada9a; /* Very light off-white pale green */
+  --fs-14672: #daea9a; /* Light desaturated green */
+  --fs-15042: #1a1a2e; /* Sea Blue - very dark almost black-blue */
+  --fs-15044: #16213e; /* Insignia Blue - deep dark navy blue */
+  --fs-15045: #0f3460; /* Dark navy blue, similar to Insignia Blue */
+  --fs-15050: #0f4c75; /* Blue Angels Blue - rich deep navy blue */
+
+  /* Row 3 - Blues */
+  --fs-15056: #1e3a8a; /* Blue - vibrant deep royal blue */
+  --fs-15065: #2563eb; /* Medium-dark blue */
+  --fs-15080: #3b82f6; /* Medium-dark blue, slightly richer */
+  --fs-15090: #60a5fa; /* Medium-dark blue, similar to 15080 */
+  --fs-15092: #93c5fd; /* Medium blue */
+  --fs-15102: #1e40af; /* Dark Blue - medium-dark blue */
+
+  /* Row 4 - Teals, Blues, and Blue-Grays */
+  --fs-15125: #0f766e; /* Deep teal or dark cyan */
+  --fs-15177: #64748b; /* Muted blue-gray */
+  --fs-15180: #0ea5e9; /* Bright medium blue */
+  --fs-15182: #38bdf8; /* Bright medium blue, similar to 15180 */
+  --fs-15187: #22d3ee; /* Bright light blue or cyan */
+  --fs-15193: #0891b2; /* Muted blue-green or slate */
+
+  /* Row 5 - Grays and Browns */
+  --fs-15526: #94a3b8; /* Light blue-gray */
+  --fs-16081: #374151; /* Engine Gray - dark charcoal gray */
+  --fs-16099: #4b5563; /* Dark gray */
+  --fs-16152: #6b7280; /* Medium-dark gray */
+  --fs-16160: #8b7355; /* Olive brown or khaki brown */
+  --fs-16165: #a0522d; /* Medium brown or taupe */
+
+  /* Row 6 - Grays, Pinks, and Beiges */
+  --fs-16251: #9ca3af; /* Medium gray */
+  --fs-16307: #d1d5db; /* Medium gray, slightly warmer */
+  --fs-16314: #e5e7eb; /* Light gray */
+  --fs-16350: #b45309; /* Muted reddish-brown or terracotta */
+  --fs-16357: #f59e0b; /* Light beige or tan */
+  --fs-16360: #fbbf24; /* Light beige or tan, similar to 16357 */
+
+  /* Semantic color mappings for common use cases */
+  --primary: var(--fs-15056); /* Primary blue */
+  --primary-dark: var(--fs-15044); /* Dark primary */
+  --primary-light: var(--fs-15180); /* Light primary */
+  
+  --secondary: var(--fs-14272); /* Secondary sage green */
+  --secondary-dark: var(--fs-14257); /* Dark secondary */
+  --secondary-light: var(--fs-14325); /* Light secondary */
+  
+  --accent: var(--fs-15187); /* Accent cyan */
+  --accent-dark: var(--fs-15125); /* Dark accent */
+  --accent-light: var(--fs-15193); /* Light accent */
+  
+  --neutral: var(--fs-16152); /* Neutral gray */
+  --neutral-dark: var(--fs-16081); /* Dark neutral */
+  --neutral-light: var(--fs-16314); /* Light neutral */
+  
+  --success: var(--fs-14260); /* Success green */
+  --warning: var(--fs-16357); /* Warning beige */
+  --error: var(--fs-16350); /* Error terracotta */
+  
+  --background: var(--fs-16314); /* Light gray background */
+  --foreground: var(--fs-16081); /* Dark gray foreground */
+  --surface: #ffffff; /* White surface */
+  --surface-dark: var(--fs-16099); /* Dark surface */
+}

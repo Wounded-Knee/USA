@@ -1,21 +1,39 @@
 @import "tailwindcss";
+@import "./federal-colors.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--fs-16314);
+  --foreground: var(--fs-16081);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-secondary-light: var(--secondary-light);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-light: var(--accent-light);
+  --color-neutral: var(--neutral);
+  --color-neutral-dark: var(--neutral-dark);
+  --color-neutral-light: var(--neutral-light);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-surface: var(--surface);
+  --color-surface-dark: var(--surface-dark);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--fs-15042);
+    --foreground: var(--fs-16314);
   }
 }
 
