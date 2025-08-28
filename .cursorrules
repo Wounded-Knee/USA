@@ -1,0 +1,79 @@
+# Cursor Rules for USA Full-Stack Application
+
+## Project Overview
+This is a full-stack web application built with:
+- **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, App Router
+- **Backend**: Express.js with MongoDB Atlas integration
+- **Database**: MongoDB Atlas with Mongoose ODM
+- **Theme**: California democracy theme with Federal color scheme
+
+## File Structure
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── components/         # React components
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+server/
+├── models/                # MongoDB models
+├── routes/                # API endpoints
+├── middleware/            # Express middleware
+├── utils/                 # Utility functions
+└── index.js              # Express server
+```
+
+## Coding Standards
+
+### Frontend (Next.js)
+- Use TypeScript for all components
+- Follow Next.js 13+ App Router conventions
+- Use Tailwind CSS for styling
+- Use 'use client' directive for client components
+- Prefer functional components with hooks
+
+### Backend (Express)
+- Use ES6+ syntax
+- Use async/await for database operations
+- Follow RESTful API conventions
+- Include input validation
+- Use environment variables for configuration
+
+### Database (MongoDB)
+- Use Mongoose schemas with validation
+- Implement proper indexing
+- Use soft deletes where appropriate
+- Include timestamps in models
+
+## Color Scheme Guidelines
+- **Primary**: Blue/Indigo gradients (blue-600, indigo-600)
+- **Background**: Light gradients (blue-50, indigo-100)
+- **Text**: Dark grays (gray-900 for headings, gray-700 for body)
+- **Accents**: Blue/indigo variations for interactive elements
+
+## API Endpoints
+- All endpoints return JSON responses
+- Include proper HTTP status codes
+
+## Development Workflow
+- Use `npm run dev:full` to start both frontend and backend
+- Frontend runs on port 3000
+- Backend runs on port 5000
+- MongoDB Atlas connection required for full functionality
+
+## Common Patterns
+- Use axios for frontend API calls
+- Implement loading states and error handling
+- Follow component composition patterns
+- Implement responsive design with Tailwind breakpoints
+
+## Security Considerations
+- Validate all inputs
+- Use environment variables for sensitive data
+- Implement proper CORS configuration
+- Sanitize error messages in production
+
+## Performance
+- Use Next.js Image component for optimized images
+- Implement proper caching strategies
+- Use database indexes for query optimization
+- Minimize bundle size with proper imports

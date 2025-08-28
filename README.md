@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# USA Full-Stack Application
+
+This is a full-stack web application built with Next.js 15, Express.js, and MongoDB Atlas, featuring a California democracy theme with Federal Standard color palette.
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── components/         # React components
+│   ├── pages/             # Page components
+│   ├── sandgraph/         # SandGraph route
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+server/
+├── models/                # MongoDB models
+├── routes/                # API endpoints
+├── middleware/            # Express middleware
+├── utils/                 # Utility functions
+└── index.js              # Express server
+```
 
 ## Getting Started
 
-First, run the development server:
+### Development
+
+Run the full-stack development server:
+
+```bash
+npm run dev:full
+```
+
+This starts both the frontend (port 3000) and backend (port 5000) concurrently.
+
+### Frontend Only
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Backend Only
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run server:dev
+```
 
-## Learn More
+## Technologies
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, App Router
+- **Backend**: Express.js with MongoDB Atlas integration
+- **Database**: MongoDB Atlas with Mongoose ODM
+- **Styling**: Federal Standard color palette with Tailwind CSS
+- **Fonts**: Geist font family optimized with next/font
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- California democracy theme
+- Federal Standard color palette implementation
+- Responsive design with Tailwind CSS
+- SandGraph component with interactive statistics
+- Full-stack architecture with Express backend
+- MongoDB Atlas database integration
 
-## Deploy on Vercel
+## Color System
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project implements a comprehensive Federal Standard color palette with 36 distinct colors. See `FEDERAL_COLORS_README.md` for detailed color documentation and usage examples.
