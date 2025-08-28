@@ -30,6 +30,7 @@ const navItems: NavItem[] = [
       { label: 'Training', href: '/services/training' },
     ]
   },
+  { label: 'Sand Graph', href: '/sandgraph' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
