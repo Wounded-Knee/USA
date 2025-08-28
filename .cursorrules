@@ -12,6 +12,7 @@ This is a full-stack web application built with:
 src/
 ├── app/                    # Next.js App Router
 │   ├── components/         # React components
+│   ├── pages/              # App Route pages
 │   ├── layout.tsx         # Root layout
 │   └── page.tsx           # Home page
 server/

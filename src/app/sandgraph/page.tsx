@@ -1,3 +1,5 @@
+'use client'
+
 import SandGraph from '../components/SandGraph'
 
 export default function SandGraphPage() {

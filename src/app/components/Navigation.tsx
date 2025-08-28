@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface NavItem {
   label: string
@@ -12,25 +13,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
-  { 
-    label: 'Products', 
-    href: '/products',
-    children: [
-      { label: 'Color Palettes', href: '/products/colors' },
-      { label: 'Design Systems', href: '/products/design-systems' },
-      { label: 'Components', href: '/products/components' },
-    ]
-  },
-  { 
-    label: 'Services', 
-    href: '/services',
-    children: [
-      { label: 'Consulting', href: '/services/consulting' },
-      { label: 'Implementation', href: '/services/implementation' },
-      { label: 'Training', href: '/services/training' },
-    ]
-  },
   { label: 'Sand Graph', href: '/sandgraph' },
+  { label: 'Map', href: '/map' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -96,7 +80,7 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="/" className="flex items-center space-x-2 group">
+            <Link href="/" className="flex items-center space-x-2 group">
               <Image
                 src="/california-bear-logo.png"
                 alt="California Bear Logo"
@@ -107,7 +91,7 @@ export default function Navigation() {
               <span className="text-neutral-dark font-semibold text-lg group-hover:text-primary transition-colors duration-200">
                 Democracy California
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -115,7 +99,7 @@ export default function Navigation() {
             <div className="ml-10 flex items-baseline space-x-8">
               {navItems.map((item) => (
                 <div key={item.label} className="relative group">
-                  <a
+                  <Link
                     href={item.href}
                     className="text-neutral hover:text-foreground hover:bg-neutral-light px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1"
                     onClick={(e) => handleDropdownClick(e, item)}
@@ -126,20 +110,20 @@ export default function Navigation() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
-                  </a>
+                  </Link>
                   
                   {/* Desktop Dropdown */}
                   {item.children && (
                     <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-surface border border-neutral-light opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                       <div className="py-1">
                         {item.children.map((child) => (
-                          <a
+                          <Link
                             key={child.label}
                             href={child.href}
                             className="block px-4 py-2 text-sm text-neutral hover:text-foreground hover:bg-neutral-light transition-colors duration-200"
                           >
                             {child.label}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -196,7 +180,7 @@ export default function Navigation() {
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-surface border-t border-neutral-light">
               {navItems.map((item) => (
                 <div key={item.label}>
-                  <a
+                  <Link
                     href={item.href}
                     onClick={(e) => handleDropdownClick(e, item)}
                     className="text-neutral hover:text-foreground hover:bg-neutral-light block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 flex items-center justify-between"
@@ -212,20 +196,20 @@ export default function Navigation() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
-                  </a>
+                  </Link>
                   
                   {/* Mobile Dropdown */}
                   {item.children && activeDropdown === item.label && (
                     <div className="ml-4 mt-1 space-y-1">
                       {item.children.map((child) => (
-                        <a
+                        <Link
                           key={child.label}
                           href={child.href}
                           onClick={closeMenu}
                           className="text-neutral hover:text-foreground hover:bg-neutral-light block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                         >
                           {child.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   )}

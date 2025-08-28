@@ -12,18 +12,28 @@
     "server:dev": "nodemon server/index.js"
   },
   "dependencies": {
+    "@deck.gl/core": "^9.1.14",
+    "@deck.gl/geo-layers": "^9.1.14",
+    "@deck.gl/layers": "^9.1.14",
+    "@deck.gl/react": "^9.1.14",
+    "@mapbox/mapbox-sdk": "^0.16.1",
+    "@types/mapbox-gl": "^3.4.1",
     "@types/matter-js": "^0.20.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
+    "deck.gl": "^9.1.14",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
+    "mapbox-gl": "^3.14.0",
     "matter-js": "^0.20.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
+    "multer": "^2.0.2",
     "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-map-gl": "^8.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
