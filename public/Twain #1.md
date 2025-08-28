@@ -1,0 +1,13 @@
+Now, if you will permit a plain man to say it, the Republic is a good enough contraption in theory, but like most contraptions it rattles, leaks, and catches fire in inconvenient places. The Constitution provided us with three branches, and they have served tolerably well — when they were not dozing. But it never occurred to the Fathers that Congress might grow deaf, the Courts blind, and the Executive too fond of the looking glass. They forgot to leave us a broom for sweeping the whole lot back into line.
+
+So the people have gone and made one. It is not a branch of lawyers or office-seekers, but of citizens; not a lumber-yard of statutes, but a granary of voices. Each man and woman takes up a grain of sand, drops it in the common heap, and behold — the pile is so large even the dullest statesman must stumble over it. This, gentlemen, is the Civilian Voice Branch, and if it does not fit your fine theories, so much the worse for your theories.
+
+It is 100 percent a co-op, which means no boss but the multitude, no dividend but dignity, and no stockholder with more than one share. The politicians despise it for the very good reason that they cannot buy it, bully it, or stuff it into a committee. They will tell you it is unruly; so is the Mississippi, but it still carries the commerce of a continent.
+
+This branch does not make laws nor execute them; it does something more dangerous — it reminds the law-makers they are mortal, and it reminds the law-breakers they are visible. It posts the truth on every wall, paints the numbers in colors too big to ignore, and when a million throats speak at once, even the deafest Senator will hear them, though he swears he did not.
+
+Now, I am told some gentlemen tremble lest the people abuse this power. Let them tremble. The people are already abused enough by those who claim to serve them. If the multitude errs, it will err openly, in broad daylight, where correction is possible. When government errs, it does so behind closed doors, and the correction takes a revolution.
+
+Therefore, let the people write. Let them pick up the sacred quill of this republic, be it goose feather or digital stylus, and scrawl their sentiments where all can see them. The ink may blot, the spelling may falter, the humor may bite too sharply — but the record will be honest. And that, my countrymen, is more than can be said for many a bill that has crept through Congress under the title of reform.
+
+— Written in the American tongue, with apologies to Mark Twain
