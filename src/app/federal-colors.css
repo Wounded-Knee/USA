@@ -48,7 +48,7 @@
   --fs-16357: #f59e0b; /* Light beige or tan */
   --fs-16360: #fbbf24; /* Light beige or tan, similar to 16357 */
 
-  /* Semantic color mappings for common use cases */
+  /* Light Theme Semantic Colors */
   --primary: var(--fs-15056); /* Primary blue */
   --primary-dark: var(--fs-15044); /* Dark primary */
   --primary-light: var(--fs-15180); /* Light primary */
@@ -73,4 +73,32 @@
   --foreground: var(--fs-16081); /* Dark gray foreground */
   --surface: #ffffff; /* White surface */
   --surface-dark: var(--fs-16099); /* Dark surface */
+}
+
+/* Dark Theme Overrides */
+.dark {
+  --primary: var(--fs-15090); /* Lighter blue for dark theme */
+  --primary-dark: var(--fs-15056); /* Standard blue for dark theme */
+  --primary-light: var(--fs-15182); /* Bright blue for dark theme */
+  
+  --secondary: var(--fs-14325); /* Lighter sage green for dark theme */
+  --secondary-dark: var(--fs-14272); /* Standard sage green for dark theme */
+  --secondary-light: var(--fs-14449); /* Very light green for dark theme */
+  
+  --accent: var(--fs-15187); /* Keep bright cyan for dark theme */
+  --accent-dark: var(--fs-15180); /* Medium blue for dark theme */
+  --accent-light: var(--fs-15182); /* Bright blue for dark theme */
+  
+  --neutral: var(--fs-16251); /* Lighter gray for dark theme */
+  --neutral-dark: var(--fs-16314); /* Light gray for dark theme */
+  --neutral-light: var(--fs-16099); /* Dark gray for dark theme */
+  
+  --success: var(--fs-14260); /* Keep success green */
+  --warning: var(--fs-16357); /* Keep warning beige */
+  --error: var(--fs-16350); /* Keep error terracotta */
+  
+  --background: var(--fs-15042); /* Very dark blue background */
+  --foreground: var(--fs-16314); /* Light gray foreground */
+  --surface: var(--fs-15044); /* Dark navy surface */
+  --surface-dark: var(--fs-15042); /* Very dark surface */
 }

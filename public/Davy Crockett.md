@@ -1,9 +1,0 @@
-Well, friends, I’ve wrestled bears, I’ve trekked through canebrakes, and I’ve sat in the halls of Congress — and I’ll tell you honest, them bears were the easier of the two. Washington’s got its three branches, and fine they are, but they grow tangled up like a thicket, and a body can’t see daylight through ‘em.
-
-So the people up and made another branch — not of cedar or oak, but of themselves. They call it the Civilian Voice Branch, and it’s one hundred percent run by the folks who built this country with their hands. No boss, no king, no fat cat with a silver spoon can lord over it. Every man and woman’s got one vote, one grain of sand, one spark in the fire.
-
-Now, I know what you’re thinkin’: won’t that get noisy, all them voices hollerin’ together? Maybe. But I’d sooner trust the roar of the people than the whispers of a backroom deal. When every voice piles up, it makes a mountain higher than the Cumberland, and no politician can pretend it ain’t there.
-
-This branch don’t carry muskets nor pass laws — it carries somethin’ stronger: the truth of the people in the aggregate. It’s a co-op of voices, neighbor to neighbor, settin’ down what they want for their homes, their children, their country. That’s the kind of checks and balances a republic ought to have — not once every four years, but every day the people draw breath.
-
-So I say, let ‘em hear us. Let the Civilian Voice Branch speak plain, like a frontier rifle crackin’ in the still night: sharp, loud, and impossible to ignore. And if the other branches don’t cotton to it, well, they’d best remember — this land belongs to the people, and the people are speakin’.

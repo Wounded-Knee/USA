@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import ThemeToggle from './ThemeToggle'
+import ThemeAwareLogo from './ThemeAwareLogo'
 
 interface NavItem {
   label: string
@@ -13,10 +15,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Sand Graph', href: '/sandgraph' },
+  { label: 'Testimonies', href: '/testimonies' },
+  { label: 'Consensus', href: '/consensus' },
   { label: 'Map', href: '/map' },
   { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
 ]
 
 export default function Navigation() {
@@ -81,15 +83,13 @@ export default function Navigation() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-2 group">
-              <Image
-                src="/california-bear-logo.png"
-                alt="California Bear Logo"
+              <ThemeAwareLogo
                 width={32}
                 height={32}
                 className="w-8 h-8 group-hover:scale-105 transition-transform duration-200"
               />
-              <span className="text-neutral-dark font-semibold text-lg group-hover:text-primary transition-colors duration-200">
-                Democracy California
+              <span className="text-foreground font-semibold text-2xl group-hover:text-primary transition-colors duration-200">
+                Whitepine
               </span>
             </Link>
           </div>
@@ -133,15 +133,17 @@ export default function Navigation() {
             </div>
           </div>
 
-          {/* CTA Button - Desktop */}
-          <div className="hidden lg:block">
+          {/* Theme Toggle and CTA Button - Desktop */}
+          <div className="hidden lg:flex items-center space-x-4">
+            <ThemeToggle />
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md">
-              Get Started
+              Join the Tree
             </button>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
+          {/* Mobile menu button and theme toggle */}
+          <div className="lg:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <button
               onClick={(e) => toggleMenu(e)}
               className="text-neutral hover:text-foreground hover:bg-neutral-light p-2 rounded-md transition-colors duration-200"
@@ -217,7 +219,7 @@ export default function Navigation() {
               ))}
               <div className="pt-4 border-t border-neutral-light">
                 <button className="w-full bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm">
-                  Get Started
+                  Join the Tree
                 </button>
               </div>
             </div>

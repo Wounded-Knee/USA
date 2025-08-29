@@ -1,6 +1,6 @@
-# USA Full-Stack Application
+# Whitepine - Civic Platform
 
-This is a full-stack web application built with Next.js 15, Express.js, and MongoDB Atlas, featuring a California democracy theme with Federal Standard color palette.
+A civic platform rooted in the Great Tree of Peace, carrying forward the tradition of consensus, unity, and strength into the digital age. Built with Next.js 15, Express.js, and MongoDB Atlas, featuring a modern civic interface with Federal Standard color palette.
 
 ## Project Structure
 
@@ -56,10 +56,11 @@ npm run server:dev
 
 ## Features
 
-- California democracy theme
+- Civic platform for collective decision-making
+- Testimonies and consensus building tools
 - Federal Standard color palette implementation
 - Responsive design with Tailwind CSS
-- SandGraph component with interactive statistics
+- Interactive statistics and community engagement
 - Full-stack architecture with Express backend
 - MongoDB Atlas database integration
 
