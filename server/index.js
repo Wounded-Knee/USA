@@ -29,6 +29,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/petitions', require('./routes/petitions'));
 app.use('/api/votes', require('./routes/votes'));
+app.use('/api/vigor', require('./routes/vigor'));
 
 // 404 handler
 app.use('*', (req, res) => {

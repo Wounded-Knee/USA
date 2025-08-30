@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:full": "concurrently \"npm run server:dev\" \"npm run dev\"",
+    "dev:ui": "next dev --turbopack",
+    "dev": "concurrently \"npm run server:dev\" \"npm run dev:ui\"",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "server": "node server/index.js",
-    "server:dev": "nodemon server/index.js"
+    "server:dev": "nodemon server/index.js",
+    "seed:vigor": "node server/utils/seedVigor.js",
+    "seed:vigor:advanced": "node server/utils/seedVigorAdvanced.js",
+    "check:vigor": "node server/utils/checkVigor.js"
   },
   "dependencies": {
     "@deck.gl/core": "^9.1.14",

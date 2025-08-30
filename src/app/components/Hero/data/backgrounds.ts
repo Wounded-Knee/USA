@@ -190,7 +190,7 @@ export const backgrounds: BackgroundOption[] = [
   },
   {
     id: 'yosemite-valley',
-    imageUrl: '/hero/qotd/yosemite-valley.svg',
+    imageUrl: '/hero/qotd/yosemite-valley.webp',
     anchorPoint: 'center',
     source: {
       name: 'Yosemite National Park',

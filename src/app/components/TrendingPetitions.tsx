@@ -44,13 +44,13 @@ const TrendingPetitions: React.FC = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'environment': 'bg-green-100 text-green-800',
-      'education': 'bg-blue-100 text-blue-800',
-      'healthcare': 'bg-red-100 text-red-800',
-      'economy': 'bg-yellow-100 text-yellow-800',
-      'civil-rights': 'bg-purple-100 text-purple-800',
-      'foreign-policy': 'bg-indigo-100 text-indigo-800',
-      'other': 'bg-gray-100 text-gray-800'
+      'environment': 'bg-success/20 text-success border-success/30',
+      'education': 'bg-primary/20 text-primary border-primary/30',
+      'healthcare': 'bg-error/20 text-error border-error/30',
+      'economy': 'bg-warning/20 text-warning border-warning/30',
+      'civil-rights': 'bg-accent/20 text-accent border-accent/30',
+      'foreign-policy': 'bg-secondary/20 text-secondary border-secondary/30',
+      'other': 'bg-neutral/20 text-neutral border-neutral/30'
     }
     return colors[category as keyof typeof colors] || colors.other
   }
@@ -73,17 +73,17 @@ const TrendingPetitions: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="py-16 bg-gradient-to-br from-background to-surface">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Trending Petitions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Trending Petitions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                <div className="h-2 bg-gray-200 rounded mb-2"></div>
-                <div className="h-2 bg-gray-200 rounded"></div>
+              <div key={i} className="bg-surface rounded-lg shadow-md p-6 animate-pulse border border-neutral-light">
+                <div className="h-4 bg-neutral-light rounded mb-4"></div>
+                <div className="h-3 bg-neutral-light rounded mb-2"></div>
+                <div className="h-3 bg-neutral-light rounded mb-4"></div>
+                <div className="h-2 bg-neutral-light rounded mb-2"></div>
+                <div className="h-2 bg-neutral-light rounded"></div>
               </div>
             ))}
           </div>
@@ -94,14 +94,14 @@ const TrendingPetitions: React.FC = () => {
 
   if (error) {
     return (
-      <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="py-16 bg-gradient-to-br from-background to-surface">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Trending Petitions</h2>
-          <div className="text-center text-red-600">
+          <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Trending Petitions</h2>
+          <div className="text-center text-error">
             <p>{error}</p>
             <button 
               onClick={() => window.location.reload()} 
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors duration-200"
             >
               Try Again
             </button>
@@ -112,62 +112,62 @@ const TrendingPetitions: React.FC = () => {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
+    <section className="py-16 bg-gradient-to-br from-background to-surface">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Trending Petitions</h2>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Trending Petitions</h2>
+        <p className="text-center text-neutral mb-12 max-w-2xl mx-auto">
           Discover the most popular petitions this week. Join thousands of citizens in shaping our democracy.
         </p>
         
         {petitions.length === 0 ? (
-          <div className="text-center text-gray-600">
+          <div className="text-center text-neutral">
             <p className="text-lg">No trending petitions at the moment.</p>
             <p className="text-sm mt-2">Be the first to create a petition that matters!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {petitions.map((petition) => (
               <Link 
                 href={`/petitions/${petition._id}`} 
                 key={petition._id}
                 className="group"
               >
-                <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200">
+                <div className="bg-surface rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-neutral-light">
                   <div className="flex items-center justify-between mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(petition.category)}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(petition.category)}`}>
                       {petition.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-neutral">
                       {formatDate(petition.createdAt)}
                     </span>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors duration-200">
                     {petition.title}
                   </h3>
                   
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                  <p className="text-neutral text-sm mb-4 line-clamp-3">
                     {petition.description}
                   </p>
                   
                   <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <div className="flex justify-between text-sm text-neutral mb-2">
                       <span>Progress</span>
                       <span>{petition.voteCount} / {petition.targetVotes}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-neutral-light rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all duration-300"
                         style={{ width: `${getProgressPercentage(petition.voteCount, petition.targetVotes)}%` }}
                       ></div>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">
+                    <span className="text-neutral">
                       by {petition.creator.firstName} {petition.creator.lastName}
                     </span>
-                    <div className="flex items-center text-blue-600 font-medium">
+                    <div className="flex items-center text-primary font-medium">
                       <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -183,7 +183,7 @@ const TrendingPetitions: React.FC = () => {
         <div className="text-center mt-12">
           <Link 
             href="/petitions" 
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200"
           >
             View All Petitions
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

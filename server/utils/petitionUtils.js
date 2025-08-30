@@ -58,21 +58,8 @@ const getPetitionStats = async (petitionId) => {
  */
 const getTrendingPetitions = async (limit = 10, timeFrame = 'week') => {
   try {
-    const timeFrames = {
-      day: 24 * 60 * 60 * 1000,
-      week: 7 * 24 * 60 * 60 * 1000,
-      month: 30 * 24 * 60 * 60 * 1000
-    };
-
-    const cutoffDate = new Date(Date.now() - timeFrames[timeFrame]);
-
-    // Get petitions with most votes in the specified time frame
+    // Get petitions with vote counts and vigor information
     const trendingPetitions = await Vote.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: cutoffDate }
-        }
-      },
       {
         $group: {
           _id: '$petition',
@@ -102,6 +89,38 @@ const getTrendingPetitions = async (limit = 10, timeFrame = 'week') => {
         }
       },
       {
+        $lookup: {
+          from: 'users',
+          localField: 'petition.creator',
+          foreignField: '_id',
+          as: 'creator'
+        }
+      },
+      {
+        $unwind: '$creator'
+      },
+      {
+        $lookup: {
+          from: 'vigors',
+          localField: '_id',
+          foreignField: 'petition',
+          as: 'vigorData'
+        }
+      },
+      {
+        $addFields: {
+          totalVigor: { $sum: '$vigorData.vigorAmount' },
+          vigorCount: { $size: '$vigorData' },
+          averageVigor: {
+            $cond: [
+              { $gt: [{ $size: '$vigorData' }, 0] },
+              { $divide: [{ $sum: '$vigorData.vigorAmount' }, { $size: '$vigorData' }] },
+              0
+            ]
+          }
+        }
+      },
+      {
         $project: {
           _id: '$petition._id',
           title: '$petition.title',
@@ -109,7 +128,15 @@ const getTrendingPetitions = async (limit = 10, timeFrame = 'week') => {
           category: '$petition.category',
           voteCount: '$voteCount',
           targetVotes: '$petition.targetVotes',
-          createdAt: '$petition.createdAt'
+          createdAt: '$petition.createdAt',
+          totalVigor: 1,
+          vigorCount: 1,
+          averageVigor: 1,
+          creator: {
+            firstName: '$creator.firstName',
+            lastName: '$creator.lastName',
+            username: '$creator.username'
+          }
         }
       }
     ]);

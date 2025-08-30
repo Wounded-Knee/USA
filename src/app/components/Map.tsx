@@ -36,11 +36,11 @@ const POLITICAL_LAYERS = {
 
 function ErrorMessage({ title, message }: { title: string, message: string }) {
   return (
-    <div className="w-full h-[600px] relative bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+    <div className="w-full h-[600px] relative bg-gradient-to-br from-background to-surface">
+      <div className="absolute inset-0 flex items-center justify-center bg-surface">
         <div className="text-center">
-          <div className="text-red-600 font-semibold mb-2">{title}</div>
-          <div className="text-sm text-gray-600">{message}</div>
+          <div className="text-error font-semibold mb-2">{title}</div>
+          <div className="text-sm text-neutral">{message}</div>
         </div>
       </div>
     </div>
@@ -55,8 +55,8 @@ function LayerSelector({
   onLayerToggle: (layerId: string) => void 
 }) {
   return (
-    <div className="absolute top-4 left-4 bg-white bg-opacity-95 rounded-lg shadow-lg p-4 z-20 border border-blue-200 min-w-[280px]">
-      <div className="font-semibold text-blue-900 mb-3">Political Boundaries</div>
+    <div className="absolute top-4 left-4 bg-surface bg-opacity-95 rounded-lg shadow-lg p-4 z-20 border border-primary/20 min-w-[280px]">
+      <div className="font-semibold text-primary mb-3">Political Boundaries</div>
       <div className="space-y-2">
         {Object.entries(layers).map(([key, layer]) => (
           <label key={key} className="flex items-center space-x-3 cursor-pointer">
@@ -64,11 +64,11 @@ function LayerSelector({
               type="checkbox"
               checked={layer.visible}
               onChange={() => onLayerToggle(key)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              className="w-4 h-4 text-primary bg-neutral-light border-neutral rounded focus:ring-primary focus:ring-2"
             />
             <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900">{layer.name}</div>
-              <div className="text-xs text-gray-500">{layer.description}</div>
+              <div className="text-sm font-medium text-foreground">{layer.name}</div>
+              <div className="text-xs text-neutral">{layer.description}</div>
             </div>
           </label>
         ))}
@@ -79,9 +79,9 @@ function LayerSelector({
 
 function MapOverlay({ position, title, items }: { position: string, title: string, items: string[] }) {
   return (
-    <div className={`absolute ${position} bg-white bg-opacity-90 rounded-lg shadow-lg p-3 text-sm z-10`}>
-      <div className="font-medium text-gray-900 mb-2">{title}</div>
-      <div className="text-gray-600 space-y-1">
+    <div className={`absolute ${position} bg-surface bg-opacity-90 rounded-lg shadow-lg p-3 text-sm z-10`}>
+      <div className="font-medium text-foreground mb-2">{title}</div>
+      <div className="text-neutral space-y-1">
         {items.map((item, index) => (
           <div key={index}>{item}</div>
         ))}
@@ -164,7 +164,7 @@ export default function Map({ longitude, latitude, zoom }: MapProps) {
   }
 
   return (
-    <div className="w-full h-[600px] relative bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="w-full h-[600px] relative bg-gradient-to-br from-background to-surface">
       <DeckGL
         initialViewState={{
           longitude,
@@ -213,11 +213,11 @@ export default function Map({ longitude, latitude, zoom }: MapProps) {
 
       {/* Feature Info Tooltip */}
       {hoveredFeature && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-95 rounded-lg shadow-lg p-4 text-sm z-20 border border-blue-200 max-w-[300px]">
-          <div className="font-semibold text-blue-900 mb-2">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-surface bg-opacity-95 rounded-lg shadow-lg p-4 text-sm z-20 border border-primary/20 max-w-[300px]">
+          <div className="font-semibold text-primary mb-2">
             {hoveredFeature.properties?.name || 'Political Boundary'}
           </div>
-          <div className="text-gray-700 space-y-1">
+          <div className="text-neutral space-y-1">
             {hoveredFeature.properties?.admin_level && (
               <div>Level: {hoveredFeature.properties.admin_level}</div>
             )}

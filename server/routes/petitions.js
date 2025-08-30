@@ -54,22 +54,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/petitions/:id - Get a specific petition
-router.get('/:id', async (req, res) => {
+// GET /api/petitions/trending - Get trending petitions
+router.get('/trending', async (req, res) => {
   try {
-    const petition = await Petition.findById(req.params.id)
-      .populate('creator', 'username firstName lastName');
-
-    if (!petition) {
-      return res.status(404).json({ error: 'Petition not found' });
-    }
-
-    res.json(petition);
+    const { limit = 10, timeFrame = 'week' } = req.query;
+    
+    const trendingPetitions = await getTrendingPetitions(parseInt(limit), timeFrame);
+    
+    res.json(trendingPetitions);
   } catch (error) {
-    console.error('Error fetching petition:', error);
-    res.status(500).json({ error: 'Failed to fetch petition' });
+    console.error('Error fetching trending petitions:', error);
+    res.status(500).json({ error: 'Failed to fetch trending petitions' });
   }
 });
+
+
 
 // POST /api/petitions - Create a new petition
 router.post('/', async (req, res) => {
@@ -233,7 +232,8 @@ router.post('/:id/vote', async (req, res) => {
 
     res.status(201).json({ 
       message: 'Vote cast successfully',
-      voteCount: petition.voteCount
+      voteCount: petition.voteCount,
+      voteId: vote._id
     });
   } catch (error) {
     console.error('Error casting vote:', error);
@@ -276,17 +276,22 @@ router.delete('/:id/vote', async (req, res) => {
   }
 });
 
-// GET /api/petitions/trending - Get trending petitions
-router.get('/trending', async (req, res) => {
+
+
+// GET /api/petitions/:id - Get a specific petition
+router.get('/:id', async (req, res) => {
   try {
-    const { limit = 10, timeFrame = 'week' } = req.query;
-    
-    const trendingPetitions = await getTrendingPetitions(parseInt(limit), timeFrame);
-    
-    res.json(trendingPetitions);
+    const petition = await Petition.findById(req.params.id)
+      .populate('creator', 'username firstName lastName');
+
+    if (!petition) {
+      return res.status(404).json({ error: 'Petition not found' });
+    }
+
+    res.json(petition);
   } catch (error) {
-    console.error('Error fetching trending petitions:', error);
-    res.status(500).json({ error: 'Failed to fetch trending petitions' });
+    console.error('Error fetching petition:', error);
+    res.status(500).json({ error: 'Failed to fetch petition' });
   }
 });
 
