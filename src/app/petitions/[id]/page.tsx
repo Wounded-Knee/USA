@@ -136,13 +136,13 @@ const PetitionDetailPage: React.FC = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'environment': 'bg-green-100 text-green-800',
-      'education': 'bg-blue-100 text-blue-800',
-      'healthcare': 'bg-red-100 text-red-800',
-      'economy': 'bg-yellow-100 text-yellow-800',
-      'civil-rights': 'bg-purple-100 text-purple-800',
-      'foreign-policy': 'bg-indigo-100 text-indigo-800',
-      'other': 'bg-gray-100 text-gray-800'
+      'environment': 'bg-success/20 text-success border-success/30',
+      'education': 'bg-primary/20 text-primary border-primary/30',
+      'healthcare': 'bg-error/20 text-error border-error/30',
+      'economy': 'bg-warning/20 text-warning border-warning/30',
+      'civil-rights': 'bg-accent/20 text-accent border-accent/30',
+      'foreign-policy': 'bg-secondary/20 text-secondary border-secondary/30',
+      'other': 'bg-neutral/20 text-neutral border-neutral/30'
     }
     return colors[category as keyof typeof colors] || colors.other
   }
@@ -157,16 +157,16 @@ const PetitionDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg p-8 animate-pulse">
-              <div className="h-8 bg-gray-200 rounded mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-8"></div>
-              <div className="h-32 bg-gray-200 rounded mb-8"></div>
-              <div className="h-6 bg-gray-200 rounded mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="bg-surface rounded-lg shadow-lg p-8 animate-pulse border border-neutral-light">
+              <div className="h-8 bg-neutral-light rounded mb-4"></div>
+              <div className="h-4 bg-neutral-light rounded mb-2"></div>
+              <div className="h-4 bg-neutral-light rounded mb-8"></div>
+              <div className="h-32 bg-neutral-light rounded mb-8"></div>
+              <div className="h-6 bg-neutral-light rounded mb-4"></div>
+              <div className="h-4 bg-neutral-light rounded"></div>
             </div>
           </div>
         </div>
@@ -176,15 +176,15 @@ const PetitionDetailPage: React.FC = () => {
 
   if (error || !petition) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Petition Not Found</h1>
-              <p className="text-gray-600 mb-6">{error || 'The petition you are looking for does not exist.'}</p>
+            <div className="bg-surface rounded-lg shadow-lg p-8 border border-neutral-light">
+              <h1 className="text-2xl font-bold text-foreground mb-4">Petition Not Found</h1>
+              <p className="text-neutral mb-6">{error || 'The petition you are looking for does not exist.'}</p>
               <Link 
                 href="/petitions" 
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -199,25 +199,25 @@ const PetitionDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
           <nav className="mb-8">
             <Link 
               href="/petitions" 
-              className="text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-primary hover:text-primary-dark transition-colors duration-200"
             >
               ← Back to Petitions
             </Link>
           </nav>
 
           {/* Main Petition Card */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-surface rounded-lg shadow-lg overflow-hidden border border-neutral-light">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
+            <div className="bg-gradient-to-r from-primary to-primary-dark p-8 text-white">
               <div className="flex items-center justify-between mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border ${getCategoryColor(petition.category)}`}>
                   {petition.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
                 <span className="text-sm opacity-90">
@@ -225,7 +225,7 @@ const PetitionDetailPage: React.FC = () => {
                 </span>
               </div>
               <h1 className="text-3xl font-bold mb-4">{petition.title}</h1>
-              <p className="text-blue-100 text-lg">
+              <p className="text-white/80 text-lg">
                 by {petition.creator.firstName} {petition.creator.lastName}
               </p>
             </div>
@@ -233,7 +233,7 @@ const PetitionDetailPage: React.FC = () => {
             {/* Content */}
             <div className="p-8">
               <div className="prose max-w-none mb-8">
-                <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
+                <p className="text-neutral text-lg leading-relaxed whitespace-pre-wrap">
                   {petition.description}
                 </p>
               </div>
@@ -241,42 +241,42 @@ const PetitionDetailPage: React.FC = () => {
               {/* Vote Statistics */}
               {stats && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="bg-blue-50 rounded-lg p-6 text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                  <div className="bg-primary/10 rounded-lg p-6 text-center border border-primary/20">
+                    <div className="text-3xl font-bold text-primary mb-2">
                       {stats.totalVotes.toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-600">Total Votes</div>
+                    <div className="text-sm text-neutral">Total Votes</div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-6 text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">
+                  <div className="bg-success/10 rounded-lg p-6 text-center border border-success/20">
+                    <div className="text-3xl font-bold text-success mb-2">
                       {stats.recentVotes.toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-600">Recent Votes (24h)</div>
+                    <div className="text-sm text-neutral">Recent Votes (24h)</div>
                   </div>
-                  <div className="bg-purple-50 rounded-lg p-6 text-center">
-                    <div className="text-3xl font-bold text-purple-600 mb-2">
+                  <div className="bg-accent/10 rounded-lg p-6 text-center border border-accent/20">
+                    <div className="text-3xl font-bold text-accent mb-2">
                       {stats.progressPercentage.toFixed(1)}%
                     </div>
-                    <div className="text-sm text-gray-600">Progress</div>
+                    <div className="text-sm text-neutral">Progress</div>
                   </div>
                 </div>
               )}
 
               {/* Progress Bar */}
               <div className="mb-8">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <div className="flex justify-between text-sm text-neutral mb-2">
                   <span>Progress toward {petition.targetVotes.toLocaleString()} votes</span>
                   <span>{petition.voteCount.toLocaleString()} / {petition.targetVotes.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-neutral-light rounded-full h-3">
                   <div 
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-primary to-primary-dark h-3 rounded-full transition-all duration-500"
                     style={{ width: `${stats?.progressPercentage || 0}%` }}
                   ></div>
                 </div>
                 {stats?.isTargetReached && (
                   <div className="mt-2 text-center">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/20 text-success border border-success/30">
                       <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -289,12 +289,12 @@ const PetitionDetailPage: React.FC = () => {
               {/* Vote Button */}
               <div className="text-center">
                 {!petition.isActive ? (
-                  <div className="bg-gray-100 rounded-lg p-6">
-                    <p className="text-gray-600">This petition is no longer active.</p>
+                  <div className="bg-neutral-light rounded-lg p-6 border border-neutral-light">
+                    <p className="text-neutral">This petition is no longer active.</p>
                   </div>
                 ) : hasVoted ? (
-                  <div className="bg-green-100 rounded-lg p-6">
-                    <div className="flex items-center justify-center text-green-800 mb-4">
+                  <div className="bg-success/10 rounded-lg p-6 border border-success/20">
+                    <div className="flex items-center justify-center text-success mb-4">
                       <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -302,7 +302,7 @@ const PetitionDetailPage: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setShowVigorActivity(true)}
-                      className="inline-flex items-center px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors"
+                      className="inline-flex items-center px-6 py-3 bg-warning text-white font-medium rounded-lg hover:bg-warning/80 transition-colors duration-200"
                     >
                       <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
@@ -314,7 +314,7 @@ const PetitionDetailPage: React.FC = () => {
                   <button
                     onClick={handleVote}
                     disabled={voting}
-                    className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="inline-flex items-center px-8 py-4 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
                     {voting ? (
                       <>
@@ -344,18 +344,18 @@ const PetitionDetailPage: React.FC = () => {
           </div>
 
           {/* Share Section */}
-          <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Share this Petition</h3>
+          <div className="mt-8 bg-surface rounded-lg shadow-lg p-6 border border-neutral-light">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Share this Petition</h3>
             <div className="flex space-x-4">
-              <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+              <button className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors duration-200">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2.003 2.007a1 1 0 00-.707 1.707l.096.096 7.586 7.586a1 1 0 001.414 0l7.586-7.586.096-.096a1 1 0 00-1.414-1.414L10 8.586 2.707 1.293a1 1 0 00-1.414 0z" />
                 </svg>
                 Share
               </button>
-              <button className="flex items-center px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+              <button className="flex items-center px-4 py-2 bg-neutral text-white rounded hover:bg-neutral-dark transition-colors duration-200">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3 3 0 100-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
                 </svg>
                 Copy Link
               </button>
