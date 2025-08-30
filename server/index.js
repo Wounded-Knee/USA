@@ -27,6 +27,8 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/users', require('./routes/users'));
 app.use('/api/data', require('./routes/data'));
+app.use('/api/petitions', require('./routes/petitions'));
+app.use('/api/votes', require('./routes/votes'));
 
 // 404 handler
 app.use('*', (req, res) => {
