@@ -2,134 +2,43 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-
-interface WhimsyDocument {
-  title: string
-  filename: string
-  excerpt: string
-  category: string
-  date?: string
-}
-
-const whimsyDocuments: WhimsyDocument[] = [
-  {
-    title: "Back to the Future as Prophetic Media",
-    filename: "Back to the Future II.md",
-    excerpt: "A dissertation exploring how Back to the Future Part II functioned as cultural foresight, with Biff Tannen's character eerily predicting Donald Trump's political rise.",
-    category: "Cultural Analysis"
-  },
-  {
-    title: "Back to the Future",
-    filename: "Back to the Future.md",
-    excerpt: "Further exploration of the prophetic nature of the Back to the Future franchise and its cultural significance.",
-    category: "Cultural Analysis"
-  },
-  {
-    title: "Vigor Feature Guide",
-    filename: "Vigor_Feature_Guide.md",
-    excerpt: "Comprehensive guide to the Vigor feature - a revolutionary addition that allows users to channel emotional conviction into their votes through gamified activities.",
-    category: "Platform Features"
-  },
-  {
-    title: "Moral Evaluation",
-    filename: "Moral_Evaluation.md",
-    excerpt: "Philosophical exploration of moral evaluation systems and their role in democratic processes.",
-    category: "Philosophy"
-  },
-  {
-    title: "Ron Paul",
-    filename: "Ron Paul.md",
-    excerpt: "Reflections on Ron Paul's political philosophy and libertarian principles.",
-    category: "Political Thought"
-  },
-  {
-    title: "John Wayne #1",
-    filename: "John Wayne #1.md",
-    excerpt: "Cultural analysis of John Wayne's impact on American identity and political mythology.",
-    category: "Cultural Analysis"
-  },
-  {
-    title: "Federalist #86",
-    filename: "Federalist #86.md",
-    excerpt: "Contemporary interpretation of Federalist Paper #86 and its relevance to modern governance.",
-    category: "Constitutional Thought"
-  },
-  {
-    title: "Donald Trump",
-    filename: "Donald Trump.md",
-    excerpt: "Analysis of Donald Trump's political phenomenon and its cultural implications.",
-    category: "Political Analysis"
-  },
-  {
-    title: "Federalist #87",
-    filename: "Federalist #87.md",
-    excerpt: "Modern reading of Federalist Paper #87 and its application to current political challenges.",
-    category: "Constitutional Thought"
-  },
-  {
-    title: "Sitting Bull",
-    filename: "Sitting Bull.md",
-    excerpt: "Reflections on Sitting Bull's leadership and the intersection of indigenous wisdom with democratic principles.",
-    category: "Indigenous Wisdom"
-  },
-  {
-    title: "Davy Crockett",
-    filename: "Davy Crockett.md",
-    excerpt: "Exploration of Davy Crockett's legacy and the American frontier mythos.",
-    category: "Cultural Analysis"
-  },
-  {
-    title: "Vietnam #1",
-    filename: "Vietnam #1.md",
-    excerpt: "Analysis of the Vietnam War's impact on American political consciousness and democratic institutions.",
-    category: "Historical Analysis"
-  },
-  {
-    title: "Twain #1",
-    filename: "Twain #1.md",
-    excerpt: "Mark Twain's insights on democracy, human nature, and the American experiment.",
-    category: "Literary Analysis"
-  },
-  {
-    title: "A. Lincoln",
-    filename: "A. Lincoln.md",
-    excerpt: "Abraham Lincoln's vision for a Civilian Voice Branch - a new branch of government to amplify the people's voice.",
-    category: "Constitutional Innovation"
-  },
-  {
-    title: "Political Capital Economic System",
-    filename: "Political Capital.md",
-    excerpt: "A comprehensive exploration of Political Capital as a civic currency system that works alongside Vigor to create a dual-currency democracy where both passion and patience have weight.",
-    category: "Platform Features"
-  },
-  {
-    title: "Vigor vs. Capital",
-    filename: "Vigor vs. Capital.md",
-    excerpt: "A concise comparison of how Vigor and Political Capital work together as complementary forms of civic influence - immediate passion versus stored cumulative will.",
-    category: "Platform Features"
-  }
-]
-
-const categories = [
-  "All",
-  "Cultural Analysis",
-  "Platform Features", 
-  "Philosophy",
-  "Political Thought",
-  "Constitutional Thought",
-  "Political Analysis",
-  "Indigenous Wisdom",
-  "Historical Analysis",
-  "Literary Analysis",
-  "Constitutional Innovation"
-]
+import LibraryHero from '../components/LibraryHero'
+import LibrarySectionInfo from '../components/LibrarySectionInfo'
+import { 
+  librarySections, 
+  libraryDocuments, 
+  getDocumentsBySection, 
+  getCategoriesBySection,
+  type LibraryDocument 
+} from '../components/Library/data'
 
 export default function LibraryPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedSection, setSelectedSection] = useState('whimsy')
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isHeroCompact, setIsHeroCompact] = useState(false)
 
-  const filteredDocuments = whimsyDocuments.filter(doc => {
-    const matchesCategory = selectedCategory === "All" || doc.category === selectedCategory
+  // Reset category when section changes
+  useEffect(() => {
+    setSelectedCategory('All')
+  }, [selectedSection])
+
+  // Listen for hero state changes
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeroCompact(window.scrollY > 100)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Get documents for current section
+  const sectionDocuments = getDocumentsBySection(selectedSection)
+  
+  // Filter documents based on search and category
+  const filteredDocuments = sectionDocuments.filter(doc => {
+    const matchesCategory = selectedCategory === 'All' || doc.category === selectedCategory
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
@@ -137,62 +46,31 @@ export default function LibraryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-surface">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Library of Whimsical Thoughts
-          </h1>
-          <p className="text-xl text-neutral max-w-3xl mx-auto">
-            A collection of philosophical musings, cultural analyses, and innovative ideas 
-            that explore the intersection of democracy, technology, and human nature.
-          </p>
-        </div>
+      {/* Hero Section */}
+      <LibraryHero
+        sections={librarySections}
+        selectedSection={selectedSection}
+        onSectionChange={setSelectedSection}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+      />
 
-        {/* Search and Filter */}
-        <div className="mb-8 space-y-4">
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search documents..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 pl-10 pr-4 text-foreground bg-surface border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-neutral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                  selectedCategory === category
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-surface text-neutral hover:bg-neutral-light border border-neutral-light'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Results Count */}
-        <div className="text-center mb-6">
-          <p className="text-neutral">
-            {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} found
-          </p>
-        </div>
+      {/* Documents Section */}
+      <div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+        style={{ 
+          paddingTop: isHeroCompact ? '5rem' : 'calc(100vh + 3rem)',
+          transition: 'padding-top 0.3s ease-in-out'
+        }}
+      >
+        {/* Section Info */}
+        <LibrarySectionInfo
+          section={librarySections.find(s => s.id === selectedSection)!}
+          documents={sectionDocuments}
+          filteredCount={filteredDocuments.length}
+        />
 
         {/* Documents Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

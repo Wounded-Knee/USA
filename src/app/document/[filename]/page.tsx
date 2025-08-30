@@ -23,7 +23,7 @@ export default function WhimsyDocumentPage() {
         const filename = decodeURIComponent(params.filename as string)
         
         // Fetch the markdown content from the API
-        const response = await fetch(`/api/whimsy/${encodeURIComponent(filename)}`)
+        const response = await fetch(`/api/document/${encodeURIComponent(filename)}`)
         
         if (!response.ok) {
           throw new Error('Document not found')
