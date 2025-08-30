@@ -85,13 +85,13 @@ const PetitionsPage: React.FC = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'environment': 'bg-green-100 text-green-800',
-      'education': 'bg-blue-100 text-blue-800',
-      'healthcare': 'bg-red-100 text-red-800',
-      'economy': 'bg-yellow-100 text-yellow-800',
-      'civil-rights': 'bg-purple-100 text-purple-800',
-      'foreign-policy': 'bg-indigo-100 text-indigo-800',
-      'other': 'bg-gray-100 text-gray-800'
+      'environment': 'bg-success/20 text-success border-success/30',
+      'education': 'bg-primary/20 text-primary border-primary/30',
+      'healthcare': 'bg-error/20 text-error border-error/30',
+      'economy': 'bg-warning/20 text-warning border-warning/30',
+      'civil-rights': 'bg-accent/20 text-accent border-accent/30',
+      'foreign-policy': 'bg-secondary/20 text-secondary border-secondary/30',
+      'other': 'bg-neutral/20 text-neutral border-neutral/30'
     }
     return colors[category as keyof typeof colors] || colors.other
   }
@@ -119,21 +119,21 @@ const PetitionsPage: React.FC = () => {
 
   if (loading && petitions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">All Petitions</h1>
-              <p className="text-lg text-gray-600">Discover and support petitions that matter to you.</p>
+              <h1 className="text-4xl font-bold text-foreground mb-4">All Petitions</h1>
+              <p className="text-lg text-neutral">Discover and support petitions that matter to you.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(12)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-2 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-2 bg-gray-200 rounded"></div>
+                <div key={i} className="bg-surface rounded-lg shadow-md p-6 animate-pulse border border-neutral-light">
+                  <div className="h-4 bg-neutral-light rounded mb-4"></div>
+                  <div className="h-3 bg-neutral-light rounded mb-2"></div>
+                  <div className="h-3 bg-neutral-light rounded mb-4"></div>
+                  <div className="h-2 bg-neutral-light rounded mb-2"></div>
+                  <div className="h-2 bg-neutral-light rounded"></div>
                 </div>
               ))}
             </div>
@@ -144,27 +144,27 @@ const PetitionsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">All Petitions</h1>
-            <p className="text-lg text-gray-600">Discover and support petitions that matter to you.</p>
+            <h1 className="text-4xl font-bold text-foreground mb-4">All Petitions</h1>
+            <p className="text-lg text-neutral">Discover and support petitions that matter to you.</p>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-surface rounded-lg shadow-md p-6 mb-8 border border-neutral-light">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-neutral mb-2">Category</label>
                 <select
                   value={category}
                   onChange={(e) => {
                     setCategory(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
                 >
                   {categories.map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -174,14 +174,14 @@ const PetitionsPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <label className="block text-sm font-medium text-neutral mb-2">Sort By</label>
                 <select
                   value={sortBy}
                   onChange={(e) => {
                     setSortBy(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -191,14 +191,14 @@ const PetitionsPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Order</label>
+                <label className="block text-sm font-medium text-neutral mb-2">Order</label>
                 <select
                   value={sortOrder}
                   onChange={(e) => {
                     setSortOrder(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
                 >
                   <option value="desc">Newest First</option>
                   <option value="asc">Oldest First</option>
@@ -209,11 +209,11 @@ const PetitionsPage: React.FC = () => {
 
           {/* Error State */}
           {error && (
-            <div className="text-center text-red-600 mb-8">
+            <div className="text-center text-error mb-8">
               <p>{error}</p>
               <button 
                 onClick={() => fetchPetitions()} 
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors duration-200"
               >
                 Try Again
               </button>
@@ -222,7 +222,7 @@ const PetitionsPage: React.FC = () => {
 
           {/* Petitions Grid */}
           {petitions.length === 0 && !loading ? (
-            <div className="text-center text-gray-600">
+            <div className="text-center text-neutral">
               <p className="text-lg">No petitions found.</p>
               <p className="text-sm mt-2">Try adjusting your filters or be the first to create a petition!</p>
             </div>
@@ -234,42 +234,42 @@ const PetitionsPage: React.FC = () => {
                   key={petition._id}
                   className="group"
                 >
-                  <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200">
+                  <div className="bg-surface rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-neutral-light">
                     <div className="flex items-center justify-between mb-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(petition.category)}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(petition.category)}`}>
                         {petition.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-neutral">
                         {formatDate(petition.createdAt)}
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors duration-200">
                       {petition.title}
                     </h3>
                     
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                    <p className="text-neutral text-sm mb-4 line-clamp-3">
                       {petition.description}
                     </p>
                     
                     <div className="mb-4">
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <div className="flex justify-between text-sm text-neutral mb-2">
                         <span>Progress</span>
                         <span>{petition.voteCount} / {petition.targetVotes}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-neutral-light rounded-full h-2">
                         <div 
-                          className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all duration-300"
                           style={{ width: `${getProgressPercentage(petition.voteCount, petition.targetVotes)}%` }}
                         ></div>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">
+                      <span className="text-neutral">
                         by {petition.creator.firstName} {petition.creator.lastName}
                       </span>
-                      <div className="flex items-center text-blue-600 font-medium">
+                      <div className="flex items-center text-primary font-medium">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -289,7 +289,7 @@ const PetitionsPage: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm font-medium text-neutral bg-surface border border-neutral-light rounded-md hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Previous
                 </button>
@@ -300,10 +300,10 @@ const PetitionsPage: React.FC = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                          ? 'bg-primary text-white'
+                          : 'text-neutral bg-surface border border-neutral-light hover:bg-neutral-light'
                       }`}
                     >
                       {page}
@@ -314,7 +314,7 @@ const PetitionsPage: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === pagination.pages}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm font-medium text-neutral bg-surface border border-neutral-light rounded-md hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Next
                 </button>
@@ -324,12 +324,12 @@ const PetitionsPage: React.FC = () => {
 
           {/* Create Petition CTA */}
           <div className="mt-16 text-center">
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Have an idea for change?</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-surface rounded-lg shadow-md p-8 border border-neutral-light">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Have an idea for change?</h2>
+              <p className="text-neutral mb-6">
                 Create a petition and start building support for the issues that matter to you.
               </p>
-              <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>

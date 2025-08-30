@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import Link from 'next/link'
+import VigorActivity from '../../components/VigorActivity'
+import VigorDisplay from '../../components/VigorDisplay'
 
 interface Petition {
   _id: string
@@ -12,6 +14,8 @@ interface Petition {
   category: string
   voteCount: number
   targetVotes: number
+  totalVigor: number
+  vigorReducedThreshold: number
   isActive: boolean
   createdAt: string
   creator: {
@@ -41,6 +45,8 @@ const PetitionDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [voting, setVoting] = useState(false)
   const [hasVoted, setHasVoted] = useState(false)
+  const [showVigorActivity, setShowVigorActivity] = useState(false)
+  const [currentVoteId, setCurrentVoteId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchPetitionData = async () => {
@@ -75,9 +81,13 @@ const PetitionDetailPage: React.FC = () => {
       // For demo purposes, using a hardcoded user ID. In a real app, this would come from authentication
       const userId = "68b244b1d9bd1067422b8712" // Maria Rodriguez's ID from our demo
       
-      await axios.post(`http://localhost:5000/api/petitions/${petitionId}/vote`, {
+      const voteResponse = await axios.post(`http://localhost:5000/api/petitions/${petitionId}/vote`, {
         userId
       })
+
+      // Get the vote ID for vigor contribution
+      const voteId = voteResponse.data.voteId || voteResponse.data._id
+      setCurrentVoteId(voteId)
 
       // Refresh the data
       const [petitionResponse, statsResponse] = await Promise.all([
@@ -97,6 +107,30 @@ const PetitionDetailPage: React.FC = () => {
       }
     } finally {
       setVoting(false)
+    }
+  }
+
+  const handleVigorContributed = (vigorData: any) => {
+    // Refresh petition data to show updated vigor
+    fetchPetitionData()
+  }
+
+  const fetchPetitionData = async () => {
+    try {
+      setLoading(true)
+      const [petitionResponse, statsResponse] = await Promise.all([
+        axios.get(`http://localhost:5000/api/petitions/${petitionId}`),
+        axios.get(`http://localhost:5000/api/petitions/${petitionId}/stats`)
+      ])
+      
+      setPetition(petitionResponse.data)
+      setStats(statsResponse.data)
+      setError(null)
+    } catch (err) {
+      console.error('Error fetching petition data:', err)
+      setError('Failed to load petition data')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -260,12 +294,21 @@ const PetitionDetailPage: React.FC = () => {
                   </div>
                 ) : hasVoted ? (
                   <div className="bg-green-100 rounded-lg p-6">
-                    <div className="flex items-center justify-center text-green-800">
+                    <div className="flex items-center justify-center text-green-800 mb-4">
                       <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span className="font-medium">You have voted on this petition!</span>
                     </div>
+                    <button
+                      onClick={() => setShowVigorActivity(true)}
+                      className="inline-flex items-center px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                      </svg>
+                      Contribute Vigor
+                    </button>
                   </div>
                 ) : (
                   <button
@@ -295,6 +338,11 @@ const PetitionDetailPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Vigor Display */}
+          <div className="mt-8">
+            <VigorDisplay petitionId={petitionId} showDetails={true} />
+          </div>
+
           {/* Share Section */}
           <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Share this Petition</h3>
@@ -315,6 +363,16 @@ const PetitionDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Vigor Activity Modal */}
+      {showVigorActivity && currentVoteId && petition && (
+        <VigorActivity
+          voteId={currentVoteId}
+          petitionTitle={petition.title}
+          onVigorContributed={handleVigorContributed}
+          onClose={() => setShowVigorActivity(false)}
+        />
+      )}
     </div>
   )
 }

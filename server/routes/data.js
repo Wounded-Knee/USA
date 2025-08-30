@@ -37,6 +37,107 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/data/platform-stats - Get comprehensive platform statistics
+router.get('/platform-stats', async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const Petition = require('../models/Petition');
+    const Vote = require('../models/Vote');
+    const Vigor = require('../models/Vigor');
+
+    // Get basic counts
+    const totalUsers = await User.countDocuments({ isActive: true });
+    const totalPetitions = await Petition.countDocuments({ isActive: true });
+    const totalVotes = await Vote.countDocuments();
+    const totalVigor = await Vigor.countDocuments({ isActive: true });
+
+    // Calculate total vigor amount
+    const vigorAmounts = await Vigor.aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: null, totalAmount: { $sum: '$vigorAmount' } } }
+    ]);
+    const totalVigorAmount = vigorAmounts.length > 0 ? vigorAmounts[0].totalAmount : 0;
+
+    // Get recent activity (last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentVotes = await Vote.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
+    const recentPetitions = await Petition.countDocuments({ 
+      createdAt: { $gte: sevenDaysAgo },
+      isActive: true 
+    });
+    const recentUsers = await User.countDocuments({ 
+      createdAt: { $gte: sevenDaysAgo },
+      isActive: true 
+    });
+
+    // Get category statistics
+    const categoryStats = await Petition.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: '$category',
+          totalPetitions: { $sum: 1 },
+          totalVotes: { $sum: '$voteCount' },
+          avgVotes: { $avg: '$voteCount' }
+        }
+      },
+      { $sort: { totalVotes: -1 } }
+    ]);
+
+    // Get top petitions by votes
+    const topPetitions = await Petition.find({ isActive: true })
+      .sort({ voteCount: -1 })
+      .limit(5)
+      .populate('creator', 'username firstName lastName')
+      .select('title voteCount category createdAt');
+
+    // Get vigor statistics by type
+    const vigorTypeStats = await Vigor.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: '$vigorType',
+          count: { $sum: 1 },
+          totalAmount: { $sum: '$vigorAmount' },
+          avgAmount: { $avg: '$vigorAmount' }
+        }
+      }
+    ]);
+
+    // Calculate engagement metrics
+    const avgVotesPerPetition = totalPetitions > 0 ? (totalVotes / totalPetitions).toFixed(1) : 0;
+    const avgVigorPerVote = totalVotes > 0 ? (totalVigorAmount / totalVotes).toFixed(1) : 0;
+    const userEngagementRate = totalUsers > 0 ? ((totalVotes / totalUsers) * 100).toFixed(1) : 0;
+
+    res.json({
+      overview: {
+        totalUsers,
+        totalPetitions,
+        totalVotes,
+        totalVigor,
+        totalVigorAmount: Math.round(totalVigorAmount)
+      },
+      recentActivity: {
+        votes: recentVotes,
+        petitions: recentPetitions,
+        users: recentUsers
+      },
+      engagement: {
+        avgVotesPerPetition: parseFloat(avgVotesPerPetition),
+        avgVigorPerVote: parseFloat(avgVigorPerVote),
+        userEngagementRate: parseFloat(userEngagementRate)
+      },
+      categories: categoryStats,
+      topPetitions,
+      vigorTypes: vigorTypeStats
+    });
+
+  } catch (error) {
+    console.error('Error fetching platform statistics:', error);
+    res.status(500).json({ error: 'Failed to fetch platform statistics' });
+  }
+});
+
 // GET single data by ID
 router.get('/:id', async (req, res) => {
   try {

@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { label: 'Testimonies', href: '/testimonies' },
   { label: 'Consensus', href: '/consensus' },
   { label: 'Map', href: '/map' },
+  { label: 'Library', href: '/library' },
   { label: 'About', href: '/about' },
 ]
 

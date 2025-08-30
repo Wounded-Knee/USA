@@ -11,6 +11,21 @@ const voteSchema = new mongoose.Schema({
     ref: 'Petition',
     required: true
   },
+  totalVigor: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  vigorCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  signingStatement: {
+    type: String,
+    trim: true,
+    maxlength: 1000
+  },
   createdAt: {
     type: Date,
     default: Date.now

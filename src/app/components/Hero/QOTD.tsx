@@ -91,7 +91,7 @@ const QOTD: React.FC = () => {
         className="quote-content absolute z-10 text-center flex items-center justify-center px-4"
         style={mainZoneStyles}
       >
-        <blockquote className="text-white max-w-full [text-shadow:0px_0px_3px_black]">
+        <blockquote className="text-white max-w-full [text-shadow:0px_0px_3px_black] transition-colors duration-300">
           <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-light leading-tight mb-4 md:mb-6 italic">
             &ldquo;{quote.text.direct}&rdquo;
           </p>
@@ -108,7 +108,7 @@ const QOTD: React.FC = () => {
 
       {/* Background Attribution - positioned in attribution safe zone */}
       <div 
-        className="attribution-content absolute z-20 text-white opacity-70 px-2 py-1"
+                    className="attribution-content absolute z-20 text-white opacity-70 px-2 py-1 transition-colors duration-300"
         style={attributionZoneStyles}
       >
         <div className="text-right text-xs sm:text-sm">
@@ -121,7 +121,7 @@ const QOTD: React.FC = () => {
       <div className="attribution-fallback absolute inset-0 pointer-events-none">
         {/* Mobile fallback - ensure content is always visible */}
         <div className="block md:hidden absolute bottom-4 left-4 right-4 z-30">
-          <div className="bg-black bg-opacity-50 rounded-lg p-3 text-white text-xs">
+          <div className="bg-black bg-opacity-50 rounded-lg p-3 text-white text-xs transition-colors duration-300">
             <div>Photo: {background.attribution.name}</div>
             <div>Source: {background.source.name}</div>
           </div>

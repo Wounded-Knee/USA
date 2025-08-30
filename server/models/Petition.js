@@ -40,6 +40,26 @@ const petitionSchema = new mongoose.Schema({
     default: 1000,
     min: 1
   },
+  totalVigor: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  vigorThreshold: {
+    type: Number,
+    default: 500,
+    min: 0
+  },
+  notificationThreshold: {
+    type: Number,
+    default: 1000,
+    min: 0
+  },
+  vigorReducedThreshold: {
+    type: Number,
+    default: 750,
+    min: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now
