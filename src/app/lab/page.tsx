@@ -44,6 +44,35 @@ export default function LabPage() {
   // Demo components
   const demoComponents: ComponentDemo[] = [
     {
+      id: 'government-browser',
+      name: 'Government Browser',
+      description: 'Comprehensive tool for browsing and editing the complete US government structure. Features role-based access control with read-only mode for regular users and full editing capabilities for authorized administrators.',
+      category: 'government',
+      href: '/lab/government-browser',
+      component: (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">Government Browser Features</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Browse jurisdictions, offices, elections, and more</li>
+              <li>• Role-based access control (Admin/Moderator for editing)</li>
+              <li>• Search, filter, and sort government data</li>
+              <li>• Create, edit, and delete government entities</li>
+              <li>• Hierarchical data management</li>
+            </ul>
+          </div>
+          <div className="text-center">
+            <Link 
+              href="/lab/government-browser"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Open Government Browser
+            </Link>
+          </div>
+        </div>
+      )
+    },
+    {
       id: 'role-test',
       name: 'Role System Test',
       description: 'Test and verify the user role system functionality. View current user roles, test role checking functions, and manage roles if you have admin privileges.',

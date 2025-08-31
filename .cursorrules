@@ -80,4 +80,4 @@ server/
 - Minimize bundle size with proper imports
 
 ## Documentation
-If you choose to create a README regarding a system you create, store it as markdown in /public/library/project-specs and update the library data to reference it.
+If you choose to create a README regarding a system you create, store it as markdown in /public/library/project-specs and then rebuild the library database accordingly.

@@ -13,7 +13,8 @@
     "seed:vigor": "node server/utils/seedVigor.js",
     "seed:vigor:advanced": "node server/utils/seedVigorAdvanced.js",
     "check:vigor": "node server/utils/checkVigor.js",
-    "setup:env": "node setup-env.js"
+    "setup:env": "node setup-env.js",
+    "setup:uploads": "ln -sf ../server/uploads public/uploads"
   },
   "dependencies": {
     "@deck.gl/core": "^9.1.14",
