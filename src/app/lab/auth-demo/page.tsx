@@ -31,7 +31,7 @@ export default function AuthDemo() {
                 <div className="flex items-center space-x-4">
                   {user.avatar && (
                     <img 
-                      src={user.avatar} 
+                      src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.avatar}`}
                       alt={user.firstName}
                       className="w-12 h-12 rounded-full"
                     />

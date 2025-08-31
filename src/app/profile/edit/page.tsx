@@ -12,6 +12,7 @@ interface ProfileFormData {
   username: string
   email: string
   avatar?: string
+  avatarFile?: File
 }
 
 export default function EditProfilePage() {
@@ -52,11 +53,9 @@ export default function EditProfilePage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // For now, we'll just store the file name
-      // In a real implementation, you'd upload to a service like Cloudinary
       setFormData(prev => ({
         ...prev,
-        avatar: file.name
+        avatarFile: file
       }))
     }
   }
@@ -68,9 +67,30 @@ export default function EditProfilePage() {
     setSuccess('')
 
     try {
+      // Handle avatar upload first if there's a new file
+      let avatarPath = formData.avatar
+      if (formData.avatarFile) {
+        const formDataFile = new FormData()
+        formDataFile.append('avatar', formData.avatarFile)
+        
+        const avatarResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/users/${user?._id}/avatar`,
+          formDataFile,
+          {
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+        avatarPath = avatarResponse.data.avatar
+      }
+
+      // Update other profile data
+      const { avatarFile, ...profileData } = formData
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/users/${user?._id}`,
-        formData,
+        { ...profileData, avatar: avatarPath },
         {
           headers: { Authorization: `Bearer ${token}` }
         }

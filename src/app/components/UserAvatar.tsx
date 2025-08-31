@@ -59,7 +59,7 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
       >
         {user.avatar ? (
           <Image
-            src={user.avatar}
+            src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.avatar}`}
             alt={`${user.firstName} ${user.lastName}`}
             width={48}
             height={48}

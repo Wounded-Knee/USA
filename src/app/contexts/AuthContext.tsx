@@ -9,6 +9,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  roles: string[];
   avatar?: string;
   authMethod: 'local' | 'google';
   emailVerified: boolean;

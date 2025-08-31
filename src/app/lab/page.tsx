@@ -44,6 +44,34 @@ export default function LabPage() {
   // Demo components
   const demoComponents: ComponentDemo[] = [
     {
+      id: 'role-test',
+      name: 'Role System Test',
+      description: 'Test and verify the user role system functionality. View current user roles, test role checking functions, and manage roles if you have admin privileges.',
+      category: 'authentication',
+      href: '/lab/role-test',
+      component: (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">Role System Features</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• View current user roles and permissions</li>
+              <li>• Test role checking functions</li>
+              <li>• Role management interface (admin only)</li>
+              <li>• Role badge display system</li>
+            </ul>
+          </div>
+          <div className="text-center">
+            <Link 
+              href="/lab/role-test"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Test Role System
+            </Link>
+          </div>
+        </div>
+      )
+    },
+    {
       id: 'petition-votes-progressbar',
       name: 'Petition Votes Progressbar',
       description: 'A unified progress bar component with segment support and Clout calculation. Tracks petition progress through multiple milestones using votes, vigor, and capital.',

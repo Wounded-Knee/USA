@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
+const path = require('path');
 const { connectDB } = require('./utils/database');
 const errorHandler = require('./middleware/errorHandler');
 require('dotenv').config();
@@ -39,6 +40,9 @@ app.use(passport.session());
 // Import passport configuration
 require('./config/passport');
 
+// Serve static files for uploaded avatars
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the USA Backend API' });
@@ -47,6 +51,7 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/roles', require('./routes/roles'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/petitions', require('./routes/petitions'));
 app.use('/api/votes', require('./routes/votes'));

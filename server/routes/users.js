@@ -1,11 +1,46 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const User = require('../models/User');
 const Vote = require('../models/Vote');
 const Vigor = require('../models/Vigor');
 const Capital = require('../models/Capital');
 const auth = require('../middleware/auth');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../uploads/avatars');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+}).single('avatar');
 
 // GET all users
 router.get('/', async (req, res) => {
@@ -72,7 +107,7 @@ router.post('/', async (req, res) => {
 // PUT update user
 router.put('/:id', async (req, res) => {
   try {
-    const { username, email, firstName, lastName, isActive } = req.body;
+    const { username, email, firstName, lastName, avatar, isActive } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -96,7 +131,7 @@ router.put('/:id', async (req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { username, email, firstName, lastName, isActive },
+      { username, email, firstName, lastName, avatar, isActive },
       { new: true, runValidators: true }
     ).select('-password');
 
@@ -123,6 +158,50 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+});
+
+// POST upload avatar
+router.post('/:id/avatar', (req, res) => {
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Delete old avatar file if it exists
+      if (user.avatar && user.avatar.startsWith('/uploads/avatars/')) {
+        const oldAvatarPath = path.join(__dirname, '..', user.avatar);
+        if (fs.existsSync(oldAvatarPath)) {
+          fs.unlinkSync(oldAvatarPath);
+        }
+      }
+
+      // Update user with new avatar path
+      const avatarPath = `/uploads/avatars/${req.file.filename}`;
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        { avatar: avatarPath },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      res.json({
+        message: 'Avatar uploaded successfully',
+        avatar: avatarPath,
+        user: updatedUser
+      });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
 });
 
 // GET user votes with petition details and capital

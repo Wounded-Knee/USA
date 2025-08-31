@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import UserRoles from './UserRoles';
+import { getHighestRole } from '../utils/roleUtils';
 
 interface UserProfileProps {
   showAvatar?: boolean;
@@ -39,7 +41,7 @@ export default function UserProfile({
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-medium">
             {user.avatar ? (
               <img 
-                src={user.avatar} 
+                src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.avatar}`}
                 alt={user.firstName}
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -79,6 +81,11 @@ export default function UserProfile({
             <p className="text-xs text-gray-400 mt-1">
               Signed in via {user.authMethod === 'google' ? 'Google' : 'Email'}
             </p>
+            {user.roles && user.roles.length > 0 && (
+              <div className="mt-2">
+                <UserRoles roles={user.roles} />
+              </div>
+            )}
           </div>
           
           <div className="py-1">
