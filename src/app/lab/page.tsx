@@ -6,6 +6,7 @@ import PetitionVotesProgressbar from '../components/PetitionVotesProgressbar'
 import AuthDialog from '../components/AuthDialog'
 import AuthButton from '../components/AuthButton'
 import UserProfile from '../components/UserProfile'
+import SectionBoundary from '../components/SectionBoundary'
 import { useAuth } from '../contexts/AuthContext'
 
 interface ComponentDemo {
@@ -70,6 +71,31 @@ export default function LabPage() {
             size="sm"
             segments={sampleSegments}
           />
+        </div>
+      )
+    },
+    {
+      id: 'section-boundary',
+      name: 'Section Boundary',
+      description: 'Aesthetic transition components that provide smooth visual separation between page sections. Features Federal-themed design patterns and customizable styling.',
+      category: 'layout',
+      href: '/lab/section-boundary',
+      component: (
+        <div className="space-y-4">
+                     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+             <h4 className="font-medium text-gray-900 mb-2">Section Above</h4>
+             <p className="text-sm text-gray-700">Light gradient background</p>
+           </div>
+           <SectionBoundary topColor="rgb(239 246 255)" bottomColor="var(--surface)" variant="Forest-5" />
+           <div className="bg-surface p-4">
+             <h4 className="font-medium text-foreground mb-2">Section Below</h4>
+             <p className="text-sm text-neutral">White background</p>
+           </div>
+                     <div className="flex gap-2">
+             <SectionBoundary topColor="var(--background)" bottomColor="var(--primary)" variant="Forest-3" />
+             <SectionBoundary topColor="var(--background)" bottomColor="var(--secondary)" variant="Forest-4" />
+             <SectionBoundary topColor="var(--background)" bottomColor="var(--accent)" variant="Forest-5" />
+           </div>
         </div>
       )
     },
