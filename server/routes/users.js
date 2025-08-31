@@ -10,8 +10,8 @@ const Vigor = require('../models/Vigor');
 const Capital = require('../models/Capital');
 const auth = require('../middleware/auth');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
+// Configure multer for avatar uploads
+const avatarStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, '../uploads/avatars');
     // Create directory if it doesn't exist
@@ -27,8 +27,25 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({
-  storage: storage,
+// Configure multer for banner uploads
+const bannerStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../uploads/banners');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'banner-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadAvatar = multer({
+  storage: avatarStorage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -42,11 +59,45 @@ const upload = multer({
   }
 }).single('avatar');
 
+const uploadBanner = multer({
+  storage: bannerStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit for banners
+  },
+  fileFilter: function (req, file, cb) {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+}).single('banner');
+
 // GET all users
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find({ isActive: true }).select('-password');
-    res.json(users);
+    const { username, email, limit = 50, skip = 0 } = req.query;
+    const query = { isActive: true };
+    
+    // Add filters if provided
+    if (username) query.username = username;
+    if (email) query.email = email;
+    
+    const users = await User.find(query)
+      .select('-password')
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .sort({ createdAt: -1 });
+    
+    const total = await User.countDocuments(query);
+    
+    res.json({
+      users,
+      total,
+      limit: parseInt(limit),
+      skip: parseInt(skip)
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -162,7 +213,7 @@ router.delete('/:id', async (req, res) => {
 
 // POST upload avatar
 router.post('/:id/avatar', (req, res) => {
-  upload(req, res, async (err) => {
+  uploadAvatar(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
@@ -204,6 +255,50 @@ router.post('/:id/avatar', (req, res) => {
   });
 });
 
+// POST upload banner
+router.post('/:id/banner', (req, res) => {
+  uploadBanner(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Delete old banner file if it exists
+      if (user.banner && user.banner.startsWith('/uploads/banners/')) {
+        const oldBannerPath = path.join(__dirname, '..', user.banner);
+        if (fs.existsSync(oldBannerPath)) {
+          fs.unlinkSync(oldBannerPath);
+        }
+      }
+
+      // Update user with new banner path
+      const bannerPath = `/uploads/banners/${req.file.filename}`;
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        { banner: bannerPath },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      res.json({
+        message: 'Banner uploaded successfully',
+        banner: bannerPath,
+        user: updatedUser
+      });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+});
+
 // GET user votes with petition details and capital
 router.get('/:id/votes', auth, async (req, res) => {
   try {
@@ -213,7 +308,20 @@ router.get('/:id/votes', auth, async (req, res) => {
     }
 
     const votes = await Vote.find({ user: req.params.id })
-      .populate('petition', 'title description status')
+      .populate({
+        path: 'petition',
+        select: 'title description category voteCount targetVotes isActive createdAt',
+        populate: [
+          {
+            path: 'jurisdiction',
+            select: 'name level'
+          },
+          {
+            path: 'governingBody',
+            select: 'name branch'
+          }
+        ]
+      })
       .sort({ createdAt: -1 });
 
     // Get capital information for each vote
@@ -270,6 +378,95 @@ router.get('/:id/stats', auth, async (req, res) => {
       averageVigor,
       petitionsSupported,
       totalCapital
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET user government positions and offices
+router.get('/:id/government', auth, async (req, res) => {
+  try {
+    // Ensure user can only access their own government data
+    if (req.params.id !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const userId = req.params.id;
+    const { Position, Office, Jurisdiction, GoverningBody, District, Committee } = require('../models/Government');
+
+    // Get all positions (current and past) for the user
+    const positions = await Position.find({ person: userId })
+      .populate({
+        path: 'office',
+        populate: [
+          {
+            path: 'jurisdiction',
+            select: 'name slug level path'
+          },
+          {
+            path: 'governing_body',
+            select: 'name slug branch'
+          },
+          {
+            path: 'district',
+            select: 'name district_type district_number'
+          }
+        ]
+      })
+      .populate('election', 'election_date election_type')
+      .sort({ term_start: -1 });
+
+    // Get current positions
+    const currentPositions = positions.filter(pos => pos.is_current && pos.status === 'active');
+
+    // Get past positions
+    const pastPositions = positions.filter(pos => !pos.is_current || pos.status !== 'active');
+
+    // Get committee memberships
+    const committeeMemberships = await Committee.find({
+      $or: [
+        { chair: userId },
+        { vice_chair: userId },
+        { members: userId }
+      ]
+    }).populate('governing_body', 'name slug')
+      .populate('jurisdiction', 'name slug level');
+
+    // Get jurisdictions where user has held positions
+    const userJurisdictions = [...new Set(positions.map(pos => pos.office.jurisdiction))];
+
+    // Get representatives for user's jurisdictions (current office holders)
+    const representatives = await Position.find({
+      'office.jurisdiction': { $in: userJurisdictions },
+      is_current: true,
+      status: 'active'
+    })
+    .populate({
+      path: 'office',
+      populate: [
+        {
+          path: 'jurisdiction',
+          select: 'name slug level'
+        },
+        {
+          path: 'governing_body',
+          select: 'name slug branch'
+        }
+      ]
+    })
+    .populate('person', 'firstName lastName email avatar')
+    .sort({ 'office.jurisdiction.name': 1, 'office.name': 1 });
+
+    res.json({
+      currentPositions,
+      pastPositions,
+      committeeMemberships,
+      representatives,
+      totalPositions: positions.length,
+      totalCurrentPositions: currentPositions.length,
+      totalPastPositions: pastPositions.length,
+      totalCommittees: committeeMemberships.length
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

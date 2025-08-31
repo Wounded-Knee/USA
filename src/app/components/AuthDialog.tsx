@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import BaseModal from './BaseModal';
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -90,33 +91,19 @@ export default function AuthDialog({ isOpen, onClose, initialMode = 'login' }: A
 
 
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/95 backdrop-blur-md rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-200">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-lg">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">
-              Welcome to Whitepine
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <p className="text-blue-100 mt-2">
-            Sign in or create your account to start participating
-          </p>
-        </div>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Welcome to Whitepine"
+      size="md"
+      showCloseButton={true}
+    >
+      <div className="text-blue-100 mb-6">
+        Sign in or create your account to start participating
+      </div>
 
-        {/* Form */}
-        <div className="p-6">
+      {/* Form */}
           {/* Google OAuth Button */}
           <button
             onClick={handleGoogleLogin}
@@ -328,8 +315,6 @@ export default function AuthDialog({ isOpen, onClose, initialMode = 'login' }: A
               <a href="#" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </BaseModal>
   );
 }

@@ -54,6 +54,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String
   },
+  banner: {
+    type: String
+  },
   // User's total capital across all petitions
   totalCapital: {
     type: Number,

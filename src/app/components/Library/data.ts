@@ -47,59 +47,157 @@ export const librarySections: LibrarySection[] = [
 export const libraryDocuments: LibraryDocument[] = [
   // Project Specs Documents
   {
-    title: "US Government Database System",
-    filename: "US_Government_Database_System.md",
-    excerpt: "A comprehensive MongoDB-based data model representing the entire structure of the United States government with hierarchical jurisdictions, governing bodies, offices, positions, elections, and legislation.",
-    category: "Database Design",
-    section: "project-specs"
-  },
-  {
-    title: "User Role System",
-    filename: "User_Role_System.md",
-    excerpt: "Role-based access control (RBAC) system providing Developer, Admin, Moderator, and User roles with specific permissions and API endpoints for role management.",
-    category: "System Architecture",
-    section: "project-specs"
-  },
-  {
-    title: "User Profile System",
-    filename: "User_Profile_System.md",
-    excerpt: "Comprehensive user management interface with avatars, voting history, capital tracking, and profile editing capabilities integrated with the authentication system.",
-    category: "Platform Features",
+    title: "API Documentation Summary",
+    filename: "api-documentation-summary.md",
+    excerpt: "This document provides a comprehensive overview of the API documentation and integration resources for the USA Full-Stack Application.",
+    category: "API Documentation",
     section: "project-specs"
   },
   {
     title: "Authentication System Setup Guide",
     filename: "Authentication_System.md",
-    excerpt: "Complete setup guide for local and Google OAuth authentication with JWT tokens, React Context, and comprehensive API endpoints for user management.",
+    excerpt: "This guide will help you set up the authentication system with Google OAuth integration for the USA full-stack application.",
     category: "Technical Documentation",
     section: "project-specs"
   },
   {
-    title: "Political Capital Economic System",
+    title: "AWS CloudFront Distribution Setup Guide",
+    filename: "aws-cloudfront-setup.md",
+    excerpt: "This guide walks through creating and configuring a CloudFront distribution to serve the USA Full-Stack Application from the S3 bucket with global CDN capabilities.",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "AWS IAM Role and Policy Setup Guide",
+    filename: "aws-iam-setup.md",
+    excerpt: "This guide walks through creating the necessary IAM roles and policies for GitHub Actions to deploy to S3 and manage CloudFront distributions securely using OIDC authentication.",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "AWS S3 Bucket Setup Guide",
+    filename: "aws-s3-setup.md",
+    excerpt: "This guide walks through creating and configuring an S3 bucket for hosting the static files of the USA Full-Stack Application.",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "BaseModal Component Documentation",
+    filename: "BaseModal-Component.md",
+    excerpt: "The BaseModal component is a reusable, accessible modal dialog component that provides consistent styling and behavior across the USA application. It abstracts common modal functionality and normalize...",
+    category: "Media Management",
+    section: "project-specs"
+  },
+  {
+    title: "Database Schema Documentation",
+    filename: "database-schema.md",
+    excerpt: "This document provides comprehensive documentation for the USA Full-Stack Application database schema. The application uses MongoDB with Mongoose ODM for data modeling and validation.",
+    category: "Database Design",
+    section: "project-specs"
+  },
+  {
+    title: "Deployment Architecture Index",
+    filename: "deployment-architecture-index.md",
+    excerpt: "This document provides a comprehensive index of the deployment architecture for the USA Full-Stack Application, including AWS infrastructure setup, GitHub Actions configuration, and deployment procedu...",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "Forest Background System",
+    filename: "Forest_Background_System.md",
+    excerpt: "The Forest Background System provides a consistent, atmospheric background across all pages of the Whitepine application. Each page features a random forest treeline SVG that creates a subtle, darkeni...",
+    category: "Media Management",
+    section: "project-specs"
+  },
+  {
+    title: "Frontend API Integration Guide",
+    filename: "frontend-api-integration.md",
+    excerpt: "This document provides guidelines and best practices for integrating the USA Full-Stack Application backend API with the Next.js frontend.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "Government Entity Relationships - Visual Diagram",
+    filename: "Government_Entity_Relationships_Diagram.md",
+    excerpt: "┌─────────────────────────────────────────────────────────────────────────────────┐",
+    category: "Database Design",
+    section: "project-specs"
+  },
+  {
+    title: "Government Entity Relationships Database Structure",
+    filename: "Government_Entity_Relationships.md",
+    excerpt: "The Government Entity Relationships system provides a comprehensive hierarchical data model for representing the complete structure of government entities in the United States. This system uses MongoD...",
+    category: "Database Design",
+    section: "project-specs"
+  },
+  {
+    title: "Initial Deployment Guide",
+    filename: "initial-deployment.md",
+    excerpt: "This guide walks through the complete process of performing the initial deployment of the USA Full-Stack Application to production using the configured S3 + CloudFront infrastructure.",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "Media Management System - Project Specification",
+    filename: "media-management-system.md",
+    excerpt: "The Media Management System is a comprehensive solution for handling various types of media files associated with government entities in the US Government Database. This system enables users to upload...",
+    category: "Media Management",
+    section: "project-specs"
+  },
+  {
+    title: "S3 + CloudFront Deployment Guide",
+    filename: "s3-cloudfront-deployment.md",
+    excerpt: "This project is configured for automated deployment to AWS S3 with CloudFront CDN using GitHub Actions.",
+    category: "System Architecture",
+    section: "project-specs"
+  },
+  {
+    title: "The Political Capital Economic System",
     filename: "Political Capital.md",
-    excerpt: "A civic currency system designed to give citizens fungible, rationed influence that works alongside Vigor to create a dual-currency democracy where both passion and patience have weight.",
+    excerpt: "Political Capital (PC) is a civic currency designed to give citizens a fungible, rationed, and renewable form of influence.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "US Government Database System",
+    filename: "US_Government_Database_System.md",
+    excerpt: "The US Government Database System is a comprehensive MongoDB-based data model that represents the entire structure of the United States government. It provides a normalized, hierarchical representatio...",
+    category: "Database Design",
+    section: "project-specs"
+  },
+  {
+    title: "USA Full-Stack Application - API Documentation",
+    filename: "api-documentation.md",
+    excerpt: "This document provides comprehensive documentation for the USA Full-Stack Application backend API. The API is built with Express.js and provides endpoints for user management, petitions, voting, gover...",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "USA Full-Stack Application - Library Index",
+    filename: "library-index.md",
+    excerpt: "This index provides comprehensive documentation for the USA Full-Stack Application deployment architecture, setup procedures, and operational guidelines.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "User Profile System",
+    filename: "User_Profile_System.md",
+    excerpt: "The User Profile System provides a comprehensive user management interface with avatars, voting history, and capital tracking. Users can view their profile, edit their information, and see their activ...",
     category: "Platform Features",
     section: "project-specs"
   },
   {
-    title: "Vigor vs. Capital",
-    filename: "Vigor vs. Capital.md",
-    excerpt: "A concise comparison of how Vigor (immediate passion) and Political Capital (stored influence) work together as complementary forms of civic influence in the democratic process.",
+    title: "User Role System",
+    filename: "User_Role_System.md",
+    excerpt: "The User Role System provides role-based access control (RBAC) for the USA application. It allows administrators to assign specific roles to users, which determine their permissions and access levels ...",
     category: "Platform Features",
     section: "project-specs"
   },
   {
     title: "Vigor Feature Guide",
     filename: "Vigor_Feature_Guide.md",
-    excerpt: "Comprehensive guide to the Vigor feature - a revolutionary system that allows users to channel emotional conviction into their votes through shake, voice, and statement activities.",
+    excerpt: "The Vigor feature is a revolutionary addition to the Whitepine civic platform that allows users to channel their emotional conviction and dedication into their votes through gamified activities. This ...",
     category: "Platform Features",
-    section: "project-specs"
-  },
-  {
-    title: "Media Management System",
-    filename: "media-management-system.md",
-    excerpt: "Comprehensive media management system for government entities including file upload, storage, linking, and management of seals, flags, headshots, logos, and other media types.",
-    category: "Media Management",
     section: "project-specs"
   },
 

@@ -48,15 +48,15 @@ export default function JurisdictionForm({
       : 'text-foreground',
     text: resolvedTheme === 'dark' ? 'text-foreground' : 'text-foreground',
     textSecondary: resolvedTheme === 'dark' ? 'text-neutral-light' : 'text-neutral-dark',
-    input: resolvedTheme === 'dark'
-      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500',
-    select: resolvedTheme === 'dark'
-      ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400'
-      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500',
-    textarea: resolvedTheme === 'dark'
-      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500',
+         input: resolvedTheme === 'dark'
+       ? 'bg-surface-dark border-neutral text-foreground placeholder-neutral-light focus:border-primary focus:ring-primary'
+       : 'bg-surface border-neutral text-foreground placeholder-neutral focus:border-primary focus:ring-primary',
+     select: resolvedTheme === 'dark'
+       ? 'bg-surface-dark border-neutral text-foreground focus:border-primary focus:ring-primary'
+       : 'bg-surface border-neutral text-foreground focus:border-primary focus:ring-primary',
+     textarea: resolvedTheme === 'dark'
+       ? 'bg-surface-dark border-neutral text-foreground placeholder-neutral-light focus:border-primary focus:ring-primary'
+       : 'bg-surface border-neutral text-foreground placeholder-neutral focus:border-primary focus:ring-primary',
     button: {
       primary: resolvedTheme === 'dark'
         ? 'bg-primary hover:bg-primary-dark text-white focus:ring-primary-light'

@@ -129,7 +129,7 @@ export default function GovernmentBrowser({ isAuthorized }: GovernmentBrowserPro
         : 'border-transparent text-neutral-dark hover:text-neutral hover:border-neutral-light focus:ring-neutral'
     },
     description: resolvedTheme === 'dark' 
-      ? 'bg-neutral-dark border-neutral' 
+      ? 'bg-surface-dark border-neutral' 
       : 'bg-neutral-light border-neutral-light',
     breadcrumb: resolvedTheme === 'dark' 
       ? 'bg-primary/10 border-primary/20' 

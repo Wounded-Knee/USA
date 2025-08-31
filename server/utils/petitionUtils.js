@@ -1,5 +1,6 @@
 const Petition = require('../models/Petition');
 const Vote = require('../models/Vote');
+const mongoose = require('mongoose');
 
 /**
  * Update vote count for a petition
@@ -101,6 +102,45 @@ const getTrendingPetitions = async (limit = 10, timeFrame = 'week') => {
       },
       {
         $lookup: {
+          from: 'jurisdictions',
+          localField: 'petition.jurisdiction',
+          foreignField: '_id',
+          as: 'jurisdiction'
+        }
+      },
+      {
+        $unwind: '$jurisdiction'
+      },
+      {
+        $lookup: {
+          from: 'governingbodies',
+          localField: 'petition.governingBody',
+          foreignField: '_id',
+          as: 'governingBody'
+        }
+      },
+      {
+        $unwind: {
+          path: '$governingBody',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'legislations',
+          localField: 'petition.legislation',
+          foreignField: '_id',
+          as: 'legislation'
+        }
+      },
+      {
+        $unwind: {
+          path: '$legislation',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
           from: 'vigors',
           localField: '_id',
           foreignField: 'petition',
@@ -136,6 +176,26 @@ const getTrendingPetitions = async (limit = 10, timeFrame = 'week') => {
             firstName: '$creator.firstName',
             lastName: '$creator.lastName',
             username: '$creator.username'
+          },
+          jurisdiction: {
+            _id: '$jurisdiction._id',
+            name: '$jurisdiction.name',
+            slug: '$jurisdiction.slug',
+            level: '$jurisdiction.level',
+            path: '$jurisdiction.path'
+          },
+          governingBody: {
+            _id: '$governingBody._id',
+            name: '$governingBody.name',
+            slug: '$governingBody.slug',
+            branch: '$governingBody.branch',
+            entity_type: '$governingBody.entity_type'
+          },
+          legislation: {
+            _id: '$legislation._id',
+            title: '$legislation.title',
+            bill_number: '$legislation.bill_number',
+            status: '$legislation.status'
           }
         }
       }
@@ -175,6 +235,26 @@ const validatePetitionData = (petitionData) => {
 
   if (petitionData.targetVotes && (petitionData.targetVotes < 1 || !Number.isInteger(petitionData.targetVotes))) {
     errors.push('Target votes must be a positive integer');
+  }
+
+  // Government entity validation
+  if (!petitionData.jurisdiction) {
+    errors.push('Jurisdiction is required');
+  }
+
+  // Validate that jurisdiction is a valid ObjectId
+  if (petitionData.jurisdiction && !mongoose.Types.ObjectId.isValid(petitionData.jurisdiction)) {
+    errors.push('Invalid jurisdiction ID');
+  }
+
+  // Validate governing body if provided
+  if (petitionData.governingBody && !mongoose.Types.ObjectId.isValid(petitionData.governingBody)) {
+    errors.push('Invalid governing body ID');
+  }
+
+  // Validate legislation if provided
+  if (petitionData.legislation && !mongoose.Types.ObjectId.isValid(petitionData.legislation)) {
+    errors.push('Invalid legislation ID');
   }
 
   return {

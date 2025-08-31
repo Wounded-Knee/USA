@@ -5,9 +5,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserAvatarUrl, getUserInitials } from '../utils/avatarUtils'
+import ThemeToggleDropdown from './ThemeToggleDropdown'
 
 interface UserAvatarProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   showDropdown?: boolean
 }
 
@@ -40,7 +41,8 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
-    lg: 'w-12 h-12'
+    lg: 'w-12 h-12',
+    xl: 'w-36 h-36'
   }
 
 
@@ -61,16 +63,16 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
           <Image
             src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.avatar}`}
             alt={`${user.firstName} ${user.lastName}`}
-            width={48}
-            height={48}
+            width={size === 'xl' ? 144 : 48}
+            height={size === 'xl' ? 144 : 48}
             className="w-full h-full object-cover"
           />
         ) : (
           <Image
-            src={getUserAvatarUrl(user, 48)}
+            src={getUserAvatarUrl(user, size === 'xl' ? 144 : 48)}
             alt={`${user.firstName} ${user.lastName}`}
-            width={48}
-            height={48}
+            width={size === 'xl' ? 144 : 48}
+            height={size === 'xl' ? 144 : 48}
             className="w-full h-full object-cover"
           />
         )}
@@ -105,6 +107,9 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
             >
               Edit Profile
             </Link>
+
+            {/* Theme Toggle */}
+            <ThemeToggleDropdown />
 
             <div className="border-t border-neutral-light">
               <button

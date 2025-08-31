@@ -87,6 +87,25 @@ router.get('/check/:petitionId/:userId', async (req, res) => {
   }
 });
 
+// GET /api/votes/user/:userId/vote/:petitionId - Get specific vote by user and petition
+router.get('/user/:userId/vote/:petitionId', async (req, res) => {
+  try {
+    const vote = await Vote.findOne({ 
+      petition: req.params.petitionId, 
+      user: req.params.userId 
+    });
+
+    if (!vote) {
+      return res.status(404).json({ error: 'Vote not found' });
+    }
+
+    res.json({ vote });
+  } catch (error) {
+    console.error('Error fetching vote:', error);
+    res.status(500).json({ error: 'Failed to fetch vote' });
+  }
+});
+
 // GET /api/votes/category-stats - Get voting statistics by category
 router.get('/category-stats', async (req, res) => {
   try {

@@ -1,0 +1,68 @@
+name: Deploy to S3 + CloudFront
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-2
+  S3_BUCKET: usa-fullstack-app
+  CF_DIST_ID: YOUR_CLOUDFRONT_DISTRIBUTION_ID
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build (Next.js)
+        run: npm run build
+        # Next.js config exports to 'out/' directory
+      
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/github-actions-deploy-s3-cloudfront
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Verify caller identity
+        run: aws sts get-caller-identity
+      
+      - name: Ensure build output exists
+        run: |
+          test -d out || { echo "No 'out' dir found"; exit 1; }
+          find out -maxdepth 2 -type f | head -n 50
+      
+      - name: Sync static assets (long cache)
+        run: |
+          aws s3 sync out s3://$S3_BUCKET/ \
+            --delete \
+            --exclude "*.html" \
+            --cache-control "public,max-age=31536000,immutable"
+      
+      - name: Upload HTML (no-cache + correct MIME)
+        run: |
+          shopt -s nullglob
+          for f in $(find out -name "*.html"); do
+            key="${f#out/}"
+            aws s3 cp "$f" "s3://$S3_BUCKET/$key" \
+              --cache-control "no-cache" \
+              --content-type "text/html; charset=utf-8"
+          done
+      
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id $CF_DIST_ID --paths "/*"

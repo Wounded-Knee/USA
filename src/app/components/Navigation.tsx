@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import ThemeToggle from './ThemeToggle'
+import ThemeToggleMobile from './ThemeToggleMobile'
 import ThemeAwareLogo from './ThemeAwareLogo'
 import UserAvatar from './UserAvatar'
 import AuthDialog from './AuthDialog'
@@ -18,6 +19,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
+  { label: 'Petitions', href: '/petitions' },
   { label: 'Map', href: '/map' },
   { label: 'Library', href: '/library' },
   { label: 'Lab', href: '/lab' },
@@ -25,7 +27,7 @@ const navItems: NavItem[] = [
 ]
 
 export default function Navigation() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
@@ -151,15 +153,19 @@ export default function Navigation() {
           {/* Theme Toggle and CTA Button - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
             <ThemeToggle />
-            {user ? (
-              <UserAvatar size="md" />
-            ) : (
-              <button 
-                onClick={handleJoinTreeClick}
-                className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-              >
-                Join the Tree
-              </button>
+            {!loading && (
+              <>
+                {user ? (
+                  <UserAvatar size="md" />
+                ) : (
+                  <button 
+                    onClick={handleJoinTreeClick}
+                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                  >
+                    Join the Tree
+                  </button>
+                )}
+              </>
             )}
           </div>
 
@@ -240,12 +246,20 @@ export default function Navigation() {
                 </div>
               ))}
               <div className="pt-4 border-t border-neutral-light">
-                <button 
-                  onClick={handleJoinTreeClick}
-                  className="w-full bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm"
-                >
-                  Join the Tree
-                </button>
+                {!loading && (
+                  <>
+                    {user ? (
+                      <ThemeToggleMobile />
+                    ) : (
+                      <button 
+                        onClick={handleJoinTreeClick}
+                        className="w-full bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm"
+                      >
+                        Join the Tree
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>

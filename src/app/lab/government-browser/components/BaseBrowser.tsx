@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useTheme } from '@/app/contexts/ThemeContext'
+import BaseModal from '../../../components/BaseModal'
 
 interface BaseBrowserProps {
   isAuthorized: boolean
@@ -256,14 +257,14 @@ export default function BaseBrowser({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
         {isAuthorized && renderForm && (
           <button
             onClick={() => {
               setEditingItem(null)
               setShowForm(true)
             }}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -273,28 +274,28 @@ export default function BaseBrowser({
         )}
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <div className="mt-2 text-sm text-red-700">{error}</div>
-            </div>
-          </div>
-        </div>
-      )}
+             {/* Error Message */}
+       {error && (
+         <div className="bg-error/10 border border-error/20 rounded-md p-4">
+           <div className="flex">
+             <div className="flex-shrink-0">
+               <svg className="h-5 w-5 text-error" viewBox="0 0 20 20" fill="currentColor">
+                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+               </svg>
+             </div>
+             <div className="ml-3">
+               <h3 className="text-sm font-medium text-error">Error</h3>
+               <div className="mt-2 text-sm text-error/80">{error}</div>
+             </div>
+           </div>
+         </div>
+       )}
 
       {/* Search and Filters */}
-      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+      <div className="bg-neutral-light rounded-lg p-4 space-y-4">
         {/* Search */}
         <div>
-          <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="search" className="block text-sm font-medium text-foreground mb-1">
             Search
           </label>
           <input
@@ -305,8 +306,8 @@ export default function BaseBrowser({
             placeholder={`Search by ${searchFields.join(', ')}...`}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
               resolvedTheme === 'dark'
-                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400'
-                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
+                ? 'bg-surface-dark border-neutral text-foreground placeholder-neutral-light focus:border-primary focus:ring-primary'
+                : 'bg-surface border-neutral text-foreground placeholder-neutral focus:border-primary focus:ring-primary'
             }`}
           />
         </div>
@@ -316,7 +317,7 @@ export default function BaseBrowser({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filters.map((filter) => (
               <div key={filter.key}>
-                <label htmlFor={filter.key} className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor={filter.key} className="block text-sm font-medium text-foreground mb-1">
                   {filter.label}
                 </label>
                 {filter.type === 'select' ? (
@@ -326,8 +327,8 @@ export default function BaseBrowser({
                     onChange={(e) => applyFilters({ ...activeFilters, [filter.key]: e.target.value })}
                     className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                       resolvedTheme === 'dark'
-                        ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400'
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+                        ? 'bg-surface-dark border-neutral text-foreground focus:border-primary focus:ring-primary'
+                        : 'bg-surface border-neutral text-foreground focus:border-primary focus:ring-primary'
                     }`}
                   >
                     <option value="">All</option>
@@ -345,8 +346,8 @@ export default function BaseBrowser({
                     onChange={(e) => applyFilters({ ...activeFilters, [filter.key]: e.target.value })}
                     className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                       resolvedTheme === 'dark'
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400'
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
+                        ? 'bg-surface-dark border-neutral text-foreground placeholder-neutral-light focus:border-primary focus:ring-primary'
+                        : 'bg-surface border-neutral text-foreground placeholder-neutral focus:border-primary focus:ring-primary'
                     }`}
                   />
                 )}
@@ -357,55 +358,56 @@ export default function BaseBrowser({
       </div>
 
       {/* Form Modal */}
-      {showForm && renderForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingItem ? 'Edit' : 'Add New'} {title.slice(0, -1)}
-              </h3>
-              {renderForm(editingItem, saveItem, () => {
-                setShowForm(false)
-                setEditingItem(null)
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      <BaseModal
+        isOpen={showForm && !!renderForm}
+        onClose={() => {
+          setShowForm(false)
+          setEditingItem(null)
+        }}
+        title={`${editingItem ? 'Edit' : 'Add New'} ${title.slice(0, -1)}`}
+        size="lg"
+        position="top"
+        showCloseButton={true}
+      >
+        {renderForm && renderForm(editingItem, saveItem, () => {
+          setShowForm(false)
+          setEditingItem(null)
+        })}
+      </BaseModal>
 
       {/* Data Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-surface shadow overflow-hidden sm:rounded-md">
+        <table className="min-w-full divide-y divide-neutral-light">
+          <thead className="bg-neutral-light">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.width || ''}`}
+                  className={`px-6 py-3 text-left text-xs font-medium text-neutral uppercase tracking-wider ${column.width || ''}`}
                 >
                   {column.sortable ? (
                     <button
                       onClick={() => handleSort(column.key)}
-                      className="group inline-flex items-center hover:text-gray-700"
+                      className="group inline-flex items-center hover:text-foreground"
                     >
                       {column.label}
                       <span className="ml-2 flex-none rounded">
                         {sortField === column.key ? (
                           sortDirection === 'asc' ? (
-                            <svg className="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <svg className="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          )
-                        ) : (
-                          <svg className="h-4 w-4 text-gray-300 group-hover:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        )}
+                                                     <svg className="h-4 w-4 text-neutral" fill="currentColor" viewBox="0 0 20 20">
+                           <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                         </svg>
+                       ) : (
+                         <svg className="h-4 w-4 text-neutral" fill="currentColor" viewBox="0 0 20 20">
+                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                         </svg>
+                       )
+                     ) : (
+                       <svg className="h-4 w-4 text-neutral-light group-hover:text-neutral" fill="currentColor" viewBox="0 0 20 20">
+                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                       </svg>
+                     )}
                       </span>
                     </button>
                   ) : (
@@ -420,12 +422,12 @@ export default function BaseBrowser({
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-neutral-light">
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length + (isAuthorized ? 1 : 0)} className="px-6 py-4 text-center">
                   <div className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 text-blue-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                         <svg className="animate-spin h-5 w-5 text-primary mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -435,7 +437,7 @@ export default function BaseBrowser({
               </tr>
             ) : filteredData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (isAuthorized ? 1 : 0)} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={columns.length + (isAuthorized ? 1 : 0)} className="px-6 py-4 text-center text-neutral">
                   No data found
                 </td>
               </tr>
@@ -450,24 +452,24 @@ export default function BaseBrowser({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="flex-1 flex justify-between sm:hidden">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-            >
-              Next
-            </button>
+                          <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-neutral text-sm font-medium rounded-md text-foreground bg-surface hover:bg-neutral-light disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-neutral text-sm font-medium rounded-md text-foreground bg-surface hover:bg-neutral-light disabled:opacity-50"
+              >
+                Next
+              </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-foreground">
                 Showing <span className="font-medium">{((currentPage - 1) * pageSize) + 1}</span> to{' '}
                 <span className="font-medium">{Math.min(currentPage * pageSize, filteredData.length)}</span> of{' '}
                 <span className="font-medium">{filteredData.length}</span> results
@@ -475,33 +477,33 @@ export default function BaseBrowser({
             </div>
             <div>
               <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Previous
-                </button>
+                                 <button
+                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                   disabled={currentPage === 1}
+                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-neutral bg-surface text-sm font-medium text-neutral hover:bg-neutral-light disabled:opacity-50"
+                 >
+                   Previous
+                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      page === currentPage
-                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                    }`}
+                                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                       page === currentPage
+                         ? 'z-10 bg-primary/10 border-primary text-primary'
+                         : 'bg-surface border-neutral text-neutral hover:bg-neutral-light'
+                     }`}
                   >
                     {page}
                   </button>
                 ))}
-                <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Next
-                </button>
+                                 <button
+                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                   disabled={currentPage === totalPages}
+                   className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-neutral bg-surface text-sm font-medium text-neutral hover:bg-neutral-light disabled:opacity-50"
+                 >
+                   Next
+                 </button>
               </nav>
             </div>
           </div>

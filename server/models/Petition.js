@@ -35,6 +35,20 @@ const petitionSchema = new mongoose.Schema({
     enum: ['environment', 'education', 'healthcare', 'economy', 'civil-rights', 'foreign-policy', 'other'],
     default: 'other'
   },
+  // Government entity references
+  jurisdiction: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Jurisdiction',
+    required: true
+  },
+  governingBody: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'GoverningBody'
+  },
+  legislation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Legislation'
+  },
   targetVotes: {
     type: Number,
     default: 1000,
@@ -76,5 +90,10 @@ const petitionSchema = new mongoose.Schema({
 petitionSchema.index({ creator: 1, createdAt: -1 });
 petitionSchema.index({ category: 1, isActive: 1 });
 petitionSchema.index({ voteCount: -1, createdAt: -1 });
+// New indexes for government entity queries
+petitionSchema.index({ jurisdiction: 1, isActive: 1 });
+petitionSchema.index({ governingBody: 1, isActive: 1 });
+petitionSchema.index({ legislation: 1, isActive: 1 });
+petitionSchema.index({ jurisdiction: 1, category: 1 });
 
 module.exports = mongoose.model('Petition', petitionSchema);

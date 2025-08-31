@@ -18,6 +18,32 @@ interface Petition {
     lastName: string
     username: string
   }
+  jurisdiction: {
+    _id: string
+    name: string
+    slug: string
+    level: string
+  }
+  governingBody?: {
+    _id: string
+    name: string
+    slug: string
+    branch: string
+  }
+  legislation?: {
+    _id: string
+    title: string
+    bill_number: string
+    status: string
+  }
+}
+
+interface Jurisdiction {
+  _id: string
+  name: string
+  slug: string
+  level: string
+  path: string
 }
 
 interface PaginationInfo {
@@ -32,9 +58,11 @@ const PetitionsPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState<PaginationInfo | null>(null)
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([])
   
   // Filter states
   const [category, setCategory] = useState('')
+  const [jurisdiction, setJurisdiction] = useState('')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
   const [currentPage, setCurrentPage] = useState(1)
@@ -57,8 +85,18 @@ const PetitionsPage: React.FC = () => {
   ]
 
   useEffect(() => {
+    fetchJurisdictions()
     fetchPetitions()
-  }, [category, sortBy, sortOrder, currentPage])
+  }, [category, jurisdiction, sortBy, sortOrder, currentPage])
+
+  const fetchJurisdictions = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/jurisdictions`)
+      setJurisdictions(response.data)
+    } catch (err) {
+      console.error('Error fetching jurisdictions:', err)
+    }
+  }
 
   const fetchPetitions = async () => {
     try {
@@ -68,10 +106,11 @@ const PetitionsPage: React.FC = () => {
         limit: '12',
         sortBy,
         sortOrder,
-        ...(category && { category })
+        ...(category && { category }),
+        ...(jurisdiction && { jurisdiction })
       })
 
-              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions?${params}`)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions?${params}`)
       setPetitions(response.data.petitions)
       setPagination(response.data.pagination)
       setError(null)
@@ -85,36 +124,39 @@ const PetitionsPage: React.FC = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'environment': 'bg-success/20 text-success border-success/30',
-      'education': 'bg-primary/20 text-primary border-primary/30',
-      'healthcare': 'bg-error/20 text-error border-error/30',
-      'economy': 'bg-warning/20 text-warning border-warning/30',
-      'civil-rights': 'bg-accent/20 text-accent border-accent/30',
-      'foreign-policy': 'bg-secondary/20 text-secondary border-secondary/30',
-      'other': 'bg-neutral/20 text-neutral border-neutral/30'
+      environment: 'bg-green-100 text-green-800 border-green-200',
+      education: 'bg-blue-100 text-blue-800 border-blue-200',
+      healthcare: 'bg-red-100 text-red-800 border-red-200',
+      economy: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'civil-rights': 'bg-purple-100 text-purple-800 border-purple-200',
+      'foreign-policy': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      other: 'bg-gray-100 text-gray-800 border-gray-200'
     }
     return colors[category as keyof typeof colors] || colors.other
   }
 
+  const getJurisdictionColor = (level: string) => {
+    const colors = {
+      federal: 'bg-red-100 text-red-800 border-red-200',
+      state: 'bg-blue-100 text-blue-800 border-blue-200',
+      county: 'bg-green-100 text-green-800 border-green-200',
+      municipal: 'bg-purple-100 text-purple-800 border-purple-200',
+      other: 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+    return colors[level as keyof typeof colors] || colors.other
+  }
+
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 1) return '1 day ago'
-    if (diffDays < 7) return `${diffDays} days ago`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-    return `${Math.floor(diffDays / 30)} months ago`
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
   }
 
-  const getProgressPercentage = (voteCount: number, targetVotes: number) => {
-    return Math.min((voteCount / targetVotes) * 100, 100)
-  }
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const formatProgress = (current: number, target: number) => {
+    const percentage = Math.min((current / target) * 100, 100)
+    return `${percentage.toFixed(1)}%`
   }
 
   if (loading && petitions.length === 0) {
@@ -122,20 +164,24 @@ const PetitionsPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-foreground mb-4">All Petitions</h1>
-              <p className="text-lg text-neutral">Discover and support petitions that matter to you.</p>
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-neutral">Loading petitions...</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="bg-surface rounded-lg shadow-md p-6 animate-pulse border border-neutral-light">
-                  <div className="h-4 bg-neutral-light rounded mb-4"></div>
-                  <div className="h-3 bg-neutral-light rounded mb-2"></div>
-                  <div className="h-3 bg-neutral-light rounded mb-4"></div>
-                  <div className="h-2 bg-neutral-light rounded mb-2"></div>
-                  <div className="h-2 bg-neutral-light rounded"></div>
-                </div>
-              ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="text-error font-semibold mb-2">Error Loading Petitions</div>
+              <div className="text-sm text-neutral">{error}</div>
             </div>
           </div>
         </div>
@@ -155,7 +201,7 @@ const PetitionsPage: React.FC = () => {
 
           {/* Filters */}
           <div className="bg-surface rounded-lg shadow-md p-6 mb-8 border border-neutral-light">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-neutral mb-2">Category</label>
                 <select
@@ -169,6 +215,24 @@ const PetitionsPage: React.FC = () => {
                   {categories.map((cat) => (
                     <option key={cat.value} value={cat.value}>
                       {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral mb-2">Jurisdiction</label>
+                <select
+                  value={jurisdiction}
+                  onChange={(e) => {
+                    setJurisdiction(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
+                >
+                  <option value="">All Jurisdictions</option>
+                  {jurisdictions.map((jur) => (
+                    <option key={jur._id} value={jur._id}>
+                      {jur.name} ({jur.level})
                     </option>
                   ))}
                 </select>
@@ -207,19 +271,6 @@ const PetitionsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Error State */}
-          {error && (
-            <div className="text-center text-error mb-8">
-              <p>{error}</p>
-              <button 
-                onClick={() => fetchPetitions()} 
-                className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors duration-200"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
           {/* Petitions Grid */}
           {petitions.length === 0 && !loading ? (
             <div className="text-center text-neutral">
@@ -251,30 +302,47 @@ const PetitionsPage: React.FC = () => {
                     <p className="text-neutral text-sm mb-4 line-clamp-3">
                       {petition.description}
                     </p>
+
+                    {/* Government Entity Info */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium border ${getJurisdictionColor(petition.jurisdiction.level)}`}>
+                          {petition.jurisdiction.name}
+                        </span>
+                        {petition.governingBody && (
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                            {petition.governingBody.name}
+                          </span>
+                        )}
+                      </div>
+                      {petition.legislation && (
+                        <div className="text-xs text-neutral">
+                          Related to: {petition.legislation.bill_number} - {petition.legislation.title}
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="mb-4">
-                      <div className="flex justify-between text-sm text-neutral mb-2">
-                        <span>Progress</span>
-                        <span>{petition.voteCount} / {petition.targetVotes}</span>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-neutral">Progress</span>
+                        <span className="text-foreground font-medium">
+                          {petition.voteCount} / {petition.targetVotes}
+                        </span>
                       </div>
                       <div className="w-full bg-neutral-light rounded-full h-2">
                         <div 
-                          className="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${getProgressPercentage(petition.voteCount, petition.targetVotes)}%` }}
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{ width: formatProgress(petition.voteCount, petition.targetVotes) }}
                         ></div>
+                      </div>
+                      <div className="text-xs text-neutral mt-1">
+                        {formatProgress(petition.voteCount, petition.targetVotes)} complete
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-neutral">
-                        by {petition.creator.firstName} {petition.creator.lastName}
-                      </span>
-                      <div className="flex items-center text-primary font-medium">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {petition.voteCount} votes
-                      </div>
+                    <div className="flex items-center justify-between text-sm text-neutral">
+                      <span>by {petition.creator.firstName} {petition.creator.lastName}</span>
+                      <span>{petition.voteCount} votes</span>
                     </div>
                   </div>
                 </Link>
@@ -284,41 +352,26 @@ const PetitionsPage: React.FC = () => {
 
           {/* Pagination */}
           {pagination && pagination.pages > 1 && (
-            <div className="mt-12 flex justify-center">
-              <nav className="flex items-center space-x-2">
+            <div className="mt-8 flex justify-center">
+              <div className="flex space-x-2">
                 <button
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm font-medium text-neutral bg-surface border border-neutral-light rounded-md hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="px-3 py-2 border border-neutral-light rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-light transition-colors"
                 >
                   Previous
                 </button>
-                
-                {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                  const page = i + 1
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-                        currentPage === page
-                          ? 'bg-primary text-white'
-                          : 'text-neutral bg-surface border border-neutral-light hover:bg-neutral-light'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                })}
-                
+                <span className="px-3 py-2 text-neutral">
+                  Page {currentPage} of {pagination.pages}
+                </span>
                 <button
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  onClick={() => setCurrentPage(Math.min(pagination.pages, currentPage + 1))}
                   disabled={currentPage === pagination.pages}
-                  className="px-3 py-2 text-sm font-medium text-neutral bg-surface border border-neutral-light rounded-md hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="px-3 py-2 border border-neutral-light rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-light transition-colors"
                 >
                   Next
                 </button>
-              </nav>
+              </div>
             </div>
           )}
 
@@ -329,12 +382,12 @@ const PetitionsPage: React.FC = () => {
               <p className="text-neutral mb-6">
                 Create a petition and start building support for the issues that matter to you.
               </p>
-              <button className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200">
+              <Link href="/petitions/create" className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Create a Petition
-              </button>
+              </Link>
             </div>
           </div>
         </div>

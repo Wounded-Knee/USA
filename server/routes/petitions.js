@@ -3,7 +3,70 @@ const router = express.Router();
 const Petition = require('../models/Petition');
 const Vote = require('../models/Vote');
 const User = require('../models/User');
+const { Jurisdiction, GoverningBody, Legislation } = require('../models/Government');
 const { getTrendingPetitions, getPetitionStats, validatePetitionData } = require('../utils/petitionUtils');
+
+// GET /api/petitions/jurisdictions - Get available jurisdictions for petition creation
+router.get('/jurisdictions', async (req, res) => {
+  try {
+    const { level, parent } = req.query;
+    const query = {};
+    
+    if (level) query.level = level;
+    if (parent) query.parent = parent;
+    
+    const jurisdictions = await Jurisdiction.find(query)
+      .populate('parent', 'name slug')
+      .sort({ depth: 1, name: 1 })
+      .select('name slug level path');
+    
+    res.json(jurisdictions);
+  } catch (error) {
+    console.error('Error fetching jurisdictions:', error);
+    res.status(500).json({ error: 'Failed to fetch jurisdictions' });
+  }
+});
+
+// GET /api/petitions/governing-bodies - Get governing bodies for a jurisdiction
+router.get('/governing-bodies', async (req, res) => {
+  try {
+    const { jurisdiction } = req.query;
+    
+    if (!jurisdiction) {
+      return res.status(400).json({ error: 'Jurisdiction parameter is required' });
+    }
+    
+    const governingBodies = await GoverningBody.find({ jurisdiction })
+      .sort({ name: 1 })
+      .select('name slug branch entity_type');
+    
+    res.json(governingBodies);
+  } catch (error) {
+    console.error('Error fetching governing bodies:', error);
+    res.status(500).json({ error: 'Failed to fetch governing bodies' });
+  }
+});
+
+// GET /api/petitions/legislation - Get legislation for a governing body
+router.get('/legislation', async (req, res) => {
+  try {
+    const { governingBody, status } = req.query;
+    const query = {};
+    
+    if (governingBody) query.governing_body = governingBody;
+    if (status) query.status = status;
+    
+    const legislation = await Legislation.find(query)
+      .populate('governing_body', 'name slug')
+      .sort({ introduced_date: -1 })
+      .select('title bill_number status introduced_date');
+    
+    res.json(legislation);
+  } catch (error) {
+    console.error('Error fetching legislation:', error);
+    res.status(500).json({ error: 'Failed to fetch legislation' });
+  }
+});
 
 // GET /api/petitions - Get all petitions with optional filtering
 router.get('/', async (req, res) => {
@@ -12,6 +75,9 @@ router.get('/', async (req, res) => {
       category, 
       isActive, 
       creator, 
+      jurisdiction,
+      governingBody,
+      legislation,
       sortBy = 'createdAt', 
       sortOrder = 'desc',
       page = 1,
@@ -23,6 +89,9 @@ router.get('/', async (req, res) => {
     if (category) filter.category = category;
     if (isActive !== undefined) filter.isActive = isActive === 'true';
     if (creator) filter.creator = creator;
+    if (jurisdiction) filter.jurisdiction = jurisdiction;
+    if (governingBody) filter.governingBody = governingBody;
+    if (legislation) filter.legislation = legislation;
 
     // Build sort object
     const sort = {};
@@ -33,6 +102,9 @@ router.get('/', async (req, res) => {
 
     const petitions = await Petition.find(filter)
       .populate('creator', 'username firstName lastName')
+      .populate('jurisdiction', 'name slug level')
+      .populate('governingBody', 'name slug branch')
+      .populate('legislation', 'title bill_number status')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
@@ -73,10 +145,18 @@ router.get('/trending', async (req, res) => {
 // POST /api/petitions - Create a new petition
 router.post('/', async (req, res) => {
   try {
-    const { title, description, category, targetVotes, creatorId } = req.body;
+    const { title, description, category, targetVotes, creatorId, jurisdiction, governingBody, legislation } = req.body;
 
     // Validate petition data
-    const validation = validatePetitionData({ title, description, category, targetVotes });
+    const validation = validatePetitionData({ 
+      title, 
+      description, 
+      category, 
+      targetVotes, 
+      jurisdiction, 
+      governingBody, 
+      legislation 
+    });
     if (!validation.isValid) {
       return res.status(400).json({ error: validation.errors.join(', ') });
     }
@@ -92,13 +172,19 @@ router.post('/', async (req, res) => {
       description,
       category,
       targetVotes: targetVotes || 1000,
-      creator: creatorId
+      creator: creatorId,
+      jurisdiction,
+      governingBody,
+      legislation
     });
 
     await petition.save();
 
-    // Populate creator info before sending response
+    // Populate all references before sending response
     await petition.populate('creator', 'username firstName lastName');
+    await petition.populate('jurisdiction', 'name slug level');
+    await petition.populate('governingBody', 'name slug branch');
+    await petition.populate('legislation', 'title bill_number status');
 
     res.status(201).json(petition);
   } catch (error) {
@@ -113,7 +199,7 @@ router.post('/', async (req, res) => {
 // PUT /api/petitions/:id - Update a petition
 router.put('/:id', async (req, res) => {
   try {
-    const { title, description, category, targetVotes, isActive } = req.body;
+    const { title, description, category, targetVotes, isActive, jurisdiction, governingBody, legislation } = req.body;
 
     const petition = await Petition.findById(req.params.id);
     if (!petition) {
@@ -126,9 +212,17 @@ router.put('/:id', async (req, res) => {
     if (category !== undefined) petition.category = category;
     if (targetVotes !== undefined) petition.targetVotes = targetVotes;
     if (isActive !== undefined) petition.isActive = isActive;
+    if (jurisdiction !== undefined) petition.jurisdiction = jurisdiction;
+    if (governingBody !== undefined) petition.governingBody = governingBody;
+    if (legislation !== undefined) petition.legislation = legislation;
 
     await petition.save();
+    
+    // Populate all references before sending response
     await petition.populate('creator', 'username firstName lastName');
+    await petition.populate('jurisdiction', 'name slug level');
+    await petition.populate('governingBody', 'name slug branch');
+    await petition.populate('legislation', 'title bill_number status');
 
     res.json(petition);
   } catch (error) {
@@ -282,7 +376,10 @@ router.delete('/:id/vote', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const petition = await Petition.findById(req.params.id)
-      .populate('creator', 'username firstName lastName');
+      .populate('creator', 'username firstName lastName')
+      .populate('jurisdiction', 'name slug level path')
+      .populate('governingBody', 'name slug branch entity_type')
+      .populate('legislation', 'title bill_number status introduced_date');
 
     if (!petition) {
       return res.status(404).json({ error: 'Petition not found' });
@@ -292,6 +389,58 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching petition:', error);
     res.status(500).json({ error: 'Failed to fetch petition' });
+  }
+});
+
+// GET /api/petitions/office/:officeId - Get petitions associated with an office
+router.get('/office/:officeId', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // First get the office to find its governing body
+    const { Office } = require('../models/Government');
+    const office = await Office.findById(req.params.officeId)
+      .populate('governing_body', 'name slug');
+
+    if (!office) {
+      return res.status(404).json({ error: 'Office not found' });
+    }
+
+    // Find petitions associated with this governing body
+    const petitions = await Petition.find({ 
+      governingBody: office.governing_body._id,
+      isActive: true 
+    })
+    .populate('creator', 'username firstName lastName')
+    .populate('jurisdiction', 'name slug level')
+    .populate('governingBody', 'name slug branch')
+    .populate('legislation', 'title bill_number status')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+    const total = await Petition.countDocuments({ 
+      governingBody: office.governing_body._id,
+      isActive: true 
+    });
+
+    res.json({
+      petitions,
+      office: {
+        name: office.name,
+        governingBody: office.governing_body
+      },
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching office petitions:', error);
+    res.status(500).json({ error: 'Failed to fetch office petitions' });
   }
 });
 

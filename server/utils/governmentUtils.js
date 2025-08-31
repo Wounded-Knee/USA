@@ -213,11 +213,13 @@ async function getCurrentOfficeHolders(jurisdictionId, officeType = null) {
  * @returns {Promise<Array>} Array of positions held
  */
 async function getPersonOfficeHistory(personId) {
-  return await Position.find({ person: personId })
+  const positions = await Position.find({ person: personId })
     .populate('office')
-    .populate('office.governing_body')
-    .populate('office.jurisdiction')
+    .populate('office.governing_body', 'name slug branch entity_type')
+    .populate('office.jurisdiction', 'name slug level')
     .sort({ term_start: -1 });
+  
+  return positions;
 }
 
 /**

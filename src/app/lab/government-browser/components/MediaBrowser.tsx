@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import BaseModal from '../../../components/BaseModal'
 import { useTheme } from '@/app/contexts/ThemeContext'
 
 interface BreadcrumbItem {
@@ -95,12 +96,12 @@ export default function MediaBrowser({
     card: resolvedTheme === 'dark' 
       ? 'bg-surface-dark border-neutral hover:bg-neutral-dark/50' 
       : 'bg-surface border-neutral-light hover:bg-neutral-light/50',
-    input: resolvedTheme === 'dark'
-      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500',
-    select: resolvedTheme === 'dark'
-      ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400'
-      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500',
+         input: resolvedTheme === 'dark'
+       ? 'bg-surface-dark border-neutral text-foreground placeholder-neutral-light focus:border-primary focus:ring-primary'
+       : 'bg-surface border-neutral text-foreground placeholder-neutral focus:border-primary focus:ring-primary',
+     select: resolvedTheme === 'dark'
+       ? 'bg-surface-dark border-neutral text-foreground focus:border-primary focus:ring-primary'
+       : 'bg-surface border-neutral text-foreground focus:border-primary focus:ring-primary',
     button: {
       primary: resolvedTheme === 'dark'
         ? 'bg-primary hover:bg-primary-dark text-white focus:ring-primary-light'
@@ -375,12 +376,15 @@ export default function MediaBrowser({
       </div>
 
       {/* Upload Form Modal */}
-      {showUploadForm && (
-        <div className={`fixed inset-0 ${themeClasses.modalOverlay} overflow-y-auto h-full w-full z-50`}>
-          <div className={`relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md ${themeClasses.modal}`}>
-            <div className="mt-3">
-              <h3 className={`text-lg font-medium mb-4 ${themeClasses.header}`}>Upload Media</h3>
-              <form onSubmit={handleFileUpload} className="space-y-4">
+      <BaseModal
+        isOpen={showUploadForm}
+        onClose={() => setShowUploadForm(false)}
+        title="Upload Media"
+        size="lg"
+        position="top"
+        showCloseButton={true}
+      >
+        <form onSubmit={handleFileUpload} className="space-y-4">
                 <div>
                   <label htmlFor="file" className={`block text-sm font-medium mb-1 ${themeClasses.header}`}>
                     File
@@ -507,10 +511,7 @@ export default function MediaBrowser({
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
+      </BaseModal>
 
       {/* Media Grid */}
       {isLoading ? (

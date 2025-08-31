@@ -30,6 +30,37 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Forest background positioning */
+.forest-background {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  min-height: 200px;
+  pointer-events: none;
+  z-index: 0;
+  background-position: bottom center !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+}
+
+/* Ensure content appears above the background */
+main, .main-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 320px; /* Account for forest background height + some spacing */
+}
+
+/* Responsive padding for smaller screens */
+@media (max-width: 768px) {
+  main, .main-content {
+    padding-bottom: 220px; /* Smaller padding on mobile */
+  }
 }
 
 /* Line clamp utilities for text truncation */

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Image from 'next/image'
 
 interface LibrarySection {
@@ -30,85 +30,7 @@ const LibraryHero: React.FC<LibraryHeroProps> = ({
   searchTerm,
   onSearchChange
 }) => {
-  const [isCompact, setIsCompact] = useState(false)
   const currentSection = sections.find(section => section.id === selectedSection) || sections[0]
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY
-      setIsCompact(scrollY > 100) // Start compacting after 100px scroll
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  if (isCompact) {
-    return (
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-md transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between gap-4">
-            {/* Section Selector */}
-            <div className="flex gap-2">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => onSectionChange(section.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    selectedSection === section.id
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {section.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Bar */}
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search documents..."
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 pr-4 text-gray-900 bg-gray-50 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            <div className="flex gap-1">
-              {['All', ...currentSection.categories.slice(0, 3)].map((category) => (
-                <button
-                  key={category}
-                  onClick={() => onCategoryChange(category)}
-                  className={`px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                    selectedCategory === category
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-              {currentSection.categories.length > 3 && (
-                <span className="px-3 py-2 text-xs text-gray-500">
-                  +{currentSection.categories.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">

@@ -16,22 +16,11 @@ export default function LibraryPage() {
   const [selectedSection, setSelectedSection] = useState('whimsy')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchTerm, setSearchTerm] = useState('')
-  const [isHeroCompact, setIsHeroCompact] = useState(false)
 
   // Reset category when section changes
   useEffect(() => {
     setSelectedCategory('All')
   }, [selectedSection])
-
-  // Listen for hero state changes
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsHeroCompact(window.scrollY > 100)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   // Get documents for current section
   const sectionDocuments = getDocumentsBySection(selectedSection)
@@ -58,13 +47,7 @@ export default function LibraryPage() {
       />
 
       {/* Documents Section */}
-      <div 
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
-        style={{ 
-          paddingTop: isHeroCompact ? '5rem' : 'calc(100vh + 3rem)',
-          transition: 'padding-top 0.3s ease-in-out'
-        }}
-      >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Section Info */}
         <LibrarySectionInfo
           section={librarySections.find(s => s.id === selectedSection)!}

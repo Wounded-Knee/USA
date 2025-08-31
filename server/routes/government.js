@@ -242,22 +242,117 @@ router.delete('/governing-bodies/:id', async (req, res) => {
 });
 
 // ------------------------------
+// District Routes
+// ------------------------------
+
+// Get districts
+router.get('/districts', async (req, res) => {
+  try {
+    const { jurisdiction, district_type, limit = 50, skip = 0 } = req.query;
+    const query = {};
+    
+    if (jurisdiction) query.jurisdiction = jurisdiction;
+    if (district_type) query.district_type = district_type;
+    
+    const districts = await District.find(query)
+      .populate('jurisdiction', 'name slug')
+      .sort({ district_type: 1, district_number: 1, name: 1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip));
+    
+    const total = await District.countDocuments(query);
+    
+    res.json({
+      districts,
+      total,
+      limit: parseInt(limit),
+      skip: parseInt(skip)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get district by ID
+router.get('/districts/:id', async (req, res) => {
+  try {
+    const district = await District.findById(req.params.id)
+      .populate('jurisdiction', 'name slug');
+    
+    if (!district) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+    
+    res.json(district);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create district
+router.post('/districts', async (req, res) => {
+  try {
+    const district = new District(req.body);
+    await district.save();
+    res.status(201).json(district);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update district
+router.put('/districts/:id', async (req, res) => {
+  try {
+    const district = await District.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!district) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+    
+    res.json(district);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete district
+router.delete('/districts/:id', async (req, res) => {
+  try {
+    const district = await District.findByIdAndDelete(req.params.id);
+    
+    if (!district) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+    
+    res.json({ message: 'District deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ------------------------------
 // Office Routes
 // ------------------------------
 
 // Get offices
 router.get('/offices', async (req, res) => {
   try {
-    const { jurisdiction, governing_body, office_type, limit = 50, skip = 0 } = req.query;
+    const { jurisdiction, governing_body, office_type, district, limit = 50, skip = 0 } = req.query;
     const query = {};
     
     if (jurisdiction) query.jurisdiction = jurisdiction;
     if (governing_body) query.governing_body = governing_body;
     if (office_type) query.office_type = office_type;
+    if (district) query.district = district;
     
     const offices = await Office.find(query)
       .populate('jurisdiction', 'name slug')
       .populate('governing_body', 'name slug')
+      .populate('district', 'name district_type district_number')
       .sort({ office_type: 1, name: 1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
@@ -280,7 +375,8 @@ router.get('/offices/:id', async (req, res) => {
   try {
     const office = await Office.findById(req.params.id)
       .populate('jurisdiction', 'name slug')
-      .populate('governing_body', 'name slug');
+      .populate('governing_body', 'name slug')
+      .populate('district', 'name district_type district_number');
     
     if (!office) {
       return res.status(404).json({ error: 'Office not found' });
@@ -344,16 +440,18 @@ router.delete('/offices/:id', async (req, res) => {
 // Get positions
 router.get('/positions', async (req, res) => {
   try {
-    const { office, person, is_current, limit = 50, skip = 0 } = req.query;
+    const { office, person, is_current, status, limit = 50, skip = 0 } = req.query;
     const query = {};
     
     if (office) query.office = office;
     if (person) query.person = person;
     if (is_current !== undefined) query.is_current = is_current === 'true';
+    if (status) query.status = status;
     
     const positions = await Position.find(query)
       .populate('office')
       .populate('person', 'firstName lastName email avatar')
+      .populate('election', 'election_date election_type')
       .sort({ term_start: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
@@ -387,6 +485,27 @@ router.get('/positions/person/:personId', async (req, res) => {
   try {
     const positions = await getPersonOfficeHistory(req.params.personId);
     res.json(positions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get current position for a specific office
+router.get('/positions/office/:officeId', async (req, res) => {
+  try {
+    const position = await Position.findOne({ 
+      office: req.params.officeId, 
+      is_current: true 
+    })
+    .populate('office', 'name slug office_type governing_body jurisdiction selection_method term_length term_limit salary is_part_time constituency')
+    .populate('person', 'username firstName lastName email')
+    .populate('election', 'election_date election_type');
+
+    if (!position) {
+      return res.status(404).json({ error: 'No current position found for this office' });
+    }
+
+    res.json(position);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -444,16 +563,19 @@ router.delete('/positions/:id', async (req, res) => {
 // Get elections
 router.get('/elections', async (req, res) => {
   try {
-    const { office, jurisdiction, election_type, limit = 50, skip = 0 } = req.query;
+    const { office, jurisdiction, district, status, election_type, limit = 50, skip = 0 } = req.query;
     const query = {};
     
     if (office) query.office = office;
     if (jurisdiction) query.jurisdiction = jurisdiction;
+    if (district) query.district = district;
+    if (status) query.status = status;
     if (election_type) query.election_type = election_type;
     
     const elections = await Election.find(query)
-      .populate('office')
+      .populate('office', 'name office_type')
       .populate('jurisdiction', 'name slug')
+      .populate('district', 'name district_type district_number')
       .populate('candidates.person', 'firstName lastName email avatar')
       .sort({ election_date: -1 })
       .limit(parseInt(limit))
@@ -472,25 +594,20 @@ router.get('/elections', async (req, res) => {
   }
 });
 
-// Get upcoming elections
-router.get('/elections/upcoming/:jurisdictionId', async (req, res) => {
+// Get election by ID
+router.get('/elections/:id', async (req, res) => {
   try {
-    const { from_date } = req.query;
-    const fromDate = from_date ? new Date(from_date) : new Date();
-    const elections = await getUpcomingElections(req.params.jurisdictionId, fromDate);
-    res.json(elections);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get election results for office
-router.get('/elections/results/:officeId', async (req, res) => {
-  try {
-    const { from_date } = req.query;
-    const fromDate = from_date ? new Date(from_date) : null;
-    const results = await getElectionResults(req.params.officeId, fromDate);
-    res.json(results);
+    const election = await Election.findById(req.params.id)
+      .populate('office', 'name office_type')
+      .populate('jurisdiction', 'name slug')
+      .populate('district', 'name district_type district_number')
+      .populate('candidates.person', 'firstName lastName email avatar');
+    
+    if (!election) {
+      return res.status(404).json({ error: 'Election not found' });
+    }
+    
+    res.json(election);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -548,19 +665,20 @@ router.delete('/elections/:id', async (req, res) => {
 // Get legislation
 router.get('/legislation', async (req, res) => {
   try {
-    const { jurisdiction, governing_body, status, legislation_type, limit = 50, skip = 0 } = req.query;
+    const { governing_body, jurisdiction, status, legislation_type, limit = 50, skip = 0 } = req.query;
     const query = {};
     
-    if (jurisdiction) query.jurisdiction = jurisdiction;
     if (governing_body) query.governing_body = governing_body;
+    if (jurisdiction) query.jurisdiction = jurisdiction;
     if (status) query.status = status;
     if (legislation_type) query.legislation_type = legislation_type;
     
     const legislation = await Legislation.find(query)
-      .populate('jurisdiction', 'name slug')
       .populate('governing_body', 'name slug')
-      .populate('sponsors', 'firstName lastName email avatar')
-      .populate('cosponsors', 'firstName lastName email avatar')
+      .populate('jurisdiction', 'name slug')
+      .populate('committees.committee', 'name slug')
+      .populate('sponsors', 'firstName lastName')
+      .populate('cosponsors', 'firstName lastName')
       .sort({ introduced_date: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
@@ -578,21 +696,20 @@ router.get('/legislation', async (req, res) => {
   }
 });
 
-// Get recent legislation
-router.get('/legislation/recent/:jurisdictionId', async (req, res) => {
+// Get legislation by ID
+router.get('/legislation/:id', async (req, res) => {
   try {
-    const { limit } = req.query;
-    const legislation = await getRecentLegislation(req.params.jurisdictionId, parseInt(limit) || 10);
-    res.json(legislation);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get legislation by status
-router.get('/legislation/status/:jurisdictionId/:status', async (req, res) => {
-  try {
-    const legislation = await getLegislationByStatus(req.params.jurisdictionId, req.params.status);
+    const legislation = await Legislation.findById(req.params.id)
+      .populate('governing_body', 'name slug')
+      .populate('jurisdiction', 'name slug')
+      .populate('committees.committee', 'name slug')
+      .populate('sponsors', 'firstName lastName')
+      .populate('cosponsors', 'firstName lastName');
+    
+    if (!legislation) {
+      return res.status(404).json({ error: 'Legislation not found' });
+    }
+    
     res.json(legislation);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -645,23 +762,25 @@ router.delete('/legislation/:id', async (req, res) => {
 });
 
 // ------------------------------
-// Vote Routes
+// Government Vote Routes
 // ------------------------------
 
 // Get votes
 router.get('/votes', async (req, res) => {
   try {
-    const { legislation, person, governing_body, vote_position, limit = 50, skip = 0 } = req.query;
+    const { legislation, person, position, governing_body, vote_position, limit = 50, skip = 0 } = req.query;
     const query = {};
     
     if (legislation) query.legislation = legislation;
     if (person) query.person = person;
+    if (position) query.position = position;
     if (governing_body) query.governing_body = governing_body;
     if (vote_position) query.vote_position = vote_position;
     
     const votes = await GovernmentVote.find(query)
       .populate('legislation', 'title bill_number')
-      .populate('person', 'firstName lastName email avatar')
+      .populate('person', 'firstName lastName')
+      .populate('position', 'office')
       .populate('governing_body', 'name slug')
       .sort({ vote_date: -1 })
       .limit(parseInt(limit))
@@ -680,23 +799,20 @@ router.get('/votes', async (req, res) => {
   }
 });
 
-// Get voting record for person
-router.get('/votes/person/:personId', async (req, res) => {
+// Get vote by ID
+router.get('/votes/:id', async (req, res) => {
   try {
-    const { from_date } = req.query;
-    const fromDate = from_date ? new Date(from_date) : null;
-    const votes = await getVotingRecord(req.params.personId, fromDate);
-    res.json(votes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get vote breakdown for legislation
-router.get('/votes/breakdown/:legislationId', async (req, res) => {
-  try {
-    const breakdown = await getVoteBreakdown(req.params.legislationId);
-    res.json(breakdown);
+    const vote = await GovernmentVote.findById(req.params.id)
+      .populate('legislation', 'title bill_number')
+      .populate('person', 'firstName lastName')
+      .populate('position', 'office')
+      .populate('governing_body', 'name slug');
+    
+    if (!vote) {
+      return res.status(404).json({ error: 'Vote not found' });
+    }
+    
+    res.json(vote);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -764,9 +880,9 @@ router.get('/committees', async (req, res) => {
     const committees = await Committee.find(query)
       .populate('governing_body', 'name slug')
       .populate('jurisdiction', 'name slug')
-      .populate('chair', 'firstName lastName email avatar')
-      .populate('vice_chair', 'firstName lastName email avatar')
-      .populate('members', 'firstName lastName email avatar')
+      .populate('chair', 'firstName lastName')
+      .populate('vice_chair', 'firstName lastName')
+      .populate('members', 'firstName lastName')
       .sort({ name: 1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
@@ -784,21 +900,21 @@ router.get('/committees', async (req, res) => {
   }
 });
 
-// Get committees for governing body
-router.get('/committees/governing-body/:governingBodyId', async (req, res) => {
+// Get committee by ID
+router.get('/committees/:id', async (req, res) => {
   try {
-    const committees = await getCommittees(req.params.governingBodyId);
-    res.json(committees);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get committee memberships for person
-router.get('/committees/person/:personId', async (req, res) => {
-  try {
-    const memberships = await getCommitteeMemberships(req.params.personId);
-    res.json(memberships);
+    const committee = await Committee.findById(req.params.id)
+      .populate('governing_body', 'name slug')
+      .populate('jurisdiction', 'name slug')
+      .populate('chair', 'firstName lastName')
+      .populate('vice_chair', 'firstName lastName')
+      .populate('members', 'firstName lastName');
+    
+    if (!committee) {
+      return res.status(404).json({ error: 'Committee not found' });
+    }
+    
+    res.json(committee);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -850,28 +966,27 @@ router.delete('/committees/:id', async (req, res) => {
 });
 
 // ------------------------------
-// District Routes
+// Contact Info Routes
 // ------------------------------
 
-// Get districts
-router.get('/districts', async (req, res) => {
+// Get contact info
+router.get('/contact-info', async (req, res) => {
   try {
-    const { jurisdiction, district_type, limit = 50, skip = 0 } = req.query;
+    const { entity_type, entity_id, limit = 50, skip = 0 } = req.query;
     const query = {};
     
-    if (jurisdiction) query.jurisdiction = jurisdiction;
-    if (district_type) query.district_type = district_type;
+    if (entity_type) query.entity_type = entity_type;
+    if (entity_id) query.entity_id = entity_id;
     
-    const districts = await District.find(query)
-      .populate('jurisdiction', 'name slug')
-      .sort({ district_type: 1, district_number: 1 })
+    const contactInfo = await ContactInfo.find(query)
+      .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
     
-    const total = await District.countDocuments(query);
+    const total = await ContactInfo.countDocuments(query);
     
     res.json({
-      districts,
+      contactInfo,
       total,
       limit: parseInt(limit),
       skip: parseInt(skip)
@@ -881,73 +996,42 @@ router.get('/districts', async (req, res) => {
   }
 });
 
-// Get districts for jurisdiction
-router.get('/districts/jurisdiction/:jurisdictionId', async (req, res) => {
+// Get contact info by ID
+router.get('/contact-info/:id', async (req, res) => {
   try {
-    const { district_type } = req.query;
-    const districts = await getDistricts(req.params.jurisdictionId, district_type);
-    res.json(districts);
+    const contactInfo = await ContactInfo.findById(req.params.id);
+    
+    if (!contactInfo) {
+      return res.status(404).json({ error: 'Contact info not found' });
+    }
+    
+    res.json(contactInfo);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Create district
-router.post('/districts', async (req, res) => {
+// Create or update contact info
+router.post('/contact-info', async (req, res) => {
   try {
-    const district = new District(req.body);
-    await district.save();
-    res.status(201).json(district);
+    const contactInfo = await upsertContactInfo(req.body);
+    res.status(201).json(contactInfo);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Update district
-router.put('/districts/:id', async (req, res) => {
+// Update contact info
+router.put('/contact-info/:id', async (req, res) => {
   try {
-    const district = await District.findByIdAndUpdate(
+    const contactInfo = await ContactInfo.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
     
-    if (!district) {
-      return res.status(404).json({ error: 'District not found' });
-    }
-    
-    res.json(district);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Delete district
-router.delete('/districts/:id', async (req, res) => {
-  try {
-    const district = await District.findByIdAndDelete(req.params.id);
-    
-    if (!district) {
-      return res.status(404).json({ error: 'District not found' });
-    }
-    
-    res.json({ message: 'District deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ------------------------------
-// Contact Information Routes
-// ------------------------------
-
-// Get contact information
-router.get('/contact-info/:entityType/:entityId', async (req, res) => {
-  try {
-    const contactInfo = await getContactInfo(req.params.entityType, req.params.entityId);
-    
     if (!contactInfo) {
-      return res.status(404).json({ error: 'Contact information not found' });
+      return res.status(404).json({ error: 'Contact info not found' });
     }
     
     res.json(contactInfo);
@@ -956,80 +1040,110 @@ router.get('/contact-info/:entityType/:entityId', async (req, res) => {
   }
 });
 
-// Create or update contact information
-router.post('/contact-info/:entityType/:entityId', async (req, res) => {
+// Delete contact info
+router.delete('/contact-info/:id', async (req, res) => {
   try {
-    const contactInfo = await upsertContactInfo(req.params.entityType, req.params.entityId, req.body);
-    res.json(contactInfo);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Delete contact information
-router.delete('/contact-info/:entityType/:entityId', async (req, res) => {
-  try {
-    const contactInfo = await ContactInfo.findOneAndDelete({
-      entity_type: req.params.entityType,
-      entity_id: req.params.entityId
-    });
+    const contactInfo = await ContactInfo.findByIdAndDelete(req.params.id);
     
     if (!contactInfo) {
-      return res.status(404).json({ error: 'Contact information not found' });
+      return res.status(404).json({ error: 'Contact info not found' });
     }
     
-    res.json({ message: 'Contact information deleted successfully' });
+    res.json({ message: 'Contact info deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // ------------------------------
-// Search Routes
+// Utility Routes
 // ------------------------------
+
+// Get constants
+router.get('/constants', (req, res) => {
+  res.json(CONSTANTS);
+});
 
 // Search government entities
 router.get('/search', async (req, res) => {
   try {
-    const { q, entity_types, limit } = req.query;
-    
-    if (!q) {
-      return res.status(400).json({ error: 'Search query is required' });
-    }
-    
-    const entityTypes = entity_types ? entity_types.split(',') : ['jurisdiction', 'governing_body', 'office'];
-    const searchLimit = parseInt(limit) || 20;
-    
-    const results = await searchGovernmentEntities(q, entityTypes, searchLimit);
+    const { q, type, limit = 20 } = req.query;
+    const results = await searchGovernmentEntities(q, type, parseInt(limit));
     res.json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// ------------------------------
-// Constants Routes
-// ------------------------------
-
-// Get all constants
-router.get('/constants', async (req, res) => {
+// Get upcoming elections
+router.get('/elections/upcoming', async (req, res) => {
   try {
-    res.json(CONSTANTS);
+    const { jurisdiction, limit = 10 } = req.query;
+    const elections = await getUpcomingElections(jurisdiction, parseInt(limit));
+    res.json(elections);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get specific constant
-router.get('/constants/:constant', async (req, res) => {
+// Get election results
+router.get('/elections/results/:electionId', async (req, res) => {
   try {
-    const constant = req.params.constant.toUpperCase();
-    
-    if (!CONSTANTS[constant]) {
-      return res.status(404).json({ error: 'Constant not found' });
-    }
-    
-    res.json({ [constant]: CONSTANTS[constant] });
+    const results = await getElectionResults(req.params.electionId);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get recent legislation
+router.get('/legislation/recent', async (req, res) => {
+  try {
+    const { jurisdiction, limit = 10 } = req.query;
+    const legislation = await getRecentLegislation(jurisdiction, parseInt(limit));
+    res.json(legislation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get legislation by status
+router.get('/legislation/status/:status', async (req, res) => {
+  try {
+    const { jurisdiction, limit = 50, skip = 0 } = req.query;
+    const legislation = await getLegislationByStatus(req.params.status, jurisdiction, parseInt(limit), parseInt(skip));
+    res.json(legislation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get voting record
+router.get('/votes/record/:personId', async (req, res) => {
+  try {
+    const { limit = 50, skip = 0 } = req.query;
+    const record = await getVotingRecord(req.params.personId, parseInt(limit), parseInt(skip));
+    res.json(record);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get vote breakdown
+router.get('/votes/breakdown/:legislationId', async (req, res) => {
+  try {
+    const breakdown = await getVoteBreakdown(req.params.legislationId);
+    res.json(breakdown);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get committee memberships
+router.get('/committees/memberships/:personId', async (req, res) => {
+  try {
+    const memberships = await getCommitteeMemberships(req.params.personId);
+    res.json(memberships);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
