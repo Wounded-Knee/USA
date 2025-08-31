@@ -111,7 +111,7 @@ export const quotes: Quote[] = [
     },
     date: "1863-11-19",
     explanation: "Lincoln's iconic phrase from the Gettysburg Address defines democracy as a system where power ultimately resides with the people, emphasizing the fundamental principle of popular sovereignty.",
-    backgroundIds: ['golden-gate', 'yosemite-valley'],
+    backgroundIds: ['us-capitol', 'yosemite-valley'],
     tags: ['democracy', 'government', 'people', 'freedom']
   },
   {
@@ -134,7 +134,7 @@ export const quotes: Quote[] = [
     tags: ['nature', 'wilderness', 'preservation', 'freedom']
   },
   {
-    id: 'golden-gate-opportunity',
+    id: 'us-capitol-opportunity',
     text: {
       abbreviated: "The Golden Gate is not just a bridge, it's a gateway to opportunity.",
       direct: "The Golden Gate Bridge is not just a bridge, it's a gateway to opportunity, a symbol of what we can achieve when we work together."
@@ -149,7 +149,7 @@ export const quotes: Quote[] = [
     },
     date: "1937-05-27",
     explanation: "This quote celebrates the Golden Gate Bridge as a symbol of California's spirit of innovation and opportunity, representing the state's role as a gateway to new possibilities.",
-    backgroundIds: ['golden-gate'],
+    backgroundIds: ['us-capitol'],
     tags: ['opportunity', 'innovation', 'california', 'progress']
   },
   {
@@ -244,7 +244,7 @@ export const quotes: Quote[] = [
     },
     date: "1776-07-04",
     explanation: "This quote emphasizes that democracy requires active citizen participation rather than passive observation, highlighting the responsibility of each citizen in maintaining democratic values.",
-    backgroundIds: ['golden-gate', 'nature-bear'],
+    backgroundIds: ['us-capitol', 'nature-bear'],
     tags: ['democracy', 'participation', 'civic-duty', 'engagement']
   },
   {
@@ -263,7 +263,7 @@ export const quotes: Quote[] = [
     },
     date: "1849-01-01",
     explanation: "This quote captures the essence of California's unique role in American culture as a place where dreams are magnified and possibilities expanded, representing the state's innovative spirit.",
-    backgroundIds: ['golden-gate', 'california-coast'],
+    backgroundIds: ['us-capitol', 'california-coast'],
     tags: ['california', 'american-dream', 'opportunity', 'innovation']
   }
 ];

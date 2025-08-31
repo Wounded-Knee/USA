@@ -53,8 +53,8 @@ const PetitionDetailPage: React.FC = () => {
       try {
         setLoading(true)
         const [petitionResponse, statsResponse] = await Promise.all([
-          axios.get(`http://localhost:5000/api/petitions/${petitionId}`),
-          axios.get(`http://localhost:5000/api/petitions/${petitionId}/stats`)
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}/stats`)
         ])
         
         setPetition(petitionResponse.data)
@@ -81,7 +81,7 @@ const PetitionDetailPage: React.FC = () => {
       // For demo purposes, using a hardcoded user ID. In a real app, this would come from authentication
       const userId = "68b244b1d9bd1067422b8712" // Maria Rodriguez's ID from our demo
       
-      const voteResponse = await axios.post(`http://localhost:5000/api/petitions/${petitionId}/vote`, {
+              const voteResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}/vote`, {
         userId
       })
 
@@ -91,8 +91,8 @@ const PetitionDetailPage: React.FC = () => {
 
       // Refresh the data
       const [petitionResponse, statsResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/petitions/${petitionId}`),
-        axios.get(`http://localhost:5000/api/petitions/${petitionId}/stats`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}/stats`)
       ])
       
       setPetition(petitionResponse.data)
@@ -119,8 +119,8 @@ const PetitionDetailPage: React.FC = () => {
     try {
       setLoading(true)
       const [petitionResponse, statsResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/petitions/${petitionId}`),
-        axios.get(`http://localhost:5000/api/petitions/${petitionId}/stats`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/${petitionId}/stats`)
       ])
       
       setPetition(petitionResponse.data)

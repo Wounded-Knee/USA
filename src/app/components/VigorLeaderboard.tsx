@@ -33,7 +33,7 @@ const VigorLeaderboard: React.FC = () => {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://localhost:5000/api/vigor/leaderboard?limit=10&timeFrame=${timeFrame}`)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vigor/leaderboard?limit=10&timeFrame=${timeFrame}`)
       setLeaderboard(response.data)
       setError(null)
     } catch (err) {

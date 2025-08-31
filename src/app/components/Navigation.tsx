@@ -5,6 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ThemeToggle from './ThemeToggle'
 import ThemeAwareLogo from './ThemeAwareLogo'
+import UserAvatar from './UserAvatar'
+import AuthDialog from './AuthDialog'
+import { useAuth } from '../contexts/AuthContext'
 
 interface NavItem {
   label: string
@@ -24,8 +27,11 @@ const navItems: NavItem[] = [
 ]
 
 export default function Navigation() {
+  const { user } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   // Close mobile menu when clicking outside
@@ -76,6 +82,15 @@ export default function Navigation() {
     } else {
       closeMenu()
     }
+  }
+
+  const handleJoinTreeClick = () => {
+    setAuthMode('register')
+    setIsAuthDialogOpen(true)
+  }
+
+  const handleAuthDialogClose = () => {
+    setIsAuthDialogOpen(false)
   }
 
   return (
@@ -138,9 +153,16 @@ export default function Navigation() {
           {/* Theme Toggle and CTA Button - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
             <ThemeToggle />
-            <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md">
-              Join the Tree
-            </button>
+            {user ? (
+              <UserAvatar size="md" />
+            ) : (
+              <button 
+                onClick={handleJoinTreeClick}
+                className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+              >
+                Join the Tree
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button and theme toggle */}
@@ -220,7 +242,10 @@ export default function Navigation() {
                 </div>
               ))}
               <div className="pt-4 border-t border-neutral-light">
-                <button className="w-full bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm">
+                <button 
+                  onClick={handleJoinTreeClick}
+                  className="w-full bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm"
+                >
                   Join the Tree
                 </button>
               </div>
@@ -228,6 +253,13 @@ export default function Navigation() {
           </div>
         )}
       </div>
+
+      {/* Auth Dialog */}
+      <AuthDialog 
+        isOpen={isAuthDialogOpen}
+        onClose={handleAuthDialogClose}
+        initialMode={authMode}
+      />
     </nav>
   )
 }

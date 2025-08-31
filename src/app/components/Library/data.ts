@@ -65,6 +65,13 @@ export const libraryDocuments: LibraryDocument[] = [
     category: "Platform Features",
     section: "project-specs"
   },
+  {
+    title: "Authentication System Setup Guide",
+    filename: "Authentication_System.md",
+    excerpt: "Complete setup guide for the authentication system with Google OAuth integration, JWT tokens, and React Context for user management.",
+    category: "Technical Documentation",
+    section: "project-specs"
+  },
 
   // Whimsy Documents
   {

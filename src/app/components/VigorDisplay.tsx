@@ -47,7 +47,7 @@ const VigorDisplay: React.FC<VigorDisplayProps> = ({
   const fetchVigorStats = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://localhost:5000/api/vigor/petition/${petitionId}`)
+              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vigor/petition/${petitionId}`)
       setVigorStats(response.data)
       setError(null)
     } catch (err) {

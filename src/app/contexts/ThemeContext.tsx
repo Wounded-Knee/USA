@@ -15,6 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('system')
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     // Load theme from localStorage on mount
@@ -22,9 +23,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setTheme(savedTheme)
     }
+    setMounted(true)
   }, [])
 
   useEffect(() => {
+    if (!mounted) return
+
     // Determine the resolved theme based on current theme setting
     const getResolvedTheme = (): 'light' | 'dark' => {
       if (theme === 'system') {
@@ -55,7 +59,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [theme])
+  }, [theme, mounted])
 
   const handleSetTheme = (newTheme: Theme) => {
     setTheme(newTheme)

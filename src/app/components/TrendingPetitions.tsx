@@ -28,7 +28,7 @@ const TrendingPetitions: React.FC = () => {
     const fetchTrendingPetitions = async () => {
       try {
         setLoading(true)
-        const response = await axios.get('http://localhost:5000/api/petitions/trending?limit=6&timeFrame=week')
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/trending?limit=6&timeFrame=week`)
         setPetitions(response.data)
         setError(null)
       } catch (err) {

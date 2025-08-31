@@ -1,8 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import PetitionVotesProgressbar from '../components/PetitionVotesProgressbar'
+import AuthDialog from '../components/AuthDialog'
+import AuthButton from '../components/AuthButton'
+import UserProfile from '../components/UserProfile'
+import { useAuth } from '../contexts/AuthContext'
 
 interface ComponentDemo {
   id: string
@@ -14,6 +18,9 @@ interface ComponentDemo {
 }
 
 export default function LabPage() {
+  const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+
   // Sample segments for demonstration
   const sampleSegments = [
     {
@@ -33,7 +40,7 @@ export default function LabPage() {
     }
   ]
 
-  // Demo components - now only the Petition Votes Progressbar
+  // Demo components
   const demoComponents: ComponentDemo[] = [
     {
       id: 'petition-votes-progressbar',
@@ -65,7 +72,56 @@ export default function LabPage() {
           />
         </div>
       )
-    }
+    },
+    {
+      id: 'authentication',
+      name: 'Authentication Components',
+      description: 'Login/register dialog, authentication buttons, and user profile components with Google OAuth integration and Federal design styling.',
+      category: 'authentication',
+      href: '/lab/auth-demo',
+      component: (
+        <div className="space-y-6">
+          {/* Current User Status */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="font-medium text-gray-900 mb-3">Current Authentication Status</h4>
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <UserProfile showAvatar={true} showEmail={true} showLogout={true} />
+              </div>
+            ) : (
+              <p className="text-gray-600 text-sm">No user is currently signed in</p>
+            )}
+          </div>
+
+          {/* Auth Buttons */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Authentication Buttons</h4>
+              <div className="flex flex-wrap gap-3">
+                <AuthButton variant="default" />
+                <AuthButton variant="compact" />
+                <AuthButton variant="minimal" />
+              </div>
+            </div>
+
+                         {/* Manual Trigger Button */}
+             <div>
+               <h4 className="font-medium text-gray-900 mb-2">Manual Dialog Trigger</h4>
+               <div className="flex gap-3">
+                 <button
+                   onClick={() => {
+                     setShowAuthDialog(true);
+                   }}
+                   className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-colors text-sm font-medium"
+                 >
+                   Open Auth Dialog
+                 </button>
+               </div>
+             </div>
+      </div>
+    </div>
+  )
+}
   ]
 
   return (
@@ -173,6 +229,13 @@ export default function LabPage() {
           </div>
         </div>
       </div>
+
+      {/* Auth Dialog */}
+      <AuthDialog 
+        isOpen={showAuthDialog} 
+        onClose={() => setShowAuthDialog(false)} 
+        initialMode="login" 
+      />
     </div>
   )
 }

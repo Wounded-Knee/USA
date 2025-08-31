@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const session = require('express-session');
+const passport = require('passport');
 const { connectDB } = require('./utils/database');
 const errorHandler = require('./middleware/errorHandler');
 require('dotenv').config();
@@ -19,12 +21,31 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Import passport configuration
+require('./config/passport');
+
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the USA Backend API' });
 });
 
 // API Routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/petitions', require('./routes/petitions'));

@@ -147,22 +147,22 @@ export const backgrounds: BackgroundOption[] = [
     }
   },
   {
-    id: 'golden-gate',
-    imageUrl: '/hero/qotd/golden-gate-bridge.svg',
+    id: 'us-capitol',
+    imageUrl: '/hero/qotd/U.S._Capitol_Building_@2x.jpg.webp',
     anchorPoint: 'bottom-center',
     source: {
-      name: 'National Park Service',
-      url: 'https://www.nps.gov/goga/',
+      name: 'Architect of the Capitol',
+      url: 'https://www.aoc.gov/',
       license: 'Public Domain'
     },
     attribution: {
-      name: 'NPS Photo',
-      url: 'https://www.nps.gov/goga/'
+      name: 'AOC Photo',
+      url: 'https://www.aoc.gov/'
     },
     captions: {
-      abbreviated: 'Golden Gate',
-      brief: 'Golden Gate Bridge at sunset',
-      expansive: 'The iconic Golden Gate Bridge spanning the entrance to San Francisco Bay, bathed in golden sunset light, symbolizing California\'s engineering marvels and the gateway to opportunity and innovation.'
+      abbreviated: 'U.S. Capitol',
+      brief: 'The United States Capitol Building',
+      expansive: 'The majestic United States Capitol Building in Washington, D.C., standing as a symbol of American democracy and the legislative branch of government, its iconic dome rising above the National Mall.'
     },
     safeZones: {
       main: { x: 150, y: 250, width: 700, height: 350 },
@@ -173,8 +173,8 @@ export const backgrounds: BackgroundOption[] = [
     },
     colorPalette: {
       light: {
-        primary: '#dc2626',
-        secondary: '#b91c1c',
+        primary: '#1e40af',
+        secondary: '#1d4ed8',
         accent: '#f59e0b',
         text: '#ffffff',
         overlay: 'rgba(0, 0, 0, 0.25)'

@@ -71,7 +71,7 @@ const PetitionsPage: React.FC = () => {
         ...(category && { category })
       })
 
-      const response = await axios.get(`http://localhost:5000/api/petitions?${params}`)
+              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions?${params}`)
       setPetitions(response.data.petitions)
       setPagination(response.data.pagination)
       setError(null)

@@ -183,7 +183,7 @@ const VigorActivity: React.FC<VigorActivityProps> = ({
       setLoading(true)
       setError(null)
 
-      const response = await axios.post('http://localhost:5000/api/vigor/contribute', {
+              const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vigor/contribute`, {
         userId: 'current-user-id', // This would come from auth context
         voteId,
         vigorType,
