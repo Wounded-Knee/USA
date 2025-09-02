@@ -17,7 +17,15 @@
     "setup:uploads": "ln -sf ../server/uploads public/uploads",
     "rebuild:library": "node scripts/rebuild-library-catalog.js",
     "migrate": "node server/scripts/run-migration.js",
-    "test:models": "node server/scripts/test-new-models.js"
+    "test:models": "node server/scripts/test-new-models.js",
+    "import:identities": "node server/scripts/import-identities.js",
+    "test:identity": "node server/scripts/test-identity-model.js",
+    "test:identities-api": "node server/scripts/test-identities-api.js",
+    "deploy:build": "npm run build",
+    "deploy:s3": "aws s3 sync out s3://whitepine/ --delete --exclude \"*.html\" --cache-control \"public,max-age=31536000,immutable\"",
+    "deploy:html": "find out -name \"*.html\" -exec sh -c 'key=\"${1#out/}\"; aws s3 cp \"$1\" \"s3://whitepine/$key\" --cache-control \"no-cache\" --content-type \"text/html; charset=utf-8\"' _ {} \\;",
+    "deploy:invalidate": "aws cloudfront create-invalidation --distribution-id E224EA6ZP3GGQH --paths \"/*\"",
+    "deploy:full": "npm run deploy:build && npm run deploy:s3 && npm run deploy:html && npm run deploy:invalidate"
   },
   "dependencies": {
     "@deck.gl/core": "^9.1.14",

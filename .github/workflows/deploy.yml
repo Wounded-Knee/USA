@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-2
-  S3_BUCKET: usa-fullstack-app
-  CF_DIST_ID: YOUR_CLOUDFRONT_DISTRIBUTION_ID
+  AWS_REGION: us-east-1
+  S3_BUCKET: whitepine
+  CF_DIST_ID: E224EA6ZP3GGQH
 
 jobs:
   build-and-deploy:

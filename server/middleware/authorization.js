@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Role = require('../models/Role');
 
 // Role definitions with associated scopes
 const ROLES = {
@@ -43,6 +44,9 @@ const SCOPES = {
   
   // Analytics
   'analytics:read': 'Read analytics data',
+  
+  // Identities
+  'identities:read': 'Read political identities',
 };
 
 // Role to scope mappings
@@ -56,6 +60,7 @@ const ROLE_SCOPES = {
     'roles:read', 'roles:assign',
     'gov:read',
     'analytics:read',
+    'identities:read',
   ],
   [ROLES.MODERATOR]: [
     'users:read',
@@ -65,6 +70,7 @@ const ROLE_SCOPES = {
     'media:read', 'media:write',
     'gov:read',
     'analytics:read',
+    'identities:read',
   ],
   [ROLES.DEVELOPER]: [
     'users:read', 'users:write',
@@ -75,6 +81,7 @@ const ROLE_SCOPES = {
     'roles:read',
     'gov:read',
     'analytics:read',
+    'identities:read',
   ],
   [ROLES.USER]: [
     'users:read',
@@ -83,6 +90,7 @@ const ROLE_SCOPES = {
     'vigor:read', 'vigor:write',
     'media:read', 'media:write',
     'gov:read',
+    'identities:read',
   ],
 };
 
@@ -120,9 +128,11 @@ const verifyToken = async (req, res, next) => {
     // Resolve scopes from roles
     const scopes = [];
     if (user.roles && Array.isArray(user.roles)) {
-      user.roles.forEach(role => {
-        if (ROLE_SCOPES[role]) {
-          scopes.push(...ROLE_SCOPES[role]);
+      // Get role names from the database
+      const roles = await Role.find({ _id: { $in: user.roles } }).select('name');
+      roles.forEach(role => {
+        if (ROLE_SCOPES[role.name]) {
+          scopes.push(...ROLE_SCOPES[role.name]);
         }
       });
     }

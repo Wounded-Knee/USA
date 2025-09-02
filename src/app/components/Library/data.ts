@@ -159,6 +159,13 @@ export const libraryDocuments: LibraryDocument[] = [
     section: "project-specs"
   },
   {
+    title: "Identity System",
+    filename: "identity-system.md",
+    excerpt: "The Identity system provides a hierarchical classification of political identities and affiliations for the USA application. It enables users to categorize themselves and others based on political bel...",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
     title: "Initial Deployment Guide",
     filename: "initial-deployment.md",
     excerpt: "This guide walks through the complete process of performing the initial deployment of the USA Full-Stack Application to production using the configured S3 + CloudFront infrastructure.",

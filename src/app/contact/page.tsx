@@ -2,12 +2,6 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Contact - Whitepine',
-  description: 'Get in touch with the Whitepine team. We\'re here to help with questions, partnerships, and support.',
-}
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

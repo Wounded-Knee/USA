@@ -75,6 +75,7 @@ app.get('/health', (req, res) => {
 app.use('/v1/auth', require('./routes/v1/auth'));
 app.use('/v1/users', require('./routes/v1/users'));
 app.use('/v1/roles', require('./routes/v1/roles'));
+app.use('/v1/identities', require('./routes/v1/identities'));
 app.use('/v1/obligations', require('./routes/v1/obligations'));
 app.use('/v1/gov', require('./routes/v1/gov'));
 app.use('/v1/media', require('./routes/v1/media'));
