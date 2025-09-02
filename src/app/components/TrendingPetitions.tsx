@@ -34,8 +34,8 @@ const TrendingPetitions: React.FC = () => {
     try {
       setLoading(true);
       
-      // Use the public trending endpoint
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/trending?limit=6&timeFrame=${timeFrame}`);
+      // Use the public trending endpoint for obligations
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations/trending?type=petition&limit=6&timeFrame=${timeFrame}`);
       setPetitions(response.data);
     } catch (error: any) {
       console.error('Failed to fetch trending petitions:', error);

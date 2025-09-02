@@ -92,7 +92,7 @@ export const quotes: Quote[] = [
     },
     date: "1942-01-01",
     explanation: "This quote from Camus' philosophical essay explores the concept of freedom in the face of an absurd world, emphasizing individual agency and the power of personal choice as a form of resistance.",
-    backgroundIds: ['nature-bear', 'redwood-forest'],
+    backgroundIds: ['redwood-forest', 'nature-bear'],
     tags: ['freedom', 'rebellion', 'philosophy', 'individualism']
   },
   {
@@ -111,7 +111,7 @@ export const quotes: Quote[] = [
     },
     date: "1863-11-19",
     explanation: "Lincoln's iconic phrase from the Gettysburg Address defines democracy as a system where power ultimately resides with the people, emphasizing the fundamental principle of popular sovereignty.",
-    backgroundIds: ['us-capitol', 'yosemite-valley'],
+    backgroundIds: ['us-capitol'],
     tags: ['democracy', 'government', 'people', 'freedom']
   },
   {
@@ -130,7 +130,7 @@ export const quotes: Quote[] = [
     },
     date: "1862-01-01",
     explanation: "Thoreau's observation about the importance of wilderness and natural spaces for human well-being and the preservation of freedom, emphasizing the connection between nature and liberty.",
-    backgroundIds: ['yosemite-valley', 'redwood-forest', 'california-coast'],
+    backgroundIds: ['redwood-forest', 'yosemite-valley'],
     tags: ['nature', 'wilderness', 'preservation', 'freedom']
   },
   {
@@ -149,7 +149,7 @@ export const quotes: Quote[] = [
     },
     date: "1937-05-27",
     explanation: "This quote celebrates the Golden Gate Bridge as a symbol of California's spirit of innovation and opportunity, representing the state's role as a gateway to new possibilities.",
-    backgroundIds: ['us-capitol'],
+    backgroundIds: ['california-coast'],
     tags: ['opportunity', 'innovation', 'california', 'progress']
   },
   {
@@ -187,7 +187,7 @@ export const quotes: Quote[] = [
     },
     date: "1968-10-02",
     explanation: "This quote compares the enduring nature of California's ancient redwood forests to the lasting strength of democratic principles, emphasizing the importance of preserving both natural and political heritage.",
-    backgroundIds: ['redwood-forest'],
+    backgroundIds: ['redwood-forest', 'us-capitol'],
     tags: ['democracy', 'endurance', 'nature', 'heritage']
   },
   {
@@ -244,7 +244,7 @@ export const quotes: Quote[] = [
     },
     date: "1776-07-04",
     explanation: "This quote emphasizes that democracy requires active citizen participation rather than passive observation, highlighting the responsibility of each citizen in maintaining democratic values.",
-    backgroundIds: ['us-capitol', 'nature-bear'],
+    backgroundIds: ['us-capitol'],
     tags: ['democracy', 'participation', 'civic-duty', 'engagement']
   },
   {
@@ -263,7 +263,178 @@ export const quotes: Quote[] = [
     },
     date: "1849-01-01",
     explanation: "This quote captures the essence of California's unique role in American culture as a place where dreams are magnified and possibilities expanded, representing the state's innovative spirit.",
-    backgroundIds: ['us-capitol', 'california-coast'],
+    backgroundIds: ['california-coast', 'us-capitol'],
     tags: ['california', 'american-dream', 'opportunity', 'innovation']
+  },
+  {
+    id: 'roosevelt-nature-sacred',
+    text: {
+      abbreviated: "There is nothing so American as our national parks.",
+      direct: "There is nothing so American as our national parks. The fundamental idea behind the parks is that the country belongs to the people, that it is in process of making for the enrichment of the lives of all of us."
+    },
+    source: {
+      name: "Speech at Grand Canyon",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1903-05-06",
+    explanation: "Roosevelt's words emphasize the democratic nature of national parks as public lands that belong to all Americans, reflecting his conservation philosophy and the connection between nature preservation and democratic values.",
+    backgroundIds: ['yellowstone-bison', 'yosemite-valley', 'redwood-forest'],
+    tags: ['national-parks', 'democracy', 'conservation', 'public-lands', 'roosevelt']
+  },
+  {
+    id: 'roosevelt-wilderness-preservation',
+    text: {
+      abbreviated: "The nation behaves well if it treats the natural resources as assets which it must turn over to the next generation increased, and not impaired in value.",
+      direct: "The nation behaves well if it treats the natural resources as assets which it must turn over to the next generation increased, and not impaired in value. Conservation means development as much as it does protection."
+    },
+    source: {
+      name: "New Nationalism Speech",
+      url: "https://en.wikipedia.org/wiki/New_Nationalism_(Theodore_Roosevelt)"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1910-08-31",
+    explanation: "This quote reflects Roosevelt's forward-thinking conservation philosophy, emphasizing that natural resources are a trust for future generations and that conservation involves both protection and sustainable development.",
+    backgroundIds: ['yellowstone-bison', 'redwood-forest', 'yosemite-valley'],
+    tags: ['conservation', 'future-generations', 'sustainability', 'stewardship', 'roosevelt']
+  },
+  {
+    id: 'roosevelt-yosemite-grandeur',
+    text: {
+      abbreviated: "Yosemite Valley is the grandest of all the special temples of Nature.",
+      direct: "Yosemite Valley is the grandest of all the special temples of Nature. It is the greatest glory of Nature. The work of the glacier is written in unmistakable letters."
+    },
+    source: {
+      name: "Visit to Yosemite",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1903-05-06",
+    explanation: "Roosevelt's awe at Yosemite's natural beauty reflects his deep appreciation for wilderness and his commitment to preserving such natural wonders for future generations to experience and enjoy.",
+    backgroundIds: ['yosemite-valley'],
+    tags: ['yosemite', 'nature', 'beauty', 'wilderness', 'roosevelt', 'california']
+  },
+  {
+    id: 'roosevelt-conservation-duty',
+    text: {
+      abbreviated: "Conservation is a great moral issue, for it involves the patriotic duty of ensuring the safety and continuance of the nation.",
+      direct: "Conservation is a great moral issue, for it involves the patriotic duty of ensuring the safety and continuance of the nation. The natural resources of our country are in danger of exhaustion if we permit the old wasteful methods of exploiting them to continue."
+    },
+    source: {
+      name: "Conservation as a National Duty",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1908-05-13",
+    explanation: "Roosevelt frames conservation as a patriotic and moral obligation, connecting environmental stewardship to national security and the well-being of future generations.",
+    backgroundIds: ['yellowstone-bison', 'us-capitol', 'redwood-forest'],
+    tags: ['conservation', 'patriotism', 'moral-duty', 'national-security', 'roosevelt']
+  },
+  {
+    id: 'roosevelt-redwoods-eternal',
+    text: {
+      abbreviated: "The groves of giant sequoias and redwoods are the most impressive of all the monuments of the ages.",
+      direct: "The groves of giant sequoias and redwoods are the most impressive of all the monuments of the ages. They are the most majestic of all the living things on earth."
+    },
+    source: {
+      name: "California Conservation",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1903-05-06",
+    explanation: "Roosevelt's reverence for California's ancient redwood forests reflects his understanding of their ecological and spiritual significance, emphasizing the need to preserve these natural monuments.",
+    backgroundIds: ['redwood-forest'],
+    tags: ['redwoods', 'sequoias', 'ancient-forests', 'conservation', 'roosevelt', 'california']
+  },
+  {
+    id: 'roosevelt-public-lands',
+    text: {
+      abbreviated: "The public lands belong to the people, not to the government.",
+      direct: "The public lands belong to the people, not to the government. The government is merely the trustee of these lands, holding them for the benefit of all the people."
+    },
+    source: {
+      name: "Public Lands Policy",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    attribution: {
+      name: "Theodore Roosevelt",
+      url: "https://en.wikipedia.org/wiki/Theodore_Roosevelt"
+    },
+    date: "1907-12-03",
+    explanation: "This quote emphasizes Roosevelt's democratic vision of public lands as a common heritage that government must steward on behalf of all citizens, not exploit for private gain.",
+    backgroundIds: ['yellowstone-bison', 'us-capitol', 'redwood-forest'],
+    tags: ['public-lands', 'democracy', 'stewardship', 'government-trust', 'roosevelt']
+  },
+  {
+    id: 'muir-wilderness-soul',
+    text: {
+      abbreviated: "In every walk with nature one receives far more than he seeks.",
+      direct: "In every walk with nature one receives far more than he seeks. The clearest way into the Universe is through a forest wilderness."
+    },
+    source: {
+      name: "John of the Mountains",
+      url: "https://en.wikipedia.org/wiki/John_Muir"
+    },
+    attribution: {
+      name: "John Muir",
+      url: "https://en.wikipedia.org/wiki/John_Muir"
+    },
+    date: "1916-01-01",
+    explanation: "Muir's words capture the spiritual and transformative power of wilderness experiences, emphasizing how nature provides unexpected gifts and insights to those who venture into wild places.",
+    backgroundIds: ['redwood-forest', 'yosemite-valley', 'yellowstone-bison'],
+    tags: ['wilderness', 'spirituality', 'nature', 'discovery', 'muir', 'california']
+  },
+  {
+    id: 'emerson-nature-freedom',
+    text: {
+      abbreviated: "Nature always wears the colors of the spirit.",
+      direct: "Nature always wears the colors of the spirit. In the presence of nature, a wild delight runs through the man, in spite of real sorrows."
+    },
+    source: {
+      name: "Nature",
+      url: "https://en.wikipedia.org/wiki/Nature_(essay)"
+    },
+    attribution: {
+      name: "Ralph Waldo Emerson",
+      url: "https://en.wikipedia.org/wiki/Ralph_Waldo_Emerson"
+    },
+    date: "1836-01-01",
+    explanation: "Emerson's transcendentalist philosophy connects the human spirit with the natural world, suggesting that nature reflects our inner state and provides joy and freedom even in difficult times.",
+    backgroundIds: ['redwood-forest', 'yosemite-valley', 'california-coast'],
+    tags: ['transcendentalism', 'spirit', 'nature', 'freedom', 'joy', 'philosophy']
+  },
+  {
+    id: 'jefferson-democracy-nature',
+    text: {
+      abbreviated: "The earth belongs to the living generation.",
+      direct: "The earth belongs to the living generation. We may consider each generation as a distinct nation, with a right, by the will of the majority, to bind themselves, but none to bind the succeeding generation."
+    },
+    source: {
+      name: "Letter to James Madison",
+      url: "https://en.wikipedia.org/wiki/Thomas_Jefferson"
+    },
+    attribution: {
+      name: "Thomas Jefferson",
+      url: "https://en.wikipedia.org/wiki/Thomas_Jefferson"
+    },
+    date: "1789-09-06",
+    explanation: "Jefferson's democratic philosophy extends to natural resources, emphasizing that each generation has rights and responsibilities regarding the earth, connecting democratic principles with environmental stewardship.",
+    backgroundIds: ['us-capitol', 'yellowstone-bison'],
+    tags: ['democracy', 'generations', 'rights', 'responsibility', 'jefferson', 'stewardship']
   }
 ];

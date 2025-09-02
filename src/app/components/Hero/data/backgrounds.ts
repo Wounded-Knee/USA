@@ -313,5 +313,47 @@ export const backgrounds: BackgroundOption[] = [
         overlay: 'rgba(0, 0, 0, 0.45)'
       }
     }
+  },
+  {
+    id: 'yellowstone-bison',
+    imageUrl: '/hero/qotd/yellowstone-bison.jpg',
+    anchorPoint: 'center',
+    source: {
+      name: 'National Wildlife Photo Contest',
+      url: 'https://www.nwf.org/',
+      license: 'Contest Entry'
+    },
+    attribution: {
+      name: 'Sandi Sisti',
+      url: '#'
+    },
+    captions: {
+      abbreviated: 'Yellowstone Bison',
+      brief: 'Bison bull surveys Hayden Valley',
+      expansive: 'A massive bison bull surveys the herd from a ridge in Yellowstone\'s Hayden Valley, representing the wild majesty of America\'s first national park and the importance of preserving these iconic landscapes and wildlife for future generations.'
+    },
+    safeZones: {
+      main: { x: 200, y: 200, width: 800, height: 400 },
+      secondary: { x: 1000, y: 150, width: 600, height: 300 },
+      caption: { x: 50, y: 800, width: 400, height: 100 },
+      source: { x: 1400, y: 900, width: 300, height: 80 },
+      attribution: { x: 1400, y: 980, width: 300, height: 60 }
+    },
+    colorPalette: {
+      light: {
+        primary: '#92400e',
+        secondary: '#78350f',
+        accent: '#f59e0b',
+        text: '#ffffff',
+        overlay: 'rgba(0, 0, 0, 0.3)'
+      },
+      dark: {
+        primary: '#a16207',
+        secondary: '#92400e',
+        accent: '#fbbf24',
+        text: '#ffffff',
+        overlay: 'rgba(0, 0, 0, 0.45)'
+      }
+    }
   }
 ];

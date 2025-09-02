@@ -93,7 +93,7 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
 
             {/* Menu Items */}
             <Link
-              href="/profile"
+              href="/profile/me"
               onClick={() => setIsDropdownOpen(false)}
               className="block px-4 py-2 text-sm text-neutral hover:text-foreground hover:bg-neutral-light transition-colors duration-200"
             >

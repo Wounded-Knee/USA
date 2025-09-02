@@ -123,7 +123,7 @@ const VigorActivity: React.FC<VigorActivityProps> = ({ petitionId, onVigorContri
 
     try {
       // Use the new v1 API endpoint
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions/${petitionId}/vigor`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations/${petitionId}/vigor`, {
         vigorType: formData.vigorType,
         vigorAmount: formData.vigorAmount,
         activityData: formData.activityData,

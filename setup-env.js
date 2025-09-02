@@ -30,7 +30,7 @@ SESSION_SECRET=your-session-secret-key-change-this-in-production
 # Google OAuth Configuration (Optional - for Google sign-in)
 # GOOGLE_CLIENT_ID=your-google-client-id
 # GOOGLE_CLIENT_SECRET=your-google-client-secret
-# GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+# GOOGLE_CALLBACK_URL=http://localhost:5000/v1/auth/google/callback
 
 # Frontend Configuration
 NEXT_PUBLIC_API_URL=http://localhost:5000/api

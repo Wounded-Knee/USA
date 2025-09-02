@@ -92,8 +92,8 @@ const PetitionsPage: React.FC = () => {
       params.append('page', '1');
       params.append('page_size', '20');
       
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions?${params}`);
-      setPetitions(response.data.data);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations?type=petition&${params}`);
+      setPetitions(response.data.obligations);
     } catch (error) {
       console.error('Failed to fetch petitions:', error);
     } finally {

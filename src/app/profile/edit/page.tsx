@@ -68,7 +68,7 @@ export default function EditProfilePage() {
         
         // Redirect to profile page after 2 seconds
         setTimeout(() => {
-          router.push('/profile')
+          router.push('/profile/me')
         }, 2000)
       }
     } catch (err: any) {
@@ -229,7 +229,7 @@ export default function EditProfilePage() {
             <div className="flex justify-end space-x-3 pt-6 border-t border-[var(--color-border)]">
               <button
                 type="button"
-                onClick={() => router.push('/profile')}
+                onClick={() => router.push('/profile/me')}
                 className="px-6 py-2 border border-[var(--color-border)] text-[var(--color-text)] rounded-md hover:bg-[var(--color-background)] transition-colors duration-200"
               >
                 Cancel

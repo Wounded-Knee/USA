@@ -143,9 +143,9 @@ const PetitionDetailPage: React.FC = () => {
   const fetchPetition = async () => {
     try {
       setLoading(true);
-      // Use the new v1 API endpoint
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions/${params.id}`);
-      setPetition(response.data.data);
+      // Use the new v1 obligations API endpoint
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations/${params.id}`);
+      setPetition(response.data);
       setError(null);
     } catch (err) {
       console.error('Error fetching petition:', err);
@@ -184,9 +184,9 @@ const PetitionDetailPage: React.FC = () => {
           setOfficePosition(positionResponse.data.data[0]);
         }
         
-        // Get associated petitions for this office using the new v1 API
-        const petitionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions?filter[officeId]=${office._id}&page=1&page_size=5`);
-        setAssociatedPetitions(petitionsResponse.data.data || []);
+        // Get associated petitions for this office using the new v1 obligations API
+        const petitionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations?type=petition&filter[officeId]=${office._id}&page=1&page_size=5`);
+        setAssociatedPetitions(petitionsResponse.data.obligations || []);
         
         // Fetch office media using the new v1 unified media endpoint
         const officeMediaResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/media?filter[entityType]=office&filter[entityId]=${office._id}&filter[mediaType]=seal`);
@@ -217,8 +217,8 @@ const PetitionDetailPage: React.FC = () => {
     try {
       setVoteError(null);
       
-      // Use the new v1 API endpoint for creating votes
-      const voteResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions/${params.id}/votes`, {}, {
+      // Use the new v1 obligations API endpoint for creating votes
+      const voteResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations/${params.id}/votes`, {}, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }

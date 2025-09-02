@@ -1,4 +1,4 @@
-const Petition = require('../models/Petition');
+const { Petition } = require('../models/Obligations');
 const Vote = require('../models/Vote');
 const mongoose = require('mongoose');
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../../models/User');
-const Petition = require('../../models/Petition');
+const { Obligation } = require('../../models/Obligations');
 const Vote = require('../../models/Vote');
 const Vigor = require('../../models/Vigor');
 const PetitionMetrics = require('../../models/PetitionMetrics');
@@ -22,7 +22,7 @@ router.get('/platform',
     try {
       // Get total counts
       const totalUsers = await User.countDocuments({ isActive: true });
-      const totalPetitions = await Petition.countDocuments({ status: 'active' });
+      const totalPetitions = await Obligation.countDocuments({ obligationType: 'petition', status: 'active' });
       
       // Get totals from PetitionMetrics
       const metricsTotals = await PetitionMetrics.aggregate([
@@ -49,7 +49,8 @@ router.get('/platform',
         createdAt: { $gte: thirtyDaysAgo }
       });
       
-      const recentPetitions = await Petition.countDocuments({
+      const recentPetitions = await Obligation.countDocuments({
+        obligationType: 'petition',
         isActive: true,
         createdAt: { $gte: thirtyDaysAgo }
       });
@@ -94,7 +95,7 @@ router.get('/votes',
   async (req, res) => {
     try {
       // Get category statistics
-      const categoryStats = await Petition.aggregate([
+      const categoryStats = await Obligation.aggregate([
         {
           $lookup: {
             from: 'petitionmetrics',
@@ -117,7 +118,7 @@ router.get('/votes',
       ]);
       
       // Get top petitions by votes
-      const topPetitions = await Petition.find({ isActive: true })
+      const topPetitions = await Obligation.find({ obligationType: 'petition', isActive: true })
         .sort({ voteCount: -1 })
         .limit(10)
         .populate('creator', 'username firstName lastName')

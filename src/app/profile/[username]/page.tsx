@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useAuth } from '../../contexts/AuthContext'
 import axios from 'axios'
 import Link from 'next/link'
 
@@ -60,35 +61,62 @@ interface Petition {
 const ProfilePage: React.FC = () => {
   const params = useParams()
   const router = useRouter()
+  const { user: currentUser, token } = useAuth()
   const [user, setUser] = useState<User | null>(null)
   const [positions, setPositions] = useState<Position[]>([])
   const [petitions, setPetitions] = useState<Petition[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isOwnProfile, setIsOwnProfile] = useState(false)
 
   useEffect(() => {
     if (params.username) {
-      fetchUserProfile()
+      // Check if this is the current user's profile
+      if (params.username === 'me') {
+        if (!token) {
+          router.push('/login')
+          return
+        }
+        setIsOwnProfile(true)
+        // Use current user data
+        if (currentUser) {
+          setUser({
+            _id: currentUser.id,
+            username: currentUser.username,
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            email: currentUser.email,
+            bio: currentUser.profile?.bio,
+            roles: currentUser.roles || [],
+            isActive: true,
+            createdAt: currentUser.createdAt || new Date().toISOString()
+          })
+          setLoading(false)
+        }
+      } else {
+        // Fetch other user's profile
+        fetchUserProfile()
+      }
     }
-  }, [params.username])
+  }, [params.username, token, currentUser, router])
 
   const fetchUserProfile = async () => {
     try {
       setLoading(true)
       
       // Fetch user information
-      const userResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users?username=${params.username}`)
+      const userResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users?username=${params.username}`)
       
       if (userResponse.data.users && userResponse.data.users.length > 0) {
         const userData = userResponse.data.users[0]
         setUser(userData)
         
         // Fetch user's positions
-        const positionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/government/positions/person/${userData._id}`)
+        const positionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/positions/person/${userData._id}`)
         setPositions(positionsResponse.data || [])
         
         // Fetch user's created petitions
-        const petitionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions?creator=${userData._id}`)
+        const petitionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations?type=petition&creator=${userData._id}`)
         setPetitions(petitionsResponse.data.petitions || [])
       } else {
         setError('User not found')
@@ -196,7 +224,7 @@ const ProfilePage: React.FC = () => {
                 {/* Profile Info */}
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold mb-2">
-                    {user.firstName} {user.lastName}
+                    {isOwnProfile ? 'My Profile' : `${user.firstName} ${user.lastName}`}
                   </h1>
                   <p className="text-white/80 text-lg mb-2">@{user.username}</p>
                   {user.bio && (
@@ -211,6 +239,14 @@ const ProfilePage: React.FC = () => {
                     <span className="text-sm opacity-90">
                       Member since {formatDate(user.createdAt)}
                     </span>
+                    {isOwnProfile && (
+                      <Link
+                        href="/profile/edit"
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-md transition-colors duration-200 text-sm font-medium"
+                      >
+                        Edit Profile
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

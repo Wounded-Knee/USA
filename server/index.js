@@ -55,6 +55,7 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'Welcome to the USA Backend API',
     version: '1.0',
+    api: '/v1',
     documentation: '/v1/docs'
   });
 });
@@ -68,22 +69,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Legacy API Routes (deprecated)
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/roles', require('./routes/roles'));
-app.use('/api/data', require('./routes/data'));
-app.use('/api/petitions', require('./routes/petitions'));
-app.use('/api/votes', require('./routes/votes'));
-app.use('/api/vigor', require('./routes/vigor'));
-app.use('/api/government', require('./routes/government'));
-app.use('/api/media', require('./routes/media'));
+// All API routes now use v1
 
 // New v1 API Routes
 app.use('/v1/auth', require('./routes/v1/auth'));
 app.use('/v1/users', require('./routes/v1/users'));
 app.use('/v1/roles', require('./routes/v1/roles'));
-app.use('/v1/petitions', require('./routes/v1/petitions'));
+app.use('/v1/obligations', require('./routes/v1/obligations'));
 app.use('/v1/gov', require('./routes/v1/gov'));
 app.use('/v1/media', require('./routes/v1/media'));
 app.use('/v1/analytics', require('./routes/v1/analytics'));
@@ -132,26 +124,28 @@ app.get('/v1/docs', (req, res) => {
           'GET /scopes - List available scopes'
         ]
       },
-      petitions: {
-        description: 'Petition management endpoints',
-        base: '/v1/petitions',
+      obligations: {
+        description: 'Unified obligation management endpoints (Promise, Petition, etc.)',
+        base: '/v1/obligations',
         endpoints: [
-          'GET / - List petitions',
-          'POST / - Create petition',
-          'GET /:petitionId - Get petition by ID',
-          'PATCH /:petitionId - Update petition',
-          'DELETE /:petitionId - Delete petition',
-          'GET /:petitionId/votes - Get petition votes',
-          'POST /:petitionId/votes - Vote on petition',
-          'GET /:petitionId/votes/:voteId - Get specific vote',
-          'GET /:petitionId/vigor - Get petition vigor',
-          'POST /:petitionId/vigor - Contribute vigor',
-          'GET /:petitionId/media - Get petition media',
-          'POST /:petitionId/media - Upload petition media'
+          'GET / - List obligations with type filtering',
+          'GET /?type=petition - List only petitions',
+          'GET /?type=promise - List only promises',
+          'GET /trending - Get trending obligations',
+          'GET /trending?type=petition - Get trending petitions',
+          'GET /stats - Get obligation statistics',
+          'GET /:id - Get obligation by ID',
+          'GET /:id/claims - Get detailed claims for obligation',
+          'POST /:id/vigor - Add vigor to obligation',
+          'POST /:id/votes - Vote on obligation',
+          'POST / - Create new obligation (specify type)',
+          'PUT /:id - Update obligation',
+          'DELETE /:id - Delete obligation'
         ]
       },
+
       gov: {
-        description: 'Government data endpoints',
+        description: 'Government endpoints',
         base: '/v1/gov',
         endpoints: [
           'GET /jurisdictions - List jurisdictions',
@@ -185,7 +179,7 @@ app.get('/v1/docs', (req, res) => {
         endpoints: [
           'GET /platform - Platform statistics',
           'GET /votes - Vote analytics',
-          'GET /petitions/trending - Trending petitions',
+          'GET /obligations/trending - Trending obligations',
           'GET /vigor - Vigor analytics'
         ]
       }
@@ -204,7 +198,7 @@ app.get('/v1/docs', (req, res) => {
     },
     response_format: {
       success: {
-        data: 'Resource or array of resources',
+        resources: 'Resource or array of resources',
         meta: 'Pagination and metadata'
       },
       error: {
@@ -238,8 +232,7 @@ const startServer = async () => {
       console.log(`📡 API available at http://localhost:${PORT}`);
       console.log(`🔗 Frontend should be at http://localhost:3000`);
       console.log(`📚 API Documentation at http://localhost:${PORT}/v1/docs`);
-      console.log(`⚡ New v1 API at http://localhost:${PORT}/v1`);
-      console.log(`⚠️  Legacy API at http://localhost:${PORT}/api (deprecated)`);
+      console.log(`⚡ API available at http://localhost:${PORT}/v1`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);

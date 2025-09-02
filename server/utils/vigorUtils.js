@@ -1,6 +1,6 @@
 const Vigor = require('../models/Vigor');
 const Vote = require('../models/Vote');
-const Petition = require('../models/Petition');
+const { Petition } = require('../models/Obligations');
 const mongoose = require('mongoose');
 
 // Calculate vigor amount based on activity type and metrics

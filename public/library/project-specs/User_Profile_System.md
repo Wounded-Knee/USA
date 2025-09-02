@@ -14,7 +14,7 @@ The User Profile System provides a comprehensive user management interface with 
   - Automatic fallback to DiceBear API for avatar generation
 
 ### Profile Pages
-- **Main Profile**: `src/app/profile/page.tsx`
+- **Main Profile**: `src/app/profile/[username]/page.tsx` (unified route for current user and other users)
 - **Edit Profile**: `src/app/profile/edit/page.tsx`
 
 ### Key Features
@@ -106,8 +106,11 @@ import UserAvatar from '../components/UserAvatar'
 
 ### Profile Navigation
 ```tsx
-// Navigate to profile
-<Link href="/profile">View Profile</Link>
+// Navigate to current user's profile
+<Link href="/profile/me">View Profile</Link>
+
+// Navigate to other user's profile
+<Link href="/profile/username">View Profile</Link>
 
 // Navigate to edit profile
 <Link href="/profile/edit">Edit Profile</Link>
