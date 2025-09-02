@@ -4,17 +4,20 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 
 interface User {
-  _id: string;
+  id: string;
   username: string;
   email: string;
   firstName: string;
   lastName: string;
   roles: string[];
-  avatar?: string;
-  authMethod: 'local' | 'google';
-  emailVerified: boolean;
+  scopes: string[];
+  profile?: {
+    bio?: string;
+    location?: string;
+    website?: string;
+  };
   isActive: boolean;
-  lastLogin: string;
+  lastLogin?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,11 +26,13 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   loginWithGoogle: () => void;
   updateUser: (userData: Partial<User>) => void;
+  hasRole: (role: string) => boolean;
+  hasScope: (scope: string) => boolean;
 }
 
 interface RegisterData {
@@ -59,10 +64,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize axios with base URL
   const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1',
     headers: {
       'Content-Type': 'application/json',
     },
+    withCredentials: true, // Enable cookies for refresh tokens
   });
 
   // Add token to requests
@@ -101,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await api.get('/auth/me', {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setUser(response.data);
+      setUser(response.data.data); // New API returns { data: user }
     } catch (error) {
       console.error('Failed to fetch user:', error);
       logout();
@@ -114,13 +120,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (identifier: string, password: string) => {
     try {
       const response = await api.post('/auth/login', { identifier, password });
-      const { token: authToken, user: userData } = response.data;
+      const { accessToken, user: userData } = response.data.data;
       
-      setToken(authToken);
+      setToken(accessToken);
       setUser(userData);
-      localStorage.setItem('authToken', authToken);
+      localStorage.setItem('authToken', accessToken);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      throw new Error(error.response?.data?.detail || 'Login failed');
     }
   };
 
@@ -128,13 +134,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: RegisterData) => {
     try {
       const response = await api.post('/auth/register', userData);
-      const { token: authToken, user: newUser } = response.data;
+      const { accessToken, user: newUser } = response.data.data;
       
-      setToken(authToken);
+      setToken(accessToken);
       setUser(newUser);
-      localStorage.setItem('authToken', authToken);
+      localStorage.setItem('authToken', accessToken);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      throw new Error(error.response?.data?.detail || 'Registration failed');
     }
   };
 
@@ -150,7 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await api.get('/auth/google');
       // If we get here, it means Google OAuth is configured and we can redirect
-      const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/google`;
+      const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/auth/oauth/google`;
       window.location.href = googleAuthUrl;
     } catch (error: any) {
       if (error.response?.status === 503) {
@@ -165,6 +171,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (user) {
       setUser({ ...user, ...userData });
     }
+  };
+
+  // Check if user has a specific role
+  const hasRole = (role: string): boolean => {
+    return user?.roles?.includes(role) || false;
+  };
+
+  // Check if user has a specific scope
+  const hasScope = (scope: string): boolean => {
+    return user?.scopes?.includes(scope) || false;
   };
 
   // Handle OAuth callback
@@ -191,6 +207,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     loginWithGoogle,
     updateUser,
+    hasRole,
+    hasScope,
   };
 
   return (

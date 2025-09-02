@@ -73,6 +73,32 @@
   --foreground: var(--fs-16081); /* Dark gray foreground */
   --surface: #ffffff; /* White surface */
   --surface-dark: var(--fs-16099); /* Dark surface */
+
+  /* Component-specific color variables for light theme */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-dark);
+  --color-secondary-light: var(--secondary-light);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-dark);
+  --color-accent-light: var(--accent-light);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-background: var(--background);
+  --color-background-secondary: var(--fs-14449);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--fs-16307);
+  --color-text: var(--foreground);
+  --color-text-secondary: var(--neutral);
+  --color-text-muted: var(--fs-16152);
+  --color-border: var(--neutral-light);
+  --color-border-secondary: var(--fs-16307);
+  --color-text-on-primary: #ffffff;
+  --color-text-on-secondary: var(--foreground);
+  --color-focus-ring: var(--primary);
 }
 
 /* Dark Theme Overrides */
@@ -101,4 +127,35 @@
   --foreground: var(--fs-16314); /* Light gray foreground */
   --surface: var(--fs-15044); /* Dark navy surface */
   --surface-dark: var(--fs-15042); /* Very dark surface */
+
+  /* Component-specific color variables for dark theme */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-light);
+  --color-primary-light: var(--fs-15182);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-light);
+  --color-secondary-light: var(--fs-14449);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-light);
+  --color-accent-light: var(--fs-15182);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-background: var(--background);
+  --color-background-secondary: var(--fs-15044);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--fs-16081);
+  --color-text: var(--foreground);
+  --color-text-secondary: var(--neutral);
+  --color-text-muted: var(--fs-16251);
+  --color-border: var(--neutral-light);
+  --color-border-secondary: var(--fs-16081);
+  --color-text-on-primary: var(--foreground);
+  --color-text-on-secondary: var(--foreground);
+  --color-focus-ring: var(--primary-light);
+}
+
+/* Theme transition for smooth switching */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

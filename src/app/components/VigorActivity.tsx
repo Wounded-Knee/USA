@@ -1,356 +1,393 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
-import BaseModal from './BaseModal'
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 interface VigorActivityProps {
-  voteId: string
-  petitionTitle: string
-  onVigorContributed: (vigorData: any) => void
-  onClose: () => void
+  petitionId: string;
+  onVigorContributed?: () => void;
 }
 
-interface ActivityData {
-  shakeIntensity?: number
-  shakeDuration?: number
-  shakeCount?: number
-  voiceConfidence?: number
-  voiceDuration?: number
-  voiceClarity?: number
-  audioRecording?: string
-  statementText?: string
-  statementLength?: number
-  statementEmotion?: string
-  completionTime?: number
-  focusScore?: number
-  emotionalIntensity?: number
+interface VigorFormData {
+  vigorType: 'steps' | 'calories' | 'duration' | 'custom';
+  vigorAmount: number;
+  activityData: {
+    steps?: number;
+    calories?: number;
+    duration?: number;
+    distance?: number;
+    custom?: {
+      label: string;
+      value: number;
+      unit: string;
+    };
+  };
+  signingStatement: string;
 }
 
-const VigorActivity: React.FC<VigorActivityProps> = ({ 
-  voteId, 
-  petitionTitle, 
-  onVigorContributed, 
-  onClose 
-}) => {
-  const [vigorType, setVigorType] = useState<'shake' | 'voice' | 'statement'>('shake')
-  const [isActive, setIsActive] = useState(false)
-  const [activityData, setActivityData] = useState<ActivityData>({})
-  const [signingStatement, setSigningStatement] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  
-  // Refs for activity tracking
-  const shakeStartTime = useRef<number>(0)
-  const shakeCount = useRef<number>(0)
-  const shakeIntensity = useRef<number>(0)
-  const voiceStartTime = useRef<number>(0)
-  const mediaRecorder = useRef<MediaRecorder | null>(null)
-  const audioChunks = useRef<Blob[]>([])
+const VigorActivity: React.FC<VigorActivityProps> = ({ petitionId, onVigorContributed }) => {
+  const { user } = useAuth();
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [formData, setFormData] = useState<VigorFormData>({
+    vigorType: 'steps',
+    vigorAmount: 0,
+    activityData: {},
+    signingStatement: ''
+  });
 
-  // Shake detection
-  useEffect(() => {
-    if (vigorType === 'shake' && isActive) {
-      const handleDeviceMotion = (event: DeviceMotionEvent) => {
-        if (event.acceleration) {
-          const { x, y, z } = event.acceleration
-          const intensity = Math.sqrt((x || 0) ** 2 + (y || 0) ** 2 + (z || 0) ** 2)
-          shakeIntensity.current = Math.max(shakeIntensity.current, intensity)
-          
-          if (intensity > 15) { // Threshold for shake detection
-            shakeCount.current++
-          }
+  const vigorTypes = [
+    { value: 'steps', label: 'Steps', icon: '👟', description: 'Daily step count' },
+    { value: 'calories', label: 'Calories', icon: '🔥', description: 'Calories burned' },
+    { value: 'duration', label: 'Duration', icon: '⏱️', description: 'Time spent (minutes)' },
+    { value: 'custom', label: 'Custom', icon: '⚡', description: 'Custom activity' }
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === 'vigorType') {
+      setFormData(prev => ({
+        ...prev,
+        vigorType: value as VigorFormData['vigorType'],
+        vigorAmount: 0,
+        activityData: {}
+      }));
+    } else if (name === 'vigorAmount') {
+      setFormData(prev => ({
+        ...prev,
+        vigorAmount: parseInt(value) || 0
+      }));
+    } else if (name === 'signingStatement') {
+      setFormData(prev => ({
+        ...prev,
+        signingStatement: value
+      }));
+    } else if (name.startsWith('activity_')) {
+      const field = name.replace('activity_', '');
+      setFormData(prev => ({
+        ...prev,
+        activityData: {
+          ...prev.activityData,
+          [field]: parseInt(value) || 0
+        }
+      }));
+    }
+  };
+
+  const handleCustomActivityChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      activityData: {
+        ...prev.activityData,
+        custom: {
+          ...prev.activityData.custom,
+          [field]: value
         }
       }
+    }));
+  };
 
-      if (window.DeviceMotionEvent) {
-        window.addEventListener('devicemotion', handleDeviceMotion)
-        return () => window.removeEventListener('devicemotion', handleDeviceMotion)
-      }
+  const validateForm = (): boolean => {
+    if (formData.vigorAmount <= 0) {
+      setError('Please enter a valid vigor amount');
+      return false;
     }
-  }, [vigorType, isActive])
 
-  // Voice recording
-  useEffect(() => {
-    if (vigorType === 'voice' && isActive) {
-      startVoiceRecording()
-    } else if (vigorType === 'voice' && !isActive && mediaRecorder.current) {
-      stopVoiceRecording()
+    if (formData.vigorType === 'custom' && (!formData.activityData.custom?.label || !formData.activityData.custom?.unit)) {
+      setError('Please provide a label and unit for custom activity');
+      return false;
     }
-  }, [vigorType, isActive])
 
-  const startVoiceRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorder.current = new MediaRecorder(stream)
-      audioChunks.current = []
+    return true;
+  };
 
-      mediaRecorder.current.ondataavailable = (event) => {
-        audioChunks.current.push(event.data)
-      }
-
-      mediaRecorder.current.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' })
-        const audioUrl = URL.createObjectURL(audioBlob)
-        setActivityData(prev => ({
-          ...prev,
-          audioRecording: audioUrl,
-          voiceDuration: (Date.now() - voiceStartTime.current) / 1000
-        }))
-      }
-
-      voiceStartTime.current = Date.now()
-      mediaRecorder.current.start()
-    } catch (error) {
-      console.error('Error starting voice recording:', error)
-      setError('Could not access microphone')
-    }
-  }
-
-  const stopVoiceRecording = () => {
-    if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
-      mediaRecorder.current.stop()
-      mediaRecorder.current.stream.getTracks().forEach(track => track.stop())
-    }
-  }
-
-  const startActivity = () => {
-    setIsActive(true)
-    setError(null)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    if (vigorType === 'shake') {
-      shakeStartTime.current = Date.now()
-      shakeCount.current = 0
-      shakeIntensity.current = 0
-    } else if (vigorType === 'voice') {
-      voiceStartTime.current = Date.now()
+    if (!user) {
+      setError('Please log in to contribute vigor');
+      return;
     }
-  }
 
-  const stopActivity = () => {
-    setIsActive(false)
-    
-    if (vigorType === 'shake') {
-      const duration = (Date.now() - shakeStartTime.current) / 1000
-      setActivityData({
-        shakeIntensity: shakeIntensity.current,
-        shakeDuration: duration,
-        shakeCount: shakeCount.current,
-        completionTime: duration,
-        focusScore: Math.min(100, (shakeCount.current / 10) * 100),
-        emotionalIntensity: Math.min(100, (shakeIntensity.current / 50) * 100)
-      })
-    } else if (vigorType === 'voice') {
-      const duration = (Date.now() - voiceStartTime.current) / 1000
-      setActivityData(prev => ({
-        ...prev,
-        voiceDuration: duration,
-        voiceConfidence: Math.min(100, (duration / 30) * 100),
-        voiceClarity: 85, // Placeholder - would be calculated from audio analysis
-        completionTime: duration,
-        focusScore: Math.min(100, (duration / 60) * 100),
-        emotionalIntensity: 75 // Placeholder - would be calculated from voice analysis
-      }))
+    if (!validateForm()) {
+      return;
     }
-  }
 
-  const handleStatementChange = (text: string) => {
-    setActivityData(prev => ({
-      ...prev,
-      statementText: text,
-      statementLength: text.length,
-      statementEmotion: getEmotionFromText(text)
-    }))
-  }
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-  const getEmotionFromText = (text: string): string => {
-    const lowerText = text.toLowerCase()
-    if (lowerText.includes('angry') || lowerText.includes('furious') || lowerText.includes('outraged')) {
-      return 'angry'
-    } else if (lowerText.includes('passionate') || lowerText.includes('strongly') || lowerText.includes('must')) {
-      return 'passionate'
-    } else if (lowerText.includes('determined') || lowerText.includes('will') || lowerText.includes('need')) {
-      return 'determined'
-    } else if (lowerText.includes('concerned') || lowerText.includes('worried') || lowerText.includes('fear')) {
-      return 'concerned'
-    } else if (lowerText.includes('hope') || lowerText.includes('believe') || lowerText.includes('future')) {
-      return 'hopeful'
-    }
-    return 'neutral'
-  }
-
-  const submitVigor = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      // Use the new v1 API endpoint
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions/${petitionId}/vigor`, {
+        vigorType: formData.vigorType,
+        vigorAmount: formData.vigorAmount,
+        activityData: formData.activityData,
+        signingStatement: formData.signingStatement
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
 
-              const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vigor/contribute`, {
-        userId: 'current-user-id', // This would come from auth context
-        voteId,
-        vigorType,
-        activityData,
-        signingStatement
-      })
-
-      onVigorContributed(response.data)
-      onClose()
-    } catch (error) {
-      console.error('Error submitting vigor:', error)
-      setError('Failed to submit vigor contribution')
+      if (response.status === 201) {
+        setSuccess('Vigor contribution successful!');
+        setFormData({
+          vigorType: 'steps',
+          vigorAmount: 0,
+          activityData: {},
+          signingStatement: ''
+        });
+        setShowForm(false);
+        
+        // Notify parent component
+        if (onVigorContributed) {
+          onVigorContributed();
+        }
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(null), 3000);
+      }
+    } catch (error: any) {
+      console.error('Failed to contribute vigor:', error);
+      setError(error.response?.data?.detail || 'Failed to contribute vigor');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const getActivityInstructions = () => {
-    switch (vigorType) {
-      case 'shake':
-        return 'Hold your device firmly and shake it with conviction for your cause. The more intense and longer you shake, the more vigor you contribute.'
-      case 'voice':
-        return 'Speak your signing statement with confidence and conviction. Your voice will be recorded as a testament to your commitment.'
-      case 'statement':
-        return 'Write a personal statement about why this cause matters to you. Express your emotions and convictions clearly.'
-      default:
-        return ''
-    }
-  }
+  const getVigorTypeIcon = (type: string) => {
+    const vigorType = vigorTypes.find(t => t.value === type);
+    return vigorType?.icon || '⚡';
+  };
 
-  const getActivityButton = () => {
-    if (vigorType === 'statement') return null
-
+  if (!user) {
     return (
-      <button
-        onClick={isActive ? stopActivity : startActivity}
-        className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300 ${
-          isActive
-            ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
-      >
-        {isActive ? 'Stop Activity' : `Start ${vigorType.charAt(0).toUpperCase() + vigorType.slice(1)} Activity`}
-      </button>
-    )
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+        <div className="text-gray-400 text-4xl mb-4">⚡</div>
+        <p className="text-gray-600 mb-4">Log in to contribute your energy to this petition</p>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Log In
+        </button>
+      </div>
+    );
   }
 
   return (
-    <BaseModal
-      isOpen={true}
-      onClose={onClose}
-      title="Contribute Vigor"
-      size="md"
-      showCloseButton={true}
-    >
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold text-gray-900">Contribute Vigor</h3>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          <span className="mr-2">⚡</span>
+          {showForm ? 'Cancel' : 'Contribute'}
+        </button>
+      </div>
 
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Petition</h3>
-            <p className="text-gray-600">{petitionTitle}</p>
-          </div>
+      {/* Success Message */}
+      {success && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-green-800">{success}</p>
+        </div>
+      )}
 
-          {/* Activity Type Selection */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Choose Your Vigor Type</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {(['shake', 'voice', 'statement'] as const).map((type) => (
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
+      {/* Vigor Contribution Form */}
+      {showForm && (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Vigor Type Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Choose Activity Type
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {vigorTypes.map((type) => (
                 <button
-                  key={type}
-                  onClick={() => setVigorType(type)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    vigorType === type
+                  key={type.value}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, vigorType: type.value as VigorFormData['vigorType'] }))}
+                  className={`p-4 border rounded-lg text-center transition-colors ${
+                    formData.vigorType === type.value
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  <div className="text-sm font-medium capitalize">{type}</div>
+                  <div className="text-2xl mb-2">{type.icon}</div>
+                  <div className="font-medium text-sm">{type.label}</div>
+                  <div className="text-xs text-gray-500 mt-1">{type.description}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Activity Instructions */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">{getActivityInstructions()}</p>
-          </div>
-
-          {/* Activity Interface */}
-          <div className="mb-6">
-            {getActivityButton()}
-
-            {vigorType === 'statement' && (
-              <div className="space-y-4">
-                <textarea
-                  value={activityData.statementText || ''}
-                  onChange={(e) => handleStatementChange(e.target.value)}
-                  placeholder="Write your personal statement about why this cause matters to you..."
-                  className="w-full p-3 border border-gray-300 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="text-sm text-gray-500">
-                  {activityData.statementLength || 0} characters
-                </div>
-              </div>
-            )}
-
-            {/* Activity Progress */}
-            {isActive && vigorType === 'shake' && (
-              <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-700 mb-2">
-                    Shake Count: {shakeCount.current}
-                  </div>
-                  <div className="text-sm text-yellow-600">
-                    Intensity: {Math.round(shakeIntensity.current)}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isActive && vigorType === 'voice' && (
-              <div className="mt-4 p-4 bg-green-50 rounded-lg">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-700 mb-2">
-                    Recording...
-                  </div>
-                  <div className="text-sm text-green-600">
-                    Speak with conviction!
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Signing Statement */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Signing Statement (Optional)
+          {/* Vigor Amount */}
+          <div>
+            <label htmlFor="vigorAmount" className="block text-sm font-medium text-gray-700 mb-2">
+              Vigor Amount
             </label>
-            <textarea
-              value={signingStatement}
-              onChange={(e) => setSigningStatement(e.target.value)}
-              placeholder="Add a personal statement that will be attached to your vote..."
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none h-20 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">{getVigorTypeIcon(formData.vigorType)}</span>
+              <input
+                type="number"
+                id="vigorAmount"
+                name="vigorAmount"
+                value={formData.vigorAmount}
+                onChange={handleInputChange}
+                min="1"
+                required
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={`Enter ${formData.vigorType} amount`}
+              />
+              <span className="text-sm text-gray-500">
+                {formData.vigorType === 'steps' && 'steps'}
+                {formData.vigorType === 'calories' && 'calories'}
+                {formData.vigorType === 'duration' && 'minutes'}
+                {formData.vigorType === 'custom' && 'units'}
+              </span>
+            </div>
           </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm">{error}</p>
+          {/* Activity Data Fields */}
+          {formData.vigorType === 'custom' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Activity Label
+                </label>
+                <input
+                  type="text"
+                  value={formData.activityData.custom?.label || ''}
+                  onChange={(e) => handleCustomActivityChange('label', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Meditation, Reading"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Value
+                </label>
+                <input
+                  type="number"
+                  value={formData.activityData.custom?.value || ''}
+                  onChange={(e) => handleCustomActivityChange('value', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="30"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Unit
+                </label>
+                <input
+                  type="text"
+                  value={formData.activityData.custom?.unit || ''}
+                  onChange={(e) => handleCustomActivityChange('unit', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="minutes, pages, etc."
+                  required
+                />
+              </div>
             </div>
           )}
 
-          {/* Submit Button */}
-          <button
-            onClick={submitVigor}
-            disabled={loading || (!isActive && vigorType !== 'statement')}
-            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
-              loading || (!isActive && vigorType !== 'statement')
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
-          >
-            {loading ? 'Submitting...' : 'Contribute Vigor'}
-          </button>
-        </BaseModal>
-  )
-}
+          {/* Signing Statement */}
+          <div>
+            <label htmlFor="signingStatement" className="block text-sm font-medium text-gray-700 mb-2">
+              Signing Statement (Optional)
+            </label>
+            <textarea
+              id="signingStatement"
+              name="signingStatement"
+              value={formData.signingStatement}
+              onChange={handleInputChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Share why this petition matters to you..."
+              maxLength={500}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.signingStatement.length}/500 characters
+            </p>
+          </div>
 
-export default VigorActivity
+          {/* Submit Button */}
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Contributing...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <span className="mr-2">⚡</span>
+                  Contribute Vigor
+                </span>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Info Section */}
+      {!showForm && (
+        <div className="text-center py-8">
+          <div className="text-gray-400 text-6xl mb-4">⚡</div>
+          <h4 className="text-lg font-medium text-gray-900 mb-2">Ready to contribute your energy?</h4>
+          <p className="text-gray-600 mb-4">
+            Vigor represents your physical and mental energy invested in this petition. 
+            Every contribution strengthens the collective voice for change.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
+            <div>
+              <div className="text-2xl mb-2">👟</div>
+              <div className="font-medium">Steps</div>
+              <div>Daily walking or exercise</div>
+            </div>
+            <div>
+              <div className="text-2xl mb-2">🔥</div>
+              <div className="font-medium">Calories</div>
+              <div>Energy burned through activity</div>
+            </div>
+            <div>
+              <div className="text-2xl mb-2">⏱️</div>
+              <div className="font-medium">Time</div>
+              <div>Minutes spent on activities</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default VigorActivity;

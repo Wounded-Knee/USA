@@ -20,10 +20,10 @@ export default function ForestBackground({ className = '' }: ForestBackgroundPro
         backgroundImage: `url(${selectedForestImage})`,
         backgroundPosition: 'bottom center',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-        opacity: 0.15, // Light opacity to darken the background
+        backgroundSize: 'cover',
+        opacity: 0.05, // Light opacity to darken the background
         filter: 'brightness(0.8) contrast(1.2)', // Enhance the darkening effect
-        height: '300px', // Set a fixed height for the forest background
+        height: '600px', // Set a fixed height for the forest background
         minHeight: '200px', // Ensure minimum height on smaller screens
       }}
     />

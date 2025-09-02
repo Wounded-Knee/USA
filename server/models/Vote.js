@@ -1,46 +1,38 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const voteSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const Vote = new Schema({
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true, 
+    index: true 
   },
-  petition: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Petition',
-    required: true
+  petition: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Petition', 
+    required: true, 
+    index: true 
   },
-  totalVigor: {
-    type: Number,
-    default: 0,
-    min: 0
+  signingStatement: { 
+    type: String, 
+    maxlength: 1000 
   },
-  vigorCount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  signingStatement: {
-    type: String,
-    trim: true,
-    maxlength: 1000
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  isActive: { 
+    type: Boolean, 
+    default: true, 
+    index: true 
   }
-}, {
-  timestamps: true
+}, { 
+  timestamps: true 
 });
 
-// Compound unique index to prevent duplicate votes from the same user on the same petition
-voteSchema.index({ user: 1, petition: 1 }, { unique: true });
+// Unique compound index: one vote per user per petition
+Vote.index({ user: 1, petition: 1 }, { unique: true });
 
-// Index for querying votes by petition
-voteSchema.index({ petition: 1, createdAt: -1 });
+// Additional indexes for common queries
+Vote.index({ petition: 1, createdAt: -1 });
+Vote.index({ user: 1, createdAt: -1 });
+Vote.index({ isActive: 1, createdAt: -1 });
 
-// Index for querying votes by user
-voteSchema.index({ user: 1, createdAt: -1 });
-
-module.exports = mongoose.model('Vote', voteSchema);
+module.exports = mongoose.model('Vote', Vote);

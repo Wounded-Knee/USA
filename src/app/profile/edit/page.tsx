@@ -1,64 +1,41 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import UserAvatar from '../../components/UserAvatar'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import axios from 'axios'
-
-interface ProfileFormData {
-  firstName: string
-  lastName: string
-  username: string
-  email: string
-  avatar?: string
-  avatarFile?: File
-}
 
 export default function EditProfilePage() {
   const { user, token, updateUser } = useAuth()
-  const [formData, setFormData] = useState<ProfileFormData>({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    avatar: ''
-  })
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    bio: '',
+    location: '',
+    website: ''
+  })
 
   useEffect(() => {
+    if (!token) {
+      router.push('/login')
+      return
+    }
+    
     if (user) {
       setFormData({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        email: user.email,
-        avatar: user.avatar || ''
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        bio: user.profile?.bio || '',
+        location: user.profile?.location || '',
+        website: user.profile?.website || ''
       })
     }
-  }, [user])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-    setError('')
-    setSuccess('')
-  }
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        avatarFile: file
-      }))
-    }
-  }
+  }, [user, token, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,211 +44,202 @@ export default function EditProfilePage() {
     setSuccess('')
 
     try {
-      // Handle avatar upload first if there's a new file
-      let avatarPath = formData.avatar
-      if (formData.avatarFile) {
-        const formDataFile = new FormData()
-        formDataFile.append('avatar', formData.avatarFile)
-        
-        const avatarResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/users/${user?._id}/avatar`,
-          formDataFile,
-          {
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        )
-        avatarPath = avatarResponse.data.avatar
-      }
-
-      // Update other profile data
-      const { avatarFile, ...profileData } = formData
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/users/${user?._id}`,
-        { ...profileData, avatar: avatarPath },
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users/profile`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          profile: {
+            bio: formData.bio,
+            location: formData.location,
+            website: formData.website
+          }
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
       )
 
-      updateUser(response.data)
-      setSuccess('Profile updated successfully!')
+      if (response.status === 200) {
+        setSuccess('Profile updated successfully!')
+        updateUser(response.data.data)
+        
+        // Redirect to profile page after 2 seconds
+        setTimeout(() => {
+          router.push('/profile')
+        }, 2000)
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile')
+      setError(err.response?.data?.detail || 'Failed to update profile')
     } finally {
       setLoading(false)
     }
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
   if (!user) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Please sign in to edit your profile</h1>
-          <Link 
-            href="/"
-            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md font-medium transition-colors duration-200"
-          >
-            Go Home
-          </Link>
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4">
+          <div className="bg-[var(--color-surface)] rounded-lg shadow-lg border border-[var(--color-border)] p-8 text-center">
+            <div className="text-[var(--color-text-muted)] text-4xl mb-4">🔒</div>
+            <h1 className="text-2xl font-bold text-[var(--color-text)] mb-4">Access Denied</h1>
+            <p className="text-[var(--color-text-secondary)] mb-6">
+              You must be logged in to edit your profile.
+            </p>
+            <button
+              onClick={() => router.push('/login')}
+              className="px-6 py-3 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] transition-colors duration-200"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="min-h-screen py-16">
+      <div className="container mx-auto px-4 max-w-2xl">
         <div className="mb-8">
-          <Link
-            href="/profile"
-            className="text-primary hover:text-primary-dark transition-colors duration-200 mb-4 inline-flex items-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Profile
-          </Link>
-          <h1 className="text-3xl font-bold text-foreground">Edit Profile</h1>
-          <p className="text-neutral mt-2">Update your personal information and avatar</p>
+          <h1 className="text-4xl font-bold text-[var(--color-text)] mb-4">Edit Profile</h1>
+          <p className="text-lg text-[var(--color-text-secondary)]">
+            Update your personal information and profile details.
+          </p>
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-light p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar Section */}
-            <div className="text-center">
-              <div className="mb-4">
-                <UserAvatar size="lg" showDropdown={false} />
-              </div>
-              <div>
-                <label htmlFor="avatar" className="block text-sm font-medium text-neutral mb-2">
-                  Profile Picture
-                </label>
-                <input
-                  type="file"
-                  id="avatar"
-                  name="avatar"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="block w-full text-sm text-neutral file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary-dark transition-colors duration-200"
-                />
-                <p className="text-xs text-neutral mt-1">
-                  Upload a new profile picture (JPG, PNG, GIF up to 5MB)
-                </p>
-              </div>
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-lg border border-[var(--color-border)] p-8">
+          {/* Messages */}
+          {error && (
+            <div className="mb-6 p-4 bg-[var(--color-error-light)] border border-[var(--color-error)] rounded-md">
+              <p className="text-[var(--color-error)]">{error}</p>
             </div>
+          )}
+          
+          {success && (
+            <div className="mb-6 p-4 bg-[var(--color-success-light)] border border-[var(--color-success)] rounded-md">
+              <p className="text-[var(--color-success)]">{success}</p>
+            </div>
+          )}
 
-            {/* Error/Success Messages */}
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-                {success}
-              </div>
-            )}
-
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-neutral mb-2">
-                  First Name
+                <label htmlFor="firstName" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                  First Name *
                 </label>
                 <input
                   type="text"
                   id="firstName"
                   name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+                  placeholder="Enter your first name"
                 />
               </div>
+
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-neutral mb-2">
-                  Last Name
+                <label htmlFor="lastName" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                  Last Name *
                 </label>
                 <input
                   type="text"
                   id="lastName"
                   name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+                  placeholder="Enter your last name"
                 />
               </div>
             </div>
 
-            {/* Username */}
+            {/* Bio */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-neutral mb-2">
-                Username
+              <label htmlFor="bio" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                Bio
+              </label>
+              <textarea
+                id="bio"
+                name="bio"
+                rows={4}
+                value={formData.bio}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+                placeholder="Tell us about yourself and your interests in civic engagement..."
+              />
+              <p className="text-sm text-[var(--color-text-muted)] mt-1">
+                Optional: Share what motivates you to participate in democracy.
+              </p>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                Location
               </label>
               <input
                 type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+                placeholder="City, State or Country"
               />
-              <p className="text-xs text-neutral mt-1">
-                This is your public username that others will see
+              <p className="text-sm text-[var(--color-text-muted)] mt-1">
+                Optional: Help connect with others in your area.
               </p>
             </div>
 
-            {/* Email */}
+            {/* Website */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral mb-2">
-                Email Address
+              <label htmlFor="website" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                Website
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
+                type="url"
+                id="website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+                placeholder="https://yourwebsite.com"
               />
-              <p className="text-xs text-neutral mt-1">
-                We'll send you important updates about your account
+              <p className="text-sm text-[var(--color-text-muted)] mt-1">
+                Optional: Link to your personal or professional website.
               </p>
             </div>
 
-            {/* Submit Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-neutral-light">
-              <Link
-                href="/profile"
-                className="text-neutral hover:text-foreground transition-colors duration-200"
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-3 pt-6 border-t border-[var(--color-border)]">
+              <button
+                type="button"
+                onClick={() => router.push('/profile')}
+                className="px-6 py-2 border border-[var(--color-border)] text-[var(--color-text)] rounded-md hover:bg-[var(--color-background)] transition-colors duration-200"
               >
                 Cancel
-              </Link>
+              </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
-                {loading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </div>
-                ) : (
-                  'Save Changes'
-                )}
+                {loading ? 'Updating...' : 'Update Profile'}
               </button>
             </div>
           </form>

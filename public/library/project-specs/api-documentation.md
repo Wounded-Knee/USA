@@ -1,48 +1,47 @@
-# USA Full-Stack Application - API Documentation
+# API Documentation - v1
 
 ## Overview
-This document provides comprehensive documentation for the USA Full-Stack Application backend API. The API is built with Express.js and provides endpoints for user management, petitions, voting, government data, and more.
+
+This document describes the v1 API for the USA application, which has been completely refactored for better data consistency, performance, and maintainability.
 
 ## Base URL
-- **Development**: `http://localhost:5000/api`
-- **Production**: `https://your-production-domain.com/api`
+
+```
+http://localhost:5000/v1
+```
 
 ## Authentication
-Most endpoints require authentication using JWT tokens. Include the token in the Authorization header:
-```
-Authorization: Bearer <your-jwt-token>
-```
 
-## Response Format
-All API responses follow a consistent JSON format:
-```json
-{
-  "message": "Success message",
-  "data": { ... },
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 100,
-    "pages": 10
-  }
-}
-```
+### JWT Token System
+- **Access Token**: 15-minute expiration, sent in `Authorization: Bearer <token>` header
+- **Refresh Token**: 7-day expiration, stored in HTTP-only cookie
+- **Token Rotation**: Automatic refresh with new tokens on each refresh
 
-## Error Responses
-Error responses include an error message and appropriate HTTP status code:
-```json
-{
-  "error": "Error description",
-  "message": "Detailed error message"
-}
-```
+### Role-Based Access Control (RBAC)
+Users have roles that grant specific scopes:
 
----
+- **user**: Basic read access
+- **moderator**: Content management access
+- **admin**: Full system access
+- **developer**: Analytics and development access
 
-## Authentication Endpoints
+### Scopes
+Fine-grained permissions for different operations:
+- `users:read`, `users:write`
+- `petitions:read`, `petitions:write`
+- `votes:read`, `votes:write`
+- `vigor:read`, `vigor:write`
+- `media:read`, `media:write`
+- `gov:read`, `gov:write`
+- `analytics:read`
+- `roles:assign`
 
-### POST /api/auth/register
-Register a new user account.
+## Core Endpoints
+
+### Authentication
+
+#### POST /v1/auth/register
+Create a new user account.
 
 **Request Body:**
 ```json
@@ -58,27 +57,29 @@ Register a new user account.
 **Response:**
 ```json
 {
-  "message": "User registered successfully",
-  "user": {
-    "_id": "string",
-    "username": "string",
-    "email": "string",
-    "firstName": "string",
-    "lastName": "string",
-    "authMethod": "local",
-    "createdAt": "date"
-  },
-  "token": "jwt-token"
+  "data": {
+    "user": {
+      "id": "string",
+      "username": "string",
+      "email": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "roles": ["string"],
+      "scopes": ["string"],
+      "createdAt": "string"
+    },
+    "accessToken": "string"
+  }
 }
 ```
 
-### POST /api/auth/login
-Authenticate user and receive JWT token.
+#### POST /v1/auth/login
+Authenticate user with email/username and password.
 
 **Request Body:**
 ```json
 {
-  "identifier": "string", // username or email
+  "identifier": "string", // email or username
   "password": "string"
 }
 ```
@@ -86,1227 +87,440 @@ Authenticate user and receive JWT token.
 **Response:**
 ```json
 {
-  "message": "Login successful",
-  "user": {
-    "_id": "string",
-    "username": "string",
-    "email": "string",
-    "firstName": "string",
-    "lastName": "string",
-    "lastLogin": "date"
-  },
-  "token": "jwt-token"
-}
-```
-
-### GET /api/auth/google
-Initiate Google OAuth authentication (if configured).
-
-**Response:** Redirects to Google OAuth
-
-### GET /api/auth/google/callback
-Google OAuth callback endpoint.
-
-**Response:** Redirects to frontend with token
-
-### GET /api/auth/me
-Get current authenticated user information.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "_id": "string",
-  "username": "string",
-  "email": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "roles": ["string"],
-  "isActive": true,
-  "createdAt": "date"
-}
-```
-
-### POST /api/auth/logout
-Logout user (client-side token removal).
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "message": "Logged out successfully"
-}
-```
-
-### POST /api/auth/refresh
-Refresh JWT token.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "token": "new-jwt-token",
-  "user": { ... }
-}
-```
-
----
-
-## User Management Endpoints
-
-### GET /api/users
-Get all users with optional filtering.
-
-**Query Parameters:**
-- `username` (string): Filter by username
-- `email` (string): Filter by email
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "users": [
-    {
-      "_id": "string",
+  "data": {
+    "user": {
+      "id": "string",
       "username": "string",
       "email": "string",
       "firstName": "string",
       "lastName": "string",
-      "isActive": true,
-      "createdAt": "date"
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
+      "roles": ["string"],
+      "scopes": ["string"],
+      "lastLogin": "string"
+    },
+    "accessToken": "string"
+  }
 }
 ```
 
-### GET /api/users/:id
-Get user by ID.
+#### POST /v1/auth/refresh
+Refresh access token using refresh token from cookie.
 
 **Response:**
 ```json
 {
-  "_id": "string",
-  "username": "string",
-  "email": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "roles": ["string"],
-  "isActive": true,
-  "createdAt": "date"
+  "data": {
+    "accessToken": "string"
+  }
 }
 ```
 
-### PUT /api/users/:id
-Update user profile.
+#### POST /v1/auth/logout
+Logout user and invalidate refresh token.
 
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "firstName": "string",
-  "lastName": "string",
-  "bio": "string",
-  "location": "string",
-  "website": "string"
-}
-```
-
-### POST /api/users/:id/avatar
-Upload user avatar.
-
-**Headers:** `Authorization: Bearer <token>`
-**Content-Type:** `multipart/form-data`
-
-**Form Data:**
-- `avatar`: Image file (max 5MB)
-
-### POST /api/users/:id/banner
-Upload user banner.
-
-**Headers:** `Authorization: Bearer <token>`
-**Content-Type:** `multipart/form-data`
-
-**Form Data:**
-- `banner`: Image file (max 10MB)
-
-### DELETE /api/users/:id
-Deactivate user account.
-
-**Headers:** `Authorization: Bearer <token>`
-
----
-
-## Role Management Endpoints
-
-### GET /api/roles/available
-Get all available roles (Admin/Developer only).
-
-**Headers:** `Authorization: Bearer <token>`
+#### GET /v1/auth/me
+Get current user profile and permissions.
 
 **Response:**
 ```json
 {
-  "roles": ["Developer", "Admin", "Moderator", "User"]
-}
-```
-
-### GET /api/roles/users
-Get all users with their roles (Admin/Developer only).
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
+  "data": {
+    "id": "string",
     "username": "string",
+    "email": "string",
     "firstName": "string",
     "lastName": "string",
-    "email": "string",
     "roles": ["string"],
-    "isActive": true,
-    "createdAt": "date"
-  }
-]
-```
-
-### POST /api/roles/assign
-Assign role to user (Admin/Developer only).
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "userId": "string",
-  "role": "string"
-}
-```
-
-### DELETE /api/roles/remove
-Remove role from user (Admin/Developer only).
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "userId": "string",
-  "role": "string"
-}
-```
-
-### PUT /api/roles/update/:userId
-Update user roles (Admin/Developer only).
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "roles": ["string"]
-}
-```
-
-### GET /api/roles/my-roles
-Get current user's roles.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "roles": ["string"]
-}
-```
-
----
-
-## Petition Endpoints
-
-### GET /api/petitions/jurisdictions
-Get available jurisdictions for petition creation.
-
-**Query Parameters:**
-- `level` (string): Jurisdiction level
-- `parent` (string): Parent jurisdiction ID
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
-    "name": "string",
-    "slug": "string",
-    "level": "string",
-    "path": "string",
-    "parent": {
-      "_id": "string",
-      "name": "string",
-      "slug": "string"
-    }
-  }
-]
-```
-
-### GET /api/petitions/governing-bodies
-Get governing bodies for a jurisdiction.
-
-**Query Parameters:**
-- `jurisdiction` (string): Jurisdiction ID (required)
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
-    "name": "string",
-    "slug": "string",
-    "branch": "string",
-    "entity_type": "string"
-  }
-]
-```
-
-### GET /api/petitions/legislation
-Get legislation for a governing body.
-
-**Query Parameters:**
-- `governingBody` (string): Governing body ID
-- `status` (string): Legislation status
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
-    "title": "string",
-    "bill_number": "string",
-    "status": "string",
-    "introduced_date": "date",
-    "governing_body": {
-      "_id": "string",
-      "name": "string",
-      "slug": "string"
-    }
-  }
-]
-```
-
-### GET /api/petitions
-Get all petitions with optional filtering.
-
-**Query Parameters:**
-- `category` (string): Filter by category
-- `isActive` (boolean): Filter by active status
-- `creator` (string): Filter by creator ID
-- `jurisdiction` (string): Filter by jurisdiction
-- `governingBody` (string): Filter by governing body
-- `legislation` (string): Filter by legislation
-- `sortBy` (string): Sort field (default: createdAt)
-- `sortOrder` (string): Sort order (default: desc)
-- `page` (number): Page number (default: 1)
-- `limit` (number): Results per page (default: 10)
-
-**Response:**
-```json
-{
-  "petitions": [
-    {
-      "_id": "string",
-      "title": "string",
-      "description": "string",
-      "category": "string",
-      "voteCount": 0,
-      "isActive": true,
-      "creator": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      },
-      "jurisdiction": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      },
-      "createdAt": "date"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 100,
-    "pages": 10
-  }
-}
-```
-
-### GET /api/petitions/:id
-Get petition by ID.
-
-**Response:**
-```json
-{
-  "_id": "string",
-  "title": "string",
-  "description": "string",
-  "category": "string",
-  "voteCount": 0,
-  "vigorCount": 0,
-  "totalVigor": 0,
-  "isActive": true,
-  "creator": {
-    "_id": "string",
-    "username": "string",
-    "firstName": "string",
-    "lastName": "string"
-  },
-  "jurisdiction": {
-    "_id": "string",
-    "name": "string",
-    "slug": "string"
-  },
-  "governingBody": {
-    "_id": "string",
-    "name": "string",
-    "slug": "string"
-  },
-  "legislation": {
-    "_id": "string",
-    "title": "string",
-    "bill_number": "string"
-  },
-  "createdAt": "date",
-  "updatedAt": "date"
-}
-```
-
-### POST /api/petitions
-Create new petition.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "title": "string",
-  "description": "string",
-  "category": "string",
-  "jurisdiction": "string",
-  "governingBody": "string",
-  "legislation": "string"
-}
-```
-
-### PUT /api/petitions/:id
-Update petition.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "title": "string",
-  "description": "string",
-  "category": "string"
-}
-```
-
-### DELETE /api/petitions/:id
-Delete petition.
-
-**Headers:** `Authorization: Bearer <token>`
-
-### GET /api/petitions/:id/trending
-Get trending petitions.
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
-    "title": "string",
-    "voteCount": 0,
-    "trendingScore": 0
-  }
-]
-```
-
----
-
-## Voting Endpoints
-
-### GET /api/votes/user/:userId
-Get all votes by a specific user.
-
-**Query Parameters:**
-- `page` (number): Page number (default: 1)
-- `limit` (number): Results per page (default: 20)
-
-**Response:**
-```json
-{
-  "votes": [
-    {
-      "_id": "string",
-      "petition": {
-        "_id": "string",
-        "title": "string",
-        "description": "string",
-        "category": "string",
-        "voteCount": 0,
-        "isActive": true
-      },
-      "createdAt": "date"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "pages": 5
-  }
-}
-```
-
-### GET /api/votes/stats
-Get voting statistics.
-
-**Response:**
-```json
-{
-  "totalVotes": 1000,
-  "totalPetitions": 50,
-  "totalUsers": 200,
-  "topPetitions": [
-    {
-      "_id": "string",
-      "title": "string",
-      "voteCount": 100,
-      "creator": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      }
-    }
-  ],
-  "recentVotes": [
-    {
-      "_id": "string",
-      "user": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      },
-      "petition": {
-        "_id": "string",
-        "title": "string"
-      },
-      "createdAt": "date"
-    }
-  ]
-}
-```
-
-### GET /api/votes/check/:petitionId/:userId
-Check if user has voted on a petition.
-
-**Response:**
-```json
-{
-  "hasVoted": true
-}
-```
-
-### GET /api/votes/user/:userId/vote/:petitionId
-Get specific vote by user and petition.
-
-**Response:**
-```json
-{
-  "vote": {
-    "_id": "string",
-    "user": "string",
-    "petition": "string",
-    "createdAt": "date"
-  }
-}
-```
-
-### GET /api/votes/category-stats
-Get voting statistics by category.
-
-**Response:**
-```json
-[
-  {
-    "_id": "string",
-    "totalPetitions": 10,
-    "totalVotes": 500,
-    "avgVotes": 50
-  }
-]
-```
-
----
-
-## Vigor Endpoints
-
-### POST /api/vigor/contribute
-Contribute vigor to a vote.
-
-**Request Body:**
-```json
-{
-  "userId": "string",
-  "voteId": "string",
-  "vigorType": "string",
-  "activityData": {
-    "steps": 10000,
-    "calories": 500,
-    "duration": 60
-  },
-  "signingStatement": "string"
-}
-```
-
-**Response:**
-```json
-{
-  "vigor": {
-    "_id": "string",
-    "user": "string",
-    "vote": "string",
-    "petition": "string",
-    "vigorType": "string",
-    "vigorAmount": 100,
-    "activityData": {},
-    "signingStatement": "string",
-    "createdAt": "date"
-  },
-  "vote": {
-    "totalVigor": 100,
-    "vigorCount": 1
-  },
-  "petition": {
-    "totalVigor": 100,
-    "vigorCount": 1
-  },
-  "shouldNotify": false
-}
-```
-
-### GET /api/vigor/petition/:id
-Get vigor statistics for a petition.
-
-**Response:**
-```json
-{
-  "totalVigor": 1000,
-  "vigorCount": 50,
-  "averageVigor": 20,
-  "vigorByType": [
-    {
-      "type": "string",
-      "count": 10,
-      "totalAmount": 200
-    }
-  ],
-  "recentContributions": [
-    {
-      "_id": "string",
-      "user": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      },
-      "vigorAmount": 50,
-      "vigorType": "string",
-      "createdAt": "date"
-    }
-  ]
-}
-```
-
-### GET /api/vigor/user/:userId
-Get vigor contributions by user.
-
-**Query Parameters:**
-- `page` (number): Page number (default: 1)
-- `limit` (number): Results per page (default: 20)
-
-**Response:**
-```json
-{
-  "vigor": [
-    {
-      "_id": "string",
-      "vote": "string",
-      "petition": {
-        "_id": "string",
-        "title": "string"
-      },
-      "vigorType": "string",
-      "vigorAmount": 100,
-      "createdAt": "date"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "pages": 5
-  }
-}
-```
-
----
-
-## Government Data Endpoints
-
-### GET /api/government/jurisdictions
-Get all jurisdictions.
-
-**Query Parameters:**
-- `level` (string): Jurisdiction level
-- `parent` (string): Parent jurisdiction ID
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "jurisdictions": [
-    {
-      "_id": "string",
-      "name": "string",
-      "slug": "string",
-      "level": "string",
-      "depth": 1,
-      "path": "string",
-      "parent": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      }
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/government/jurisdictions/:id
-Get jurisdiction by ID.
-
-**Response:**
-```json
-{
-  "jurisdiction": {
-    "_id": "string",
-    "name": "string",
-    "slug": "string",
-    "level": "string",
-    "depth": 1,
-    "path": "string",
-    "parent": {
-      "_id": "string",
-      "name": "string",
-      "slug": "string",
-      "path": "string"
-    }
-  },
-  "hierarchy": [
-    {
-      "_id": "string",
-      "name": "string",
-      "slug": "string",
-      "level": "string"
-    }
-  ]
-}
-```
-
-### GET /api/government/governing-bodies
-Get governing bodies.
-
-**Query Parameters:**
-- `jurisdiction` (string): Jurisdiction ID
-- `branch` (string): Government branch
-- `entity_type` (string): Entity type
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "governingBodies": [
-    {
-      "_id": "string",
-      "name": "string",
-      "slug": "string",
-      "branch": "string",
-      "entity_type": "string",
-      "jurisdiction": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      }
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/government/offices
-Get government offices.
-
-**Query Parameters:**
-- `governingBody` (string): Governing body ID
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "offices": [
-    {
-      "_id": "string",
-      "name": "string",
-      "slug": "string",
-      "description": "string",
-      "governingBody": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      }
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/government/positions
-Get government positions.
-
-**Query Parameters:**
-- `office` (string): Office ID
-- `isCurrent` (boolean): Current positions only
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "positions": [
-    {
-      "_id": "string",
-      "office": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      },
-      "person": {
-        "_id": "string",
-        "name": "string",
-        "party": "string"
-      },
-      "startDate": "date",
-      "endDate": "date",
-      "isCurrent": true
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/government/elections
-Get elections.
-
-**Query Parameters:**
-- `jurisdiction` (string): Jurisdiction ID
-- `status` (string): Election status
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "elections": [
-    {
-      "_id": "string",
-      "title": "string",
-      "date": "date",
-      "status": "string",
-      "jurisdiction": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      }
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/government/legislation
-Get legislation.
-
-**Query Parameters:**
-- `governingBody` (string): Governing body ID
-- `status` (string): Legislation status
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-
-**Response:**
-```json
-{
-  "legislation": [
-    {
-      "_id": "string",
-      "title": "string",
-      "bill_number": "string",
-      "status": "string",
-      "introduced_date": "date",
-      "governing_body": {
-        "_id": "string",
-        "name": "string",
-        "slug": "string"
-      }
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
----
-
-## Media Endpoints
-
-### GET /api/media
-Get all media with optional filtering.
-
-**Query Parameters:**
-- `entity_type` (string): Entity type (jurisdiction, governing_body, office, position)
-- `entity_id` (string): Entity ID
-- `media_type` (string): Media type
-- `limit` (number): Number of results (default: 50)
-- `skip` (number): Number of results to skip (default: 0)
-- `sort` (string): Sort order (default: -createdAt)
-
-**Response:**
-```json
-{
-  "media": [
-    {
-      "_id": "string",
-      "filename": "string",
-      "original_name": "string",
-      "media_type": "string",
-      "file_size": 1000000,
-      "mime_type": "string",
-      "url": "string",
-      "is_primary": false,
-      "uploaded_by": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      },
-      "createdAt": "date"
-    }
-  ],
-  "total": 100,
-  "limit": 50,
-  "skip": 0
-}
-```
-
-### GET /api/media/:id
-Get media by ID.
-
-**Response:**
-```json
-{
-  "media": {
-    "_id": "string",
-    "filename": "string",
-    "original_name": "string",
-    "media_type": "string",
-    "file_size": 1000000,
-    "mime_type": "string",
-    "url": "string",
-    "is_primary": false,
-    "uploaded_by": {
-      "_id": "string",
-      "username": "string",
-      "firstName": "string",
-      "lastName": "string"
+    "scopes": ["string"],
+    "profile": {
+      "bio": "string",
+      "location": "string",
+      "website": "string"
     },
-    "createdAt": "date"
+    "isActive": "boolean",
+    "lastLogin": "string",
+    "createdAt": "string"
   }
 }
 ```
 
-### POST /api/media/upload
-Upload media file.
+### Petitions
 
-**Headers:** `Authorization: Bearer <token>`
-**Content-Type:** `multipart/form-data`
-
-**Form Data:**
-- `file`: File to upload (max 10MB)
-- `entity_type`: Entity type
-- `entity_id`: Entity ID
-- `media_type`: Media type
-- `description`: Description (optional)
-
-**Response:**
-```json
-{
-  "media": {
-    "_id": "string",
-    "filename": "string",
-    "original_name": "string",
-    "media_type": "string",
-    "file_size": 1000000,
-    "mime_type": "string",
-    "url": "string",
-    "is_primary": false,
-    "createdAt": "date"
-  }
-}
-```
-
-### PUT /api/media/:id
-Update media metadata.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "description": "string",
-  "is_primary": false
-}
-```
-
-### DELETE /api/media/:id
-Delete media file.
-
-**Headers:** `Authorization: Bearer <token>`
-
----
-
-## Data Endpoints
-
-### GET /api/data
-Get all data with optional filtering.
+#### GET /v1/petitions
+List petitions with filtering, sorting, and pagination.
 
 **Query Parameters:**
-- `type` (string): Data type
-- `category` (string): Data category
-- `tags` (string): Comma-separated tags
-- `isPublic` (boolean): Public data only
-- `limit` (number): Number of results (default: 50)
-- `page` (number): Page number (default: 1)
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 20, max: 100)
+- `filter[categoryId]`: Filter by category ID
+- `filter[status]`: Filter by status (draft, active, closed, archived)
+- `filter[creator]`: Filter by creator user ID
+- `filter[jurisdictionId]`: Filter by jurisdiction ID
+- `filter[governingBodyId]`: Filter by governing body ID
+- `filter[legislationId]`: Filter by legislation ID
+- `sort`: Sort field (e.g., "createdAt", "-createdAt", "trending")
+- `fields`: Comma-separated fields to include
 
 **Response:**
 ```json
 {
   "data": [
     {
-      "_id": "string",
+      "id": "string",
       "title": "string",
       "description": "string",
-      "type": "string",
-      "category": "string",
-      "tags": ["string"],
-      "isPublic": true,
-      "createdBy": {
-        "_id": "string",
+      "categoryId": "string",
+      "creator": {
+        "id": "string",
         "username": "string",
         "firstName": "string",
         "lastName": "string"
       },
-      "createdAt": "date"
+      "jurisdiction": {
+        "id": "string",
+        "name": "string",
+        "slug": "string"
+      },
+      "governingBody": {
+        "id": "string",
+        "name": "string",
+        "slug": "string"
+      },
+      "legislation": {
+        "id": "string",
+        "title": "string",
+        "bill_number": "string"
+      },
+      "status": "string",
+      "tags": ["string"],
+      "snapshot": {
+        "voteCount": "number",
+        "totalVigor": "number"
+      },
+      "createdAt": "string",
+      "updatedAt": "string"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 50,
-    "total": 100,
-    "pages": 2
+  "meta": {
+    "page": "number",
+    "page_size": "number",
+    "total": "number",
+    "total_pages": "number"
   }
 }
 ```
 
-### GET /api/data/platform-stats
-Get comprehensive platform statistics.
+#### POST /v1/petitions
+Create a new petition.
+
+**Request Body:**
+```json
+{
+  "title": "string",
+  "description": "string",
+  "category": "string", // Will be mapped to categoryId
+  "jurisdictionId": "string",
+  "governingBodyId": "string",
+  "legislationId": "string",
+  "tags": ["string"]
+}
+```
+
+**Required Scopes:** `petitions:write`
+
+#### GET /v1/petitions/:petitionId
+Get a specific petition by ID.
+
+#### PATCH /v1/petitions/:petitionId
+Update a petition.
+
+**Required Scopes:** `petitions:write` + ownership
+
+#### DELETE /v1/petitions/:petitionId
+Delete a petition.
+
+**Required Scopes:** `petitions:write` + ownership
+
+### Votes
+
+#### GET /v1/petitions/:petitionId/votes
+List votes for a petition.
+
+**Query Parameters:**
+- `page`: Page number
+- `page_size`: Items per page
+- `filter[userId]`: Filter by user ID
+
+#### POST /v1/petitions/:petitionId/votes
+Cast a vote on a petition (idempotent).
+
+**Request Body:**
+```json
+{
+  "signingStatement": "string"
+}
+```
+
+**Required Scopes:** `votes:write`
+
+**Notes:**
+- One vote per user per petition (enforced by unique constraint)
+- Returns 409 Conflict if user already voted
+- Automatically updates petition metrics
+
+#### GET /v1/petitions/:petitionId/votes/:voteId
+Get a specific vote.
+
+### Vigor
+
+#### GET /v1/petitions/:petitionId/vigor
+List vigor contributions for a petition.
+
+**Query Parameters:**
+- `page`: Page number
+- `page_size`: Items per page
+
+**Notes:**
+- Vigor is linked through votes, not directly to petitions
+- Only users who have voted can contribute vigor
+
+#### POST /v1/petitions/:petitionId/vigor
+Contribute vigor to a petition.
+
+**Request Body:**
+```json
+{
+  "type": "string", // steps, calories, duration, distance, workout, meditation, reading, volunteering
+  "amount": "number",
+  "activityData": "object",
+  "signingStatement": "string"
+}
+```
+
+**Required Scopes:** `vigor:write`
+
+**Notes:**
+- User must have voted on the petition first
+- Vigor is automatically linked to the user's vote
+- Automatically updates petition metrics
+
+### Media
+
+#### GET /v1/media
+List media files with filtering.
+
+**Query Parameters:**
+- `page`: Page number
+- `page_size`: Items per page
+- `filter[entityType]`: Filter by entity type (User, Petition, Jurisdiction, etc.)
+- `filter[entityId]`: Filter by entity ID
+- `filter[mediaType]`: Filter by media type (image, document, video)
+
+#### POST /v1/media
+Upload a new media file.
+
+**Request Body:** Multipart form data
+- `file`: File to upload
+- `entityType`: Type of entity (User, Petition, etc.)
+- `entityId`: ID of the entity
+- `description`: Optional description
+- `isPrimary`: Whether this is the primary media for the entity
+
+**Required Scopes:** `media:write`
+
+### Government Data
+
+#### GET /v1/gov/jurisdictions
+List jurisdictions with hierarchy support.
+
+#### GET /v1/gov/governing-bodies
+List governing bodies within jurisdictions.
+
+#### GET /v1/gov/offices
+List offices within governing bodies.
+
+#### GET /v1/gov/positions
+List positions (seats) within offices.
+
+#### GET /v1/gov/position-terms
+List position terms (office holders) with time-based filtering.
+
+#### GET /v1/gov/legislation
+List legislation with status tracking.
+
+### Analytics
+
+#### GET /v1/analytics/platform
+Get platform-wide statistics.
+
+**Required Scopes:** `analytics:read`
 
 **Response:**
 ```json
 {
-  "totalUsers": 1000,
-  "totalPetitions": 500,
-  "totalVotes": 10000,
-  "totalVigor": 5000,
-  "totalVigorAmount": 50000,
-  "recentActivity": {
-    "votes": 100,
-    "petitions": 10,
-    "users": 20
-  },
-  "categoryStats": [
-    {
-      "_id": "string",
-      "totalPetitions": 50,
-      "totalVotes": 1000,
-      "avgVotes": 20
-    }
-  ],
-  "topPetitions": [
-    {
-      "_id": "string",
-      "title": "string",
-      "voteCount": 500,
-      "category": "string",
-      "creator": {
-        "_id": "string",
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string"
-      }
-    }
-  ],
-  "vigorTypeStats": [
-    {
-      "_id": "string",
-      "count": 100,
-      "totalAmount": 5000
-    }
-  ]
+  "data": {
+    "totals": {
+      "users": "number",
+      "petitions": "number",
+      "votes": "number",
+      "vigor": "number",
+      "vigorAmount": "number"
+    },
+    "recentActivity": {
+      "users": "number",
+      "petitions": "number",
+      "votes": "number"
+    },
+    "period": "string"
+  }
 }
 ```
 
----
+#### GET /v1/analytics/votes
+Get vote analytics and statistics.
 
-## Error Codes
+#### GET /v1/analytics/vigor
+Get vigor analytics and leaderboards.
 
-### HTTP Status Codes
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `401` - Unauthorized
-- `403` - Forbidden
-- `404` - Not Found
-- `500` - Internal Server Error
+### Users
 
-### Common Error Messages
-- `"All fields are required"` - Missing required fields
-- `"Invalid credentials"` - Authentication failed
-- `"User not found"` - User does not exist
-- `"Access denied. Insufficient permissions."` - Insufficient role permissions
-- `"Route not found"` - Invalid endpoint
+#### GET /v1/users
+List users with filtering and pagination.
 
----
+**Required Scopes:** `users:read`
+
+#### GET /v1/users/:userId
+Get user profile.
+
+#### PATCH /v1/users/:userId
+Update user profile.
+
+**Required Scopes:** `users:write` + ownership
+
+#### GET /v1/users/:userId/roles
+Get user roles.
+
+#### PUT /v1/users/:userId/roles
+Update user roles.
+
+**Required Scopes:** `roles:assign`
+
+### Roles
+
+#### GET /v1/roles
+List available roles and their scopes.
+
+## Response Format
+
+### Success Response
+```json
+{
+  "data": "response data",
+  "meta": {
+    "page": "number",
+    "page_size": "number",
+    "total": "number"
+  }
+}
+```
+
+### Error Response (RFC 7807)
+```json
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation failed",
+  "status": 422,
+  "detail": "Request validation failed",
+  "instance": "/v1/petitions",
+  "errors": {
+    "field": ["error message"]
+  }
+}
+```
+
+## Pagination
+
+The API supports both page-based and cursor-based pagination:
+
+### Page-based (Default)
+- `page`: Page number starting from 1
+- `page_size`: Items per page (1-100)
+
+### Cursor-based
+- `cursor`: Opaque cursor string
+- `limit`: Maximum items to return
+
+## Filtering
+
+Filters use the `filter[field]` syntax:
+```
+GET /v1/petitions?filter[status]=active&filter[categoryId]=123
+```
+
+## Sorting
+
+Sort fields can be prefixed with `-` for descending order:
+```
+GET /v1/petitions?sort=-createdAt
+GET /v1/petitions?sort=trending
+```
+
+## Field Selection
+
+Use the `fields` parameter to limit returned fields:
+```
+GET /v1/petitions?fields=title,creator.username,createdAt
+```
 
 ## Rate Limiting
-API endpoints are subject to rate limiting to prevent abuse. Limits are applied per IP address and user account.
 
-### Rate Limits
-- **Authentication endpoints**: 5 requests per minute
-- **General endpoints**: 100 requests per minute
-- **File uploads**: 10 requests per minute
+- **General endpoints**: 100 requests per minute per IP
+- **Authentication endpoints**: 10 requests per minute per IP
+- **Upload endpoints**: 20 requests per minute per IP
 
-### Rate Limit Headers
-```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1640995200
-```
+## Security Features
 
----
+- **HTTPS enforcement** in production
+- **CORS** with strict origin validation
+- **Security headers** (HSTS, CSP, X-Frame-Options)
+- **Input validation** with Zod schemas
+- **SQL injection protection** via Mongoose
+- **XSS protection** via content sanitization
 
-## File Upload Guidelines
+## Migration Notes
 
-### Supported File Types
-- **Images**: JPEG, PNG, SVG
-- **Documents**: PDF
-- **Maximum file size**: 10MB
+### Breaking Changes from Legacy API
+1. **Base URL**: Changed from `/api` to `/v1`
+2. **Petition fields**: `category` → `categoryId`, `isActive` → `status`
+3. **Vigor creation**: Now requires existing vote, no direct petition reference
+4. **Response structure**: Updated to include `data` wrapper and `meta` information
+5. **Authentication**: Enhanced with roles and scopes
 
-### Upload Endpoints
-- `/api/users/:id/avatar` - User avatar (max 5MB)
-- `/api/users/:id/banner` - User banner (max 10MB)
-- `/api/media/upload` - General media upload (max 10MB)
+### Deprecated Endpoints
+- `/api/auth/google` → Use `/v1/auth/oauth/google`
+- `/api/petitions/legislation` → Use `/v1/gov/legislation`
+- `/api/users/:id/avatar` → Use `/v1/media` with entityType="User"
 
-### File Storage
-- Files are stored in the server's uploads directory
-- Files are served statically via `/uploads` endpoint
-- File URLs are generated automatically
+## Testing
 
----
-
-## Development Notes
-
-### Environment Variables
-Required environment variables for API functionality:
-```
-MONGODB_URI=mongodb://localhost:27017/usa
-JWT_SECRET=your-jwt-secret
-SESSION_SECRET=your-session-secret
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-CORS_ORIGIN=http://localhost:3000
-```
-
-### Local Development
-1. Start MongoDB service
-2. Set environment variables
-3. Run `npm install` in server directory
-4. Run `npm run dev` to start development server
-5. API will be available at `http://localhost:5000/api`
-
-### Testing
-Use tools like Postman or curl to test API endpoints:
+### Test New Models
 ```bash
-# Test authentication
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"identifier":"testuser","password":"password"}'
-
-# Test protected endpoint
-curl -X GET http://localhost:5000/api/auth/me \
-  -H "Authorization: Bearer <your-token>"
+npm run test:models
 ```
 
----
+### Run Migration
+```bash
+npm run migrate
+```
 
-*Last Updated: $(date)*
-*Version: 1.0*
-*Maintainer: Development Team*
-*Next Review: $(date -d '+3 months')*
+### Start Development Server
+```bash
+npm run dev:full
+```
+
+## Support
+
+For API support and questions:
+- Check the migration documentation
+- Review the data model refactor documentation
+- Test with the provided test scripts

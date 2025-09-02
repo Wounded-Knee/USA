@@ -99,10 +99,10 @@ export default function PetitionVotesProgressbar({
   // Variant styles
   const variantStyles: Record<string, any> = {};
   variantStyles['prototype'] = {
-    container: 'bg-surface border border-neutral-light rounded-lg shadow-sm',
-    progress: 'bg-neutral-light shadow-inner ring-1 ring-inset ring-neutral-dark/10',
-    progressFill: isComplete ? 'bg-success' : 'bg-primary',
-    text: 'text-foreground'
+    container: 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-sm',
+    progress: 'bg-[var(--color-background)] shadow-inner ring-1 ring-inset ring-[var(--color-border)]',
+    progressFill: isComplete ? 'bg-[var(--color-success)]' : 'bg-[var(--color-primary)]',
+    text: 'text-[var(--color-text)]'
   };
   variantStyles['default'] = {
     ...variantStyles['prototype'],
@@ -113,7 +113,7 @@ export default function PetitionVotesProgressbar({
   };
   variantStyles['detailed'] = {
     ...variantStyles['prototype'],
-    container: 'bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20 rounded-lg shadow-md'
+    container: 'bg-gradient-to-r from-[var(--color-primary)]/5 to-[var(--color-accent)]/5 border border-[var(--color-primary)]/20 rounded-lg shadow-md'
   };
 
   const currentSize = sizeClasses[size]
@@ -127,7 +127,7 @@ export default function PetitionVotesProgressbar({
     // If goal is reached, show solid federal color
     if (isComplete) {
       return (
-        <div className="w-full h-full rounded-full bg-primary transition-all duration-1000 ease-out" />
+        <div className="w-full h-full rounded-full bg-[var(--color-primary)] transition-all duration-1000 ease-out" />
       )
     }
 
@@ -199,19 +199,19 @@ export default function PetitionVotesProgressbar({
               {/* Segment marker line */}
               <div className={`w-1 h-full ${
                 isCompleted 
-                  ? 'bg-success' 
+                  ? 'bg-[var(--color-success)]' 
                   : isNext 
-                    ? 'bg-primary' 
-                    : 'bg-neutral-light'
+                    ? 'bg-[var(--color-primary)]' 
+                    : 'bg-[var(--color-background)]'
               } rounded-full transition-colors duration-200`} />
               
               {/* Segment tooltip/indicator */}
               <div className={`absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap shadow-sm ${
                 isCompleted 
-                  ? 'bg-success text-white' 
+                  ? 'bg-[var(--color-success)] text-[var(--color-text-on-primary)]' 
                   : isNext 
-                    ? 'bg-primary text-white' 
-                    : 'bg-neutral-light text-neutral'
+                    ? 'bg-[var(--color-primary)] text-[var(--color-text-on-primary)]' 
+                    : 'bg-[var(--color-background)] text-[var(--color-text)]'
               } opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none`}>
                 {segment.name}
               </div>
@@ -234,11 +234,11 @@ export default function PetitionVotesProgressbar({
           )}
           {variant === 'detailed' && (
             <div className="flex items-center space-x-2 flex-shrink-0">
-              <span className={`${currentSize.count} text-neutral`}>
+              <span className={`${currentSize.count} text-[var(--color-text-secondary)]`}>
                 {isComplete ? 'Goal Reached!' : 'Clout Needed'}
               </span>
               {isComplete && (
-                <svg className="w-4 h-4 text-success flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 text-[var(--color-success)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               )}
@@ -266,20 +266,20 @@ export default function PetitionVotesProgressbar({
           <div className="flex flex-wrap gap-2 items-center">
             {currentVotes > 0 && (
               <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 bg-gradient-to-r from-white to-gray-100 rounded border border-gray-300"></div>
-                <span className={`${currentSize.segment} text-neutral`}>Votes</span>
+                <div className="w-3 h-3 bg-gradient-to-r from-white to-gray-100 rounded border border-[var(--color-border)]"></div>
+                <span className={`${currentSize.segment} text-[var(--color-text-secondary)]`}>Votes</span>
               </div>
             )}
             {currentVigor > 0 && (
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded"></div>
-                <span className={`${currentSize.segment} text-neutral`}>Vigor</span>
+                <span className={`${currentSize.segment} text-[var(--color-text-secondary)]`}>Vigor</span>
               </div>
             )}
             {currentCapital > 0 && (
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-red-400 rounded"></div>
-                <span className={`${currentSize.segment} text-neutral`}>Capital</span>
+                <span className={`${currentSize.segment} text-[var(--color-text-secondary)]`}>Capital</span>
               </div>
             )}
           </div>
@@ -299,10 +299,10 @@ export default function PetitionVotesProgressbar({
                   key={segment.name}
                   className={`inline-flex items-center px-2 py-1 rounded-full ${currentSize.segment} font-medium transition-colors duration-200 ${
                     isCompleted 
-                      ? 'bg-success text-white' 
+                      ? 'bg-[var(--color-success)] text-[var(--color-text-on-primary)]' 
                       : isNext 
-                        ? 'bg-primary text-white' 
-                        : 'bg-neutral-light text-neutral'
+                        ? 'bg-[var(--color-primary)] text-[var(--color-text-on-primary)]' 
+                        : 'bg-[var(--color-background)] text-[var(--color-text)]'
                   }`}
                   title={`${segment.name}: ${segment.outcome}`}
                 >
@@ -319,7 +319,7 @@ export default function PetitionVotesProgressbar({
           
           {/* Next milestone info */}
           {nextSegment && (
-            <div className={`${currentSize.segment} text-neutral mt-2`}>
+            <div className={`${currentSize.segment} text-[var(--color-text-secondary)] mt-2`}>
               <span className="font-medium">Next:</span> {nextSegment.outcome} 
               <span className="ml-2">
                 ({currentClout.toLocaleString()} / {nextSegment.threshold.toLocaleString()} clout)
@@ -336,12 +336,12 @@ export default function PetitionVotesProgressbar({
             <div>
               <span className="font-semibold">
                 {currentVotes.toLocaleString()}
-                <span className="text-neutral font-normal">
+                <span className="text-[var(--color-text-secondary)] font-normal">
                   {' '}/ {targetVotes.toLocaleString()} votes
                 </span>
               </span>
               {showClout && (
-                <div className={`${currentSize.count} text-neutral`}>
+                <div className={`${currentSize.count} text-[var(--color-text-secondary)]`}>
                   <span className="font-medium">Clout:</span> {currentClout.toLocaleString()}
                   {currentVigor > 0 && <span className="ml-2">(+{currentVigor} vigor)</span>}
                   {currentCapital > 0 && <span className="ml-2">(+{currentCapital} capital)</span>}
@@ -353,11 +353,11 @@ export default function PetitionVotesProgressbar({
         
         {showPercentage && (
           <div className={`${currentSize.count} ${currentVariant.text} flex-shrink-0`}>
-            <span className={`font-semibold ${isComplete ? 'text-success' : 'text-primary'}`}>
+            <span className={`font-semibold ${isComplete ? 'text-[var(--color-success)]' : 'text-[var(--color-primary)]'}`}>
               {percentage.toFixed(1)}%
             </span>
             {isComplete && (
-              <span className="text-success ml-1">✓</span>
+              <span className="text-[var(--color-success)] ml-1">✓</span>
             )}
           </div>
         )}
@@ -366,7 +366,7 @@ export default function PetitionVotesProgressbar({
       {/* Compact variant additional info */}
       {variant === 'compact' && (
         <div className="mt-2">
-          <div className="flex justify-between text-xs text-neutral">
+          <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
             <span>{segments.length > 0 ? 'Clout Progress' : 'Progress'}</span>
             <span>{percentage.toFixed(1)}%</span>
           </div>

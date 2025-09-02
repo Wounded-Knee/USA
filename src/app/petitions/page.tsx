@@ -1,399 +1,293 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import Link from 'next/link'
-
-interface Petition {
-  _id: string
-  title: string
-  description: string
-  category: string
-  voteCount: number
-  targetVotes: number
-  isActive: boolean
-  createdAt: string
-  creator: {
-    firstName: string
-    lastName: string
-    username: string
-  }
-  jurisdiction: {
-    _id: string
-    name: string
-    slug: string
-    level: string
-  }
-  governingBody?: {
-    _id: string
-    name: string
-    slug: string
-    branch: string
-  }
-  legislation?: {
-    _id: string
-    title: string
-    bill_number: string
-    status: string
-  }
-}
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useAuth } from '../contexts/AuthContext';
+import CreatePetitionForm from '../components/CreatePetitionForm';
+import TrendingPetitions from '../components/TrendingPetitions';
+import axios from 'axios';
 
 interface Jurisdiction {
-  _id: string
-  name: string
-  slug: string
-  level: string
-  path: string
+  id: string;
+  name: string;
+  level: string;
 }
 
-interface PaginationInfo {
-  page: number
-  limit: number
-  total: number
-  pages: number
+interface Petition {
+  id: string;
+  title: string;
+  description: string;
+  categoryId: string;
+  creator: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+  };
+  snapshot: {
+    voteCount: number;
+    totalVigor: number;
+  };
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  jurisdiction: {
+    id: string;
+    name: string;
+    level: string;
+  };
+  governingBody?: {
+    id: string;
+    name: string;
+    branch: string;
+  };
 }
 
 const PetitionsPage: React.FC = () => {
-  const [petitions, setPetitions] = useState<Petition[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
-  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([])
-  
-  // Filter states
-  const [category, setCategory] = useState('')
-  const [jurisdiction, setJurisdiction] = useState('')
-  const [sortBy, setSortBy] = useState('createdAt')
-  const [sortOrder, setSortOrder] = useState('desc')
-  const [currentPage, setCurrentPage] = useState(1)
-
-  const categories = [
-    { value: '', label: 'All Categories' },
-    { value: 'environment', label: 'Environment' },
-    { value: 'education', label: 'Education' },
-    { value: 'healthcare', label: 'Healthcare' },
-    { value: 'economy', label: 'Economy' },
-    { value: 'civil-rights', label: 'Civil Rights' },
-    { value: 'foreign-policy', label: 'Foreign Policy' },
-    { value: 'other', label: 'Other' }
-  ]
-
-  const sortOptions = [
-    { value: 'createdAt', label: 'Date Created' },
-    { value: 'voteCount', label: 'Most Votes' },
-    { value: 'title', label: 'Title' }
-  ]
+  const { user } = useAuth();
+  const [petitions, setPetitions] = useState<Petition[]>([]);
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    jurisdiction: '',
+    sort: '-createdAt'
+  });
 
   useEffect(() => {
-    fetchJurisdictions()
-    fetchPetitions()
-  }, [category, jurisdiction, sortBy, sortOrder, currentPage])
+    fetchJurisdictions();
+    fetchPetitions();
+  }, [filters]);
 
   const fetchJurisdictions = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/jurisdictions`)
-      setJurisdictions(response.data)
-    } catch (err) {
-      console.error('Error fetching jurisdictions:', err)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions`);
+      setJurisdictions(response.data.data);
+    } catch (error) {
+      console.error('Failed to fetch jurisdictions:', error);
     }
-  }
+  };
 
   const fetchPetitions = async () => {
     try {
-      setLoading(true)
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '12',
-        sortBy,
-        sortOrder,
-        ...(category && { category }),
-        ...(jurisdiction && { jurisdiction })
-      })
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions?${params}`)
-      setPetitions(response.data.petitions)
-      setPagination(response.data.pagination)
-      setError(null)
-    } catch (err) {
-      console.error('Error fetching petitions:', err)
-      setError('Failed to load petitions')
+      setLoading(true);
+      
+      // Build query parameters for v1 API
+      const params = new URLSearchParams();
+      
+      if (filters.category) {
+        params.append('filter[categoryId]', filters.category);
+      }
+      
+      if (filters.jurisdiction) {
+        params.append('filter[jurisdictionId]', filters.jurisdiction);
+      }
+      
+      if (filters.sort) {
+        params.append('sort', filters.sort);
+      }
+      
+      // Add pagination
+      params.append('page', '1');
+      params.append('page_size', '20');
+      
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/petitions?${params}`);
+      setPetitions(response.data.data);
+    } catch (error) {
+      console.error('Failed to fetch petitions:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      environment: 'bg-green-100 text-green-800 border-green-200',
-      education: 'bg-blue-100 text-blue-800 border-blue-200',
-      healthcare: 'bg-red-100 text-red-800 border-red-200',
-      economy: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'civil-rights': 'bg-purple-100 text-purple-800 border-purple-200',
-      'foreign-policy': 'bg-indigo-100 text-indigo-800 border-indigo-200',
-      other: 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-    return colors[category as keyof typeof colors] || colors.other
-  }
+  const handleFilterChange = (filterType: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
 
-  const getJurisdictionColor = (level: string) => {
-    const colors = {
-      federal: 'bg-red-100 text-red-800 border-red-200',
-      state: 'bg-blue-100 text-blue-800 border-blue-200',
-      county: 'bg-green-100 text-green-800 border-green-200',
-      municipal: 'bg-purple-100 text-purple-800 border-purple-200',
-      other: 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-    return colors[level as keyof typeof colors] || colors.other
-  }
+  const handlePetitionCreated = () => {
+    setShowCreateForm(false);
+    fetchPetitions(); // Refresh the list
+  };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  const categories = [
+    'Environment',
+    'Healthcare',
+    'Education',
+    'Transportation',
+    'Public Safety',
+    'Economic Development',
+    'Social Services',
+    'Infrastructure',
+    'Other'
+  ];
 
-  const formatProgress = (current: number, target: number) => {
-    const percentage = Math.min((current / target) * 100, 100)
-    return `${percentage.toFixed(1)}%`
-  }
-
-  if (loading && petitions.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-4 text-neutral">Loading petitions...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center">
-              <div className="text-error font-semibold mb-2">Error Loading Petitions</div>
-              <div className="text-sm text-neutral">{error}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const sortOptions = [
+    { value: '-createdAt', label: 'Newest First' },
+    { value: 'createdAt', label: 'Oldest First' },
+    { value: '-voteCount', label: 'Most Votes' },
+    { value: '-totalVigor', label: 'Most Vigor' }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-surface py-16">
+    <div className="min-h-screen py-16">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-foreground mb-4">All Petitions</h1>
-            <p className="text-lg text-neutral">Discover and support petitions that matter to you.</p>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-[var(--color-text)] mb-4">Petitions</h1>
+          <p className="text-lg text-[var(--color-text-secondary)]">
+            Discover and support petitions that matter to your community
+          </p>
+        </div>
 
-          {/* Filters */}
-          <div className="bg-surface rounded-lg shadow-md p-6 mb-8 border border-neutral-light">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral mb-2">Category</label>
+        {/* Trending Petitions */}
+        <div className="mb-8">
+          <TrendingPetitions />
+        </div>
+
+        {/* Filters and Create Button */}
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              {/* Category Filter */}
+              <div className="min-w-[150px]">
+                <label htmlFor="category" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                  Category
+                </label>
                 <select
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
+                  id="category"
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
+                  <option value="">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral mb-2">Jurisdiction</label>
+
+              {/* Jurisdiction Filter */}
+              <div className="min-w-[200px]">
+                <label htmlFor="jurisdiction" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                  Jurisdiction
+                </label>
                 <select
-                  value={jurisdiction}
-                  onChange={(e) => {
-                    setJurisdiction(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
+                  id="jurisdiction"
+                  value={filters.jurisdiction}
+                  onChange={(e) => handleFilterChange('jurisdiction', e.target.value)}
+                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
                 >
                   <option value="">All Jurisdictions</option>
-                  {jurisdictions.map((jur) => (
-                    <option key={jur._id} value={jur._id}>
-                      {jur.name} ({jur.level})
+                  {jurisdictions.map(jurisdiction => (
+                    <option key={jurisdiction._id} value={jurisdiction._id}>
+                      {jurisdiction.name} ({jurisdiction.level})
                     </option>
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral mb-2">Sort By</label>
+
+              {/* Sort Options */}
+              <div className="min-w-[150px]">
+                <label htmlFor="sort" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                  Sort By
+                </label>
                 <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
+                  id="sort"
+                  value={filters.sort}
+                  onChange={(e) => handleFilterChange('sort', e.target.value)}
+                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
                 >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
+                  {sortOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral mb-2">Order</label>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => {
-                    setSortOrder(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
-                >
-                  <option value="desc">Newest First</option>
-                  <option value="asc">Oldest First</option>
                 </select>
               </div>
             </div>
-          </div>
 
-          {/* Petitions Grid */}
-          {petitions.length === 0 && !loading ? (
-            <div className="text-center text-neutral">
-              <p className="text-lg">No petitions found.</p>
-              <p className="text-sm mt-2">Try adjusting your filters or be the first to create a petition!</p>
+            {/* Create Petition Button */}
+            {user && (
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="px-6 py-3 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:ring-offset-2 font-medium transition-colors"
+              >
+                Create Petition
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Create Petition Form */}
+        {showCreateForm && (
+          <div className="mb-8">
+            <CreatePetitionForm onPetitionCreated={handlePetitionCreated} />
+          </div>
+        )}
+
+        {/* Petitions List */}
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)]">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)] mx-auto"></div>
+              <p className="mt-4 text-[var(--color-text-secondary)]">Loading petitions...</p>
+            </div>
+          ) : petitions.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-[var(--color-text-secondary)]">No petitions found matching your criteria.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="divide-y divide-[var(--color-border)]">
               {petitions.map((petition) => (
-                <Link 
-                  href={`/petitions/${petition._id}`} 
-                  key={petition._id}
-                  className="group"
-                >
-                  <div className="bg-surface rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-neutral-light">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(petition.category)}`}>
-                        {petition.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </span>
-                      <span className="text-xs text-neutral">
-                        {formatDate(petition.createdAt)}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors duration-200">
-                      {petition.title}
-                    </h3>
-                    
-                    <p className="text-neutral text-sm mb-4 line-clamp-3">
-                      {petition.description}
-                    </p>
-
-                    {/* Government Entity Info */}
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`px-2 py-1 rounded text-xs font-medium border ${getJurisdictionColor(petition.jurisdiction.level)}`}>
-                          {petition.jurisdiction.name}
+                <div key={petition.id} className="p-6 hover:bg-[var(--color-background)] transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+                          {petition.categoryId}
                         </span>
-                        {petition.governingBody && (
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                            {petition.governingBody.name}
-                          </span>
-                        )}
-                      </div>
-                      {petition.legislation && (
-                        <div className="text-xs text-neutral">
-                          Related to: {petition.legislation.bill_number} - {petition.legislation.title}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-neutral">Progress</span>
-                        <span className="text-foreground font-medium">
-                          {petition.voteCount} / {petition.targetVotes}
+                        <span className="text-sm text-[var(--color-text-muted)]">
+                          {petition.jurisdiction.name} ({petition.jurisdiction.level})
                         </span>
                       </div>
-                      <div className="w-full bg-neutral-light rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{ width: formatProgress(petition.voteCount, petition.targetVotes) }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-neutral mt-1">
-                        {formatProgress(petition.voteCount, petition.targetVotes)} complete
+                      
+                      <Link href={`/petitions/${petition.id}`}>
+                        <h3 className="text-xl font-semibold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors mb-2">
+                          {petition.title}
+                        </h3>
+                      </Link>
+                      
+                      <p className="text-[var(--color-text-secondary)] mb-4 line-clamp-2">
+                        {petition.description}
+                      </p>
+                      
+                      <div className="flex items-center gap-6 text-sm text-[var(--color-text-muted)]">
+                        <span>By {petition.creator.firstName} {petition.creator.lastName}</span>
+                        <span>{petition.snapshot.voteCount} votes</span>
+                        <span>{petition.snapshot.totalVigor} vigor</span>
+                        <span>{new Date(petition.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-neutral">
-                      <span>by {petition.creator.firstName} {petition.creator.lastName}</span>
-                      <span>{petition.voteCount} votes</span>
+                    <div className="ml-4 flex-shrink-0">
+                      <Link
+                        href={`/petitions/${petition.id}`}
+                        className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:ring-offset-2 text-sm font-medium transition-colors"
+                      >
+                        View Petition
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
-
-          {/* Pagination */}
-          {pagination && pagination.pages > 1 && (
-            <div className="mt-8 flex justify-center">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="px-3 py-2 border border-neutral-light rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-light transition-colors"
-                >
-                  Previous
-                </button>
-                <span className="px-3 py-2 text-neutral">
-                  Page {currentPage} of {pagination.pages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(Math.min(pagination.pages, currentPage + 1))}
-                  disabled={currentPage === pagination.pages}
-                  className="px-3 py-2 border border-neutral-light rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-light transition-colors"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Create Petition CTA */}
-          <div className="mt-16 text-center">
-            <div className="bg-surface rounded-lg shadow-md p-8 border border-neutral-light">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Have an idea for change?</h2>
-              <p className="text-neutral mb-6">
-                Create a petition and start building support for the issues that matter to you.
-              </p>
-              <Link href="/petitions/create" className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Create a Petition
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PetitionsPage
+export default PetitionsPage;

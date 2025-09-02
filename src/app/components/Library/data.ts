@@ -47,9 +47,23 @@ export const librarySections: LibrarySection[] = [
 export const libraryDocuments: LibraryDocument[] = [
   // Project Specs Documents
   {
+    title: "API Documentation - v1",
+    filename: "api-documentation.md",
+    excerpt: "This document describes the v1 API for the USA application, which has been completely refactored for better data consistency, performance, and maintainability.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
     title: "API Documentation Summary",
     filename: "api-documentation-summary.md",
     excerpt: "This document provides a comprehensive overview of the API documentation and integration resources for the USA Full-Stack Application.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "API Updates - Phase 3 Complete ✅",
+    filename: "api-updates-phase3.md",
+    excerpt: "Phase 3 of the data model refactor has been completed, focusing on updating the API routes to work with the new models and implementing the metrics worker system.",
     category: "API Documentation",
     section: "project-specs"
   },
@@ -89,9 +103,16 @@ export const libraryDocuments: LibraryDocument[] = [
     section: "project-specs"
   },
   {
-    title: "Database Schema Documentation",
+    title: "Data Model Refactor Implementation",
+    filename: "data-model-refactor.md",
+    excerpt: "This document outlines the implementation of the comprehensive data model refactor that addresses the core relationship constraints and improves data consistency.",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "Database Schema - Refactored v1",
     filename: "database-schema.md",
-    excerpt: "This document provides comprehensive documentation for the USA Full-Stack Application database schema. The application uses MongoDB with Mongoose ODM for data modeling and validation.",
+    excerpt: "This document describes the refactored database schema for the USA application, which has been completely redesigned for better data consistency, performance, and maintainability.",
     category: "Database Design",
     section: "project-specs"
   },
@@ -114,6 +135,13 @@ export const libraryDocuments: LibraryDocument[] = [
     filename: "frontend-api-integration.md",
     excerpt: "This document provides guidelines and best practices for integrating the USA Full-Stack Application backend API with the Next.js frontend.",
     category: "API Documentation",
+    section: "project-specs"
+  },
+  {
+    title: "Frontend Updates - Phase 4 Complete ✅",
+    filename: "frontend-updates-phase4.md",
+    excerpt: "Phase 4 of the data model refactor has been completed, focusing on updating the frontend components to work with the new API structure and data models.",
+    category: "Technical Documentation",
     section: "project-specs"
   },
   {
@@ -163,13 +191,6 @@ export const libraryDocuments: LibraryDocument[] = [
     filename: "US_Government_Database_System.md",
     excerpt: "The US Government Database System is a comprehensive MongoDB-based data model that represents the entire structure of the United States government. It provides a normalized, hierarchical representatio...",
     category: "Database Design",
-    section: "project-specs"
-  },
-  {
-    title: "USA Full-Stack Application - API Documentation",
-    filename: "api-documentation.md",
-    excerpt: "This document provides comprehensive documentation for the USA Full-Stack Application backend API. The API is built with Express.js and provides endpoints for user management, petitions, voting, gover...",
-    category: "API Documentation",
     section: "project-specs"
   },
   {

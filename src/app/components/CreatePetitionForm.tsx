@@ -1,317 +1,177 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-interface Jurisdiction {
-  _id: string
-  name: string
-  slug: string
-  level: string
-  path: string
-}
-
-interface GoverningBody {
-  _id: string
-  name: string
-  slug: string
-  branch: string
-  entity_type: string
-}
-
-interface Legislation {
-  _id: string
-  title: string
-  bill_number: string
-  status: string
-}
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface CreatePetitionFormProps {
-  onSuccess?: (petition: any) => void
-  onCancel?: () => void
+  onClose: () => void
 }
 
-const CreatePetitionForm: React.FC<CreatePetitionFormProps> = ({ onSuccess, onCancel }) => {
+export default function CreatePetitionForm({ onClose }: CreatePetitionFormProps) {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'other',
-    targetVotes: 1000,
-    jurisdiction: '',
-    governingBody: '',
-    legislation: ''
+    category: '',
+    targetVotes: 100,
+    vigorPoints: 5
   })
-
-  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([])
-  const [governingBodies, setGoverningBodies] = useState<GoverningBody[]>([])
-  const [legislation, setLegislation] = useState<Legislation[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const categories = [
-    { value: 'environment', label: 'Environment' },
-    { value: 'education', label: 'Education' },
-    { value: 'healthcare', label: 'Healthcare' },
-    { value: 'economy', label: 'Economy' },
-    { value: 'civil-rights', label: 'Civil Rights' },
-    { value: 'foreign-policy', label: 'Foreign Policy' },
-    { value: 'other', label: 'Other' }
-  ]
-
-  useEffect(() => {
-    fetchJurisdictions()
-  }, [])
-
-  useEffect(() => {
-    if (formData.jurisdiction) {
-      fetchGoverningBodies(formData.jurisdiction)
-    } else {
-      setGoverningBodies([])
-      setFormData(prev => ({ ...prev, governingBody: '', legislation: '' }))
-    }
-  }, [formData.jurisdiction])
-
-  useEffect(() => {
-    if (formData.governingBody) {
-      fetchLegislation(formData.governingBody)
-    } else {
-      setLegislation([])
-      setFormData(prev => ({ ...prev, legislation: '' }))
-    }
-  }, [formData.governingBody])
-
-  const fetchJurisdictions = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/jurisdictions`)
-      setJurisdictions(response.data)
-    } catch (err) {
-      console.error('Error fetching jurisdictions:', err)
-      setError('Failed to load jurisdictions')
-    }
-  }
-
-  const fetchGoverningBodies = async (jurisdictionId: string) => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/governing-bodies?jurisdiction=${jurisdictionId}`)
-      setGoverningBodies(response.data)
-    } catch (err) {
-      console.error('Error fetching governing bodies:', err)
-    }
-  }
-
-  const fetchLegislation = async (governingBodyId: string) => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions/legislation?governingBody=${governingBodyId}`)
-      setLegislation(response.data)
-    } catch (err) {
-      console.error('Error fetching legislation:', err)
-    }
-  }
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    try {
-      // For demo purposes, using a hardcoded user ID. In a real app, this would come from authentication
-      const creatorId = "68b244b1d9bd1067422b8712" // Maria Rodriguez's ID from our demo
-
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/petitions`, {
-        ...formData,
-        creatorId
-      })
-
-      setLoading(false)
-      if (onSuccess) {
-        onSuccess(response.data)
-      }
-    } catch (err: any) {
-      setLoading(false)
-      setError(err.response?.data?.error || 'Failed to create petition')
-    }
+    setIsSubmitting(true)
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Redirect to new petition
+    router.push('/petitions/new-petition-id')
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'targetVotes' || name === 'vigorPoints' ? parseInt(value) : value
+    }))
   }
 
   return (
-    <div className="bg-surface rounded-lg shadow-lg p-8 border border-neutral-light">
-      <h2 className="text-2xl font-bold text-foreground mb-6">Create a New Petition</h2>
-      
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-neutral mb-2">
-            Petition Title *
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            required
-            minLength={5}
-            maxLength={200}
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
-            placeholder="Enter a clear, concise title for your petition"
-          />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-[var(--color-border)]">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-[var(--color-text)]">Create New Petition</h2>
+            <button
+              onClick={onClose}
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-neutral mb-2">
-            Description *
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            required
-            minLength={20}
-            maxLength={2000}
-            rows={6}
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground resize-none"
-            placeholder="Explain the issue, why it matters, and what change you want to see..."
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Title */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+              Petition Title *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              value={formData.title}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+              placeholder="Enter a clear, concise title for your petition"
+            />
+          </div>
 
-        {/* Category */}
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-neutral mb-2">
-            Category *
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
-          >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+              Description *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows={4}
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+              placeholder="Explain what you're petitioning for and why it matters"
+            />
+          </div>
 
-        {/* Jurisdiction */}
-        <div>
-          <label htmlFor="jurisdiction" className="block text-sm font-medium text-neutral mb-2">
-            Jurisdiction *
-          </label>
-          <select
-            id="jurisdiction"
-            name="jurisdiction"
-            value={formData.jurisdiction}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
-          >
-            <option value="">Select a jurisdiction</option>
-            {jurisdictions.map((jurisdiction) => (
-              <option key={jurisdiction._id} value={jurisdiction._id}>
-                {jurisdiction.name} ({jurisdiction.level})
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+              Category *
+            </label>
+            <select
+              id="category"
+              name="category"
+              required
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+            >
+              <option value="">Select a category</option>
+              <option value="environment">Environment</option>
+              <option value="education">Education</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="transportation">Transportation</option>
+              <option value="public-safety">Public Safety</option>
+              <option value="community-development">Community Development</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-        {/* Governing Body */}
-        <div>
-          <label htmlFor="governingBody" className="block text-sm font-medium text-neutral mb-2">
-            Target Governing Body (Optional)
-          </label>
-          <select
-            id="governingBody"
-            name="governingBody"
-            value={formData.governingBody}
-            onChange={handleInputChange}
-            disabled={!formData.jurisdiction}
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground disabled:opacity-50"
-          >
-            <option value="">Select a governing body (optional)</option>
-            {governingBodies.map((body) => (
-              <option key={body._id} value={body._id}>
-                {body.name} ({body.branch})
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Target Votes */}
+          <div>
+            <label htmlFor="targetVotes" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+              Target Votes
+            </label>
+            <input
+              type="number"
+              id="targetVotes"
+              name="targetVotes"
+              min="10"
+              max="10000"
+              value={formData.targetVotes}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+            />
+            <p className="text-sm text-[var(--color-text-muted)] mt-1">
+              Minimum 10 votes required to launch
+            </p>
+          </div>
 
-        {/* Legislation */}
-        <div>
-          <label htmlFor="legislation" className="block text-sm font-medium text-neutral mb-2">
-            Related Legislation (Optional)
-          </label>
-          <select
-            id="legislation"
-            name="legislation"
-            value={formData.legislation}
-            onChange={handleInputChange}
-            disabled={!formData.governingBody}
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground disabled:opacity-50"
-          >
-            <option value="">Select related legislation (optional)</option>
-            {legislation.map((bill) => (
-              <option key={bill._id} value={bill._id}>
-                {bill.bill_number}: {bill.title} ({bill.status})
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Vigor Points */}
+          <div>
+            <label htmlFor="vigorPoints" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+              Your Vigor Points
+            </label>
+            <input
+              type="number"
+              id="vigorPoints"
+              name="vigorPoints"
+              min="1"
+              max="10"
+              value={formData.vigorPoints}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent"
+            />
+            <p className="text-sm text-[var(--color-text-muted)] mt-1">
+              How much energy are you willing to invest? (1-10 points)
+            </p>
+          </div>
 
-        {/* Target Votes */}
-        <div>
-          <label htmlFor="targetVotes" className="block text-sm font-medium text-neutral mb-2">
-            Target Number of Votes
-          </label>
-          <input
-            type="number"
-            id="targetVotes"
-            name="targetVotes"
-            value={formData.targetVotes}
-            onChange={handleInputChange}
-            min={1}
-            className="w-full px-3 py-2 border border-neutral-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-foreground"
-            placeholder="1000"
-          />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            {loading ? 'Creating...' : 'Create Petition'}
-          </button>
-          {onCancel && (
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-[var(--color-border)]">
             <button
               type="button"
-              onClick={onCancel}
-              className="flex-1 bg-neutral text-white py-3 px-6 rounded-lg font-semibold hover:bg-neutral-dark transition-colors duration-200"
+              onClick={onClose}
+              className="px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] rounded-md hover:bg-[var(--color-background)] transition-colors duration-200"
             >
               Cancel
             </button>
-          )}
-        </div>
-      </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              {isSubmitting ? 'Creating...' : 'Create Petition'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
-
-export default CreatePetitionForm

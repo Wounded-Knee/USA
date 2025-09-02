@@ -1,99 +1,78 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const petitionSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 5,
-    maxlength: 200
+const Petition = new Schema({
+  title: { 
+    type: String, 
+    required: true, 
+    trim: true, 
+    maxlength: 200 
   },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 20,
-    maxlength: 2000
+  description: { 
+    type: String, 
+    required: true, 
+    maxlength: 5000 
   },
-  creator: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  categoryId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Taxonomy', 
+    required: true, 
+    index: true 
   },
-  voteCount: {
-    type: Number,
-    default: 0,
-    min: 0
+  creator: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true, 
+    index: true 
   },
-  isActive: {
-    type: Boolean,
-    default: true
+  jurisdiction: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Jurisdiction', 
+    required: true, 
+    index: true 
   },
-  category: {
-    type: String,
-    required: true,
-    enum: ['environment', 'education', 'healthcare', 'economy', 'civil-rights', 'foreign-policy', 'other'],
-    default: 'other'
+  governingBody: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'GoverningBody', 
+    index: true 
   },
-  // Government entity references
-  jurisdiction: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Jurisdiction',
-    required: true
+  legislation: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Legislation', 
+    index: true 
   },
-  governingBody: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'GoverningBody'
+  status: { 
+    type: String, 
+    enum: ['draft', 'active', 'closed', 'archived'], 
+    default: 'active', 
+    index: true 
   },
-  legislation: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Legislation'
-  },
-  targetVotes: {
-    type: Number,
-    default: 1000,
-    min: 1
-  },
-  totalVigor: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  vigorThreshold: {
-    type: Number,
-    default: 500,
-    min: 0
-  },
-  notificationThreshold: {
-    type: Number,
-    default: 1000,
-    min: 0
-  },
-  vigorReducedThreshold: {
-    type: Number,
-    default: 750,
-    min: 0
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  tags: [{ 
+    type: String, 
+    trim: true, 
+    maxlength: 50 
+  }],
+  snapshot: {                     // optional cached counts
+    voteCount: { 
+      type: Number, 
+      default: 0 
+    },
+    totalVigor: { 
+      type: Number, 
+      default: 0 
+    }
   }
-}, {
-  timestamps: true
+}, { 
+  timestamps: true 
 });
 
-// Index for better query performance
-petitionSchema.index({ creator: 1, createdAt: -1 });
-petitionSchema.index({ category: 1, isActive: 1 });
-petitionSchema.index({ voteCount: -1, createdAt: -1 });
-// New indexes for government entity queries
-petitionSchema.index({ jurisdiction: 1, isActive: 1 });
-petitionSchema.index({ governingBody: 1, isActive: 1 });
-petitionSchema.index({ legislation: 1, isActive: 1 });
-petitionSchema.index({ jurisdiction: 1, category: 1 });
+// Indexes for common queries
+Petition.index({ creator: 1, createdAt: -1 });
+Petition.index({ jurisdiction: 1, status: 1, createdAt: -1 });
+Petition.index({ 'snapshot.voteCount': -1 });
+Petition.index({ status: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Petition', petitionSchema);
+// Text search index
+Petition.index({ title: 'text', description: 'text' });
+
+module.exports = mongoose.model('Petition', Petition);

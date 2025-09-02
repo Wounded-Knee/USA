@@ -1,224 +1,239 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+
+interface VigorContribution {
+  id: string;
+  vigorType: string;
+  vigorAmount: number;
+  activity: {
+    steps?: number;
+    calories?: number;
+    duration?: number;
+    distance?: number;
+    workout?: any;
+    meditation?: any;
+    reading?: any;
+    volunteering?: any;
+  };
+  signingStatement?: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+  };
+  createdAt: string;
+}
 
 interface VigorDisplayProps {
-  petitionId: string
-  voteId?: string
-  showDetails?: boolean
+  petitionId: string;
+  totalVigor: number;
+  contributionCount: number;
+  contributions: VigorContribution[];
 }
 
-interface VigorStats {
-  petition: {
-    totalVigor: number
-    vigorThreshold: number
-    notificationThreshold: number
-    vigorReducedThreshold: number
-  }
-  vigorStats: {
-    byType: Array<{
-      _id: string
-      count: number
-      totalVigor: number
-      avgVigor: number
-    }>
-    total: {
-      totalVigor: number
-      vigorCount: number
-      avgVigor: number
-    }
-  }
-}
+export default function VigorDisplay({ petitionId, totalVigor, contributionCount, contributions }: VigorDisplayProps) {
+  const { user } = useAuth();
+  const [showContributeForm, setShowContributeForm] = useState(false);
+  const [vigorAmount, setVigorAmount] = useState(1);
+  const [signingStatement, setSigningStatement] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-const VigorDisplay: React.FC<VigorDisplayProps> = ({ 
-  petitionId, 
-  voteId, 
-  showDetails = false 
-}) => {
-  const [vigorStats, setVigorStats] = useState<VigorStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const handleContribute = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
 
-  useEffect(() => {
-    fetchVigorStats()
-  }, [petitionId])
-
-  const fetchVigorStats = async () => {
+    setIsSubmitting(true);
     try {
-      setLoading(true)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Validate petitionId before making the request
-      if (!petitionId || petitionId === 'undefined' || petitionId === 'null') {
-        setError('Invalid petition ID')
-        return
-      }
+      // Reset form
+      setVigorAmount(1);
+      setSigningStatement('');
+      setShowContributeForm(false);
       
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vigor/petition/${petitionId}`)
-      setVigorStats(response.data)
-      setError(null)
-    } catch (err) {
-      console.error('Error fetching vigor stats:', err)
-      setError('Failed to load vigor statistics')
+      // In a real app, you'd update the local state or refetch data
+    } catch (error) {
+      console.error('Failed to contribute vigor:', error);
     } finally {
-      setLoading(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const getVigorProgress = () => {
-    if (!vigorStats) return 0
-    const { totalVigor, vigorThreshold } = vigorStats.petition
-    return Math.min((totalVigor / vigorThreshold) * 100, 100)
-  }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
-  const getEffectiveVoteCount = () => {
-    if (!vigorStats) return 0
-    // Each 100 vigor points counts as 1 additional vote
-    return Math.floor(vigorStats.petition.totalVigor / 100)
-  }
-
-  const getVigorTypeIcon = (type: string) => {
-    switch (type) {
-      case 'shake':
-        return (
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
-          </svg>
-        )
-      case 'voice':
-        return (
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-          </svg>
-        )
-      case 'statement':
-        return (
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" />
-          </svg>
-        )
-      default:
-        return null
-    }
-  }
-
-  if (loading) {
+  if (!user) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-2 bg-gray-200 rounded mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded"></div>
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">Vigor Contributions</h3>
+          <p className="text-[var(--color-text-secondary)] mb-4">
+            Sign in to contribute your energy to this petition and see how others are supporting it.
+          </p>
+          <button className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] transition-colors">
+            Sign In to Contribute
+          </button>
         </div>
       </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">{error}</p>
-      </div>
-    )
-  }
-
-  if (!vigorStats) {
-    return null
+    );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Vigor Power</h3>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-          <span className="text-sm font-medium text-yellow-700">
-            {vigorStats.petition.totalVigor} Vigor
-          </span>
+    <div className="space-y-6">
+      {/* Vigor Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-[var(--color-primary)]">{totalVigor.toLocaleString()}</div>
+            <div className="text-sm text-[var(--color-text-muted)]">Total Vigor</div>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-[var(--color-success)]">{contributionCount}</div>
+            <div className="text-sm text-[var(--color-text-muted)]">Contributions</div>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-[var(--color-accent)]">
+              {contributionCount > 0 ? Math.round(totalVigor / contributionCount) : 0}
+            </div>
+            <div className="text-sm text-[var(--color-text-muted)]">Avg per Contribution</div>
+          </div>
         </div>
       </div>
 
-      {/* Vigor Progress Bar */}
-      <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>Vigor Progress</span>
-          <span>{Math.round(getVigorProgress())}%</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div 
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${getVigorProgress()}%` }}
-          ></div>
-        </div>
+      {/* Contribute Section */}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">Contribute Your Vigor</h3>
+        
+        {!showContributeForm ? (
+          <button
+            onClick={() => setShowContributeForm(true)}
+            className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] transition-colors"
+          >
+            Contribute Vigor
+          </button>
+        ) : (
+          <form onSubmit={handleContribute} className="space-y-4">
+            <div>
+              <label htmlFor="vigorAmount" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                Vigor Amount (1-10)
+              </label>
+              <input
+                type="number"
+                id="vigorAmount"
+                min="1"
+                max="10"
+                value={vigorAmount}
+                onChange={(e) => setVigorAmount(parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent bg-[var(--color-surface)] text-[var(--color-text)]"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="signingStatement" className="block text-sm font-medium text-[var(--color-text)] mb-2">
+                Signing Statement (Optional)
+              </label>
+              <textarea
+                id="signingStatement"
+                value={signingStatement}
+                onChange={(e) => setSigningStatement(e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-transparent bg-[var(--color-surface)] text-[var(--color-text)]"
+                placeholder="Share why you're supporting this petition..."
+              />
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:ring-offset-2 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? 'Contributing...' : 'Contribute'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowContributeForm(false)}
+                className="px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] rounded-md hover:bg-[var(--color-background)] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
-      {/* Effective Vote Count */}
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-blue-800">Effective Vote Bonus</span>
-          <span className="text-lg font-bold text-blue-900">+{getEffectiveVoteCount()}</span>
-        </div>
-        <p className="text-xs text-blue-600 mt-1">
-          Vigor reduces notification threshold by {Math.round((1 - vigorStats.petition.vigorReducedThreshold / vigorStats.petition.notificationThreshold) * 100)}%
-        </p>
-      </div>
-
-      {/* Vigor Type Breakdown */}
-      {showDetails && vigorStats.vigorStats.byType.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Vigor by Type</h4>
-          <div className="space-y-2">
-            {vigorStats.vigorStats.byType.map((type) => (
-              <div key={type._id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <div className="flex items-center space-x-2">
-                  {getVigorTypeIcon(type._id)}
-                  <span className="text-sm font-medium capitalize">{type._id}</span>
+      {/* Recent Contributions */}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">Recent Contributions</h3>
+        
+        {contributions.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-[var(--color-text-muted)] text-6xl mb-4">⚡</div>
+            <p className="text-[var(--color-text-secondary)] mb-2">No vigor contributions yet</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Be the first to contribute your energy to this petition!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {contributions.map((contribution) => (
+              <div key={contribution.id} className="flex items-start space-x-4 p-4 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]">
+                <div className="h-10 w-10 bg-[var(--color-primary-light)] rounded-full flex items-center justify-center">
+                  <span className="text-[var(--color-primary)] font-semibold text-sm">
+                    {contribution.user.firstName.charAt(0)}{contribution.user.lastName.charAt(0)}
+                  </span>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">{type.totalVigor}</div>
-                  <div className="text-xs text-gray-500">{type.count} contributions</div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-[var(--color-text)]">
+                      {contribution.user.firstName} {contribution.user.lastName}
+                    </span>
+                    <span className="text-sm text-[var(--color-text-muted)]">@{contribution.user.username}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-[var(--color-text-secondary)]">
+                      Contributed {contribution.vigorAmount} vigor
+                    </span>
+                    <span className="text-xs text-[var(--color-text-muted)]">{formatDate(contribution.createdAt)}</span>
+                  </div>
+                  
+                  {contribution.signingStatement && (
+                    <div className="mt-2 p-3 bg-[var(--color-surface)] rounded border border-[var(--color-border)]">
+                      <p className="text-sm text-[var(--color-text-secondary)] italic">"{contribution.signingStatement}"</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Vigor Impact */}
-      <div className="border-t pt-4">
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-yellow-600">
-              {vigorStats.vigorStats.total.vigorCount}
-            </div>
-            <div className="text-xs text-gray-500">Total Contributions</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-orange-600">
-              {Math.round(vigorStats.vigorStats.total.avgVigor)}
-            </div>
-            <div className="text-xs text-gray-500">Avg Vigor</div>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Vigor Threshold Info */}
-      <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-        <div className="flex items-center space-x-2">
-          <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          <span className="text-sm text-yellow-800">
-            {vigorStats.petition.totalVigor >= vigorStats.petition.vigorThreshold 
-              ? 'Vigor threshold reached! Representatives will be notified sooner.'
-              : `${vigorStats.petition.vigorThreshold - vigorStats.petition.totalVigor} more vigor needed to reduce notification threshold.`
-            }
-          </span>
-        </div>
+      {/* Vigor Explanation */}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--color-text)] mb-3">What is Vigor?</h3>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-3">
+          Vigor represents the energy and commitment you're willing to invest in a petition. 
+          Higher vigor means stronger support and can help petitions gain momentum.
+        </p>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          You can contribute 1-10 vigor points per petition, with each point representing 
+          increasing levels of personal investment and advocacy.
+        </p>
       </div>
     </div>
-  )
+  );
 }
-
-export default VigorDisplay

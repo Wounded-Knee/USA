@@ -15,7 +15,9 @@
     "check:vigor": "node server/utils/checkVigor.js",
     "setup:env": "node setup-env.js",
     "setup:uploads": "ln -sf ../server/uploads public/uploads",
-    "rebuild:library": "node scripts/rebuild-library-catalog.js"
+    "rebuild:library": "node scripts/rebuild-library-catalog.js",
+    "migrate": "node server/scripts/run-migration.js",
+    "test:models": "node server/scripts/test-new-models.js"
   },
   "dependencies": {
     "@deck.gl/core": "^9.1.14",

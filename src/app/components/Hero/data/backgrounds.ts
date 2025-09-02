@@ -274,7 +274,7 @@ export const backgrounds: BackgroundOption[] = [
   },
   {
     id: 'redwood-forest',
-    imageUrl: '/hero/qotd/redwood-forest.svg',
+    imageUrl: '/hero/qotd/redwood-forest.jpg',
     anchorPoint: 'center',
     source: {
       name: 'Redwood National and State Parks',

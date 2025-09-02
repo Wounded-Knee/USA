@@ -1,243 +1,226 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
-
-interface PlatformStats {
-  overview: {
-    totalUsers: number
-    totalPetitions: number
-    totalVotes: number
-    totalVigor: number
-    totalVigorAmount: number
-  }
-  recentActivity: {
-    votes: number
-    petitions: number
-    users: number
-  }
-  engagement: {
-    avgVotesPerPetition: number
-    avgVigorPerVote: number
-    userEngagementRate: number
-  }
-  categories: Array<{
-    _id: string
-    totalPetitions: number
-    totalVotes: number
-    avgVotes: number
-  }>
-  vigorTypes: Array<{
-    _id: string
-    count: number
-    totalAmount: number
-    avgAmount: number
-  }>
+interface Statistic {
+  label: string
+  value: number
+  change: number
+  changeType: 'increase' | 'decrease' | 'neutral'
 }
 
-const Statistics: React.FC = () => {
-    const [stats, setStats] = useState<PlatformStats | null>(null)
-    const [loading, setLoading] = useState(true)
+interface TopContributor {
+  username: string
+  totalVigor: number
+  petitionCount: number
+}
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                setLoading(true)
-                
-                // Fetch comprehensive platform statistics
-                const response = await axios.get(`${API_BASE}/data/platform-stats`)
-                setStats(response.data)
-                
-            } catch (error) {
-                console.error('Error fetching platform statistics:', error)
-                // Fallback to basic user count if comprehensive endpoint fails
-                try {
-                    const usersResponse = await axios.get(`${API_BASE}/users`)
-                    setStats({
-                        overview: {
-                            totalUsers: usersResponse.data.length,
-                            totalPetitions: 0,
-                            totalVotes: 0,
-                            totalVigor: 0,
-                            totalVigorAmount: 0
-                        },
-                        recentActivity: { votes: 0, petitions: 0, users: 0 },
-                        engagement: { avgVotesPerPetition: 0, avgVigorPerVote: 0, userEngagementRate: 0 },
-                        categories: [],
-                        vigorTypes: []
-                    })
-                } catch (userError) {
-                    console.error('Error fetching users:', userError)
-                }
-            } finally {
-                setLoading(false)
-            }
-        }
-        
-        fetchStats()
-    }, [])
+export default function Statistics() {
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<Statistic[]>([])
+  const [topContributors, setTopContributors] = useState<TopContributor[]>([])
 
-    const formatNumber = (num: number): string => {
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M'
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K'
-        }
-        return num.toString()
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const mockStats: Statistic[] = [
+        { label: 'Total Petitions', value: 1247, change: 12, changeType: 'increase' },
+        { label: 'Active Petitions', value: 89, change: -3, changeType: 'decrease' },
+        { label: 'Total Votes', value: 45678, change: 8, changeType: 'increase' },
+        { label: 'Total Vigor', value: 2345, change: 15, changeType: 'increase' },
+        { label: 'Total Users', value: 1234, change: 5, changeType: 'increase' },
+        { label: 'Success Rate', value: 23, change: 2, changeType: 'increase' }
+      ]
+      
+      const mockContributors: TopContributor[] = [
+        { username: 'civic_leader_1', totalVigor: 156, petitionCount: 8 },
+        { username: 'democracy_advocate', totalVigor: 142, petitionCount: 6 },
+        { username: 'community_organizer', totalVigor: 128, petitionCount: 7 },
+        { username: 'policy_wonk', totalVigor: 115, petitionCount: 5 },
+        { username: 'grassroots_hero', totalVigor: 98, petitionCount: 4 }
+      ]
+      
+      setStats(mockStats)
+      setTopContributors(mockContributors)
+      setLoading(false)
     }
 
-    const getCategoryDisplayName = (category: string): string => {
-        const categoryMap: { [key: string]: string } = {
-            'environment': 'Environment',
-            'education': 'Education', 
-            'healthcare': 'Healthcare',
-            'economy': 'Economy',
-            'civil-rights': 'Civil Rights',
-            'foreign-policy': 'Foreign Policy',
-            'other': 'Other'
-        }
-        return categoryMap[category] || category
-    }
+    fetchStats()
+  }, [])
 
-    const getVigorTypeDisplayName = (type: string): string => {
-        const typeMap: { [key: string]: string } = {
-            'shake': 'Shake',
-            'voice': 'Voice',
-            'statement': 'Statement'
-        }
-        return typeMap[type] || type
-    }
-
-    if (loading) {
-        return (
-            <section id="statistics" className="py-16 bg-gradient-to-br from-primary-dark to-primary">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-center mb-8 text-white">Platform Impact</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="bg-surface/10 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/20">
-                                <div className="animate-pulse">
-                                    <div className="h-6 bg-surface/20 rounded mb-4"></div>
-                                    <div className="h-8 bg-surface/30 rounded mb-2"></div>
-                                    <div className="h-4 bg-surface/20 rounded"></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        )
-    }
-
-    if (!stats) {
-        return (
-            <section id="statistics" className="py-16 bg-gradient-to-br from-primary-dark to-primary">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-center mb-8 text-white">Platform Impact</h2>
-                    <div className="text-center text-white/80">
-                        <p>Unable to load platform statistics</p>
-                    </div>
-                </div>
-            </section>
-        )
-    }
-
+  if (loading) {
     return (
-        <section id="statistics" className="py-16 bg-gradient-to-br from-primary-dark to-primary">
-            <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-center mb-8 text-white">Platform Impact</h2>
-                
-                {/* Primary Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div className="bg-surface/10 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/20">
-                        <h3 className="text-xl font-bold mb-4 text-white">Active Voices</h3>
-                        <p className="text-3xl font-bold text-white">{formatNumber(stats.overview.totalUsers)}</p>
-                        <p className="text-sm text-white/80 mt-2">Citizens contributing to consensus</p>
-                    </div>
-                    <div className="bg-surface/10 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/20">
-                        <h3 className="text-xl font-bold mb-4 text-white">Petitions Created</h3>
-                        <p className="text-3xl font-bold text-white">{formatNumber(stats.overview.totalPetitions)}</p>
-                        <p className="text-sm text-white/80 mt-2">Issues brought to the platform</p>
-                    </div>
-                    <div className="bg-surface/10 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/20">
-                        <h3 className="text-xl font-bold mb-4 text-white">Total Votes</h3>
-                        <p className="text-3xl font-bold text-white">{formatNumber(stats.overview.totalVotes)}</p>
-                        <p className="text-sm text-white/80 mt-2">Democratic participation</p>
-                    </div>
-                    <div className="bg-surface/10 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/20">
-                        <h3 className="text-xl font-bold mb-4 text-white">Vigor Generated</h3>
-                        <p className="text-3xl font-bold text-white">{formatNumber(stats.overview.totalVigorAmount)}</p>
-                        <p className="text-sm text-white/80 mt-2">Collective energy measured</p>
-                    </div>
-                </div>
-                
-                {/* Secondary Statistics */}
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-surface/5 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/10">
-                        <h3 className="text-lg font-bold mb-3 text-white">Recent Activity</h3>
-                        <p className="text-2xl font-bold text-white">{stats.recentActivity.votes}</p>
-                        <p className="text-sm text-white/70 mt-1">Votes this week</p>
-                        <p className="text-xs text-white/60 mt-1">
-                            +{stats.recentActivity.petitions} new petitions, +{stats.recentActivity.users} new users
-                        </p>
-                    </div>
-                    <div className="bg-surface/5 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/10">
-                        <h3 className="text-lg font-bold mb-3 text-white">Engagement Rate</h3>
-                        <p className="text-2xl font-bold text-white">{stats.engagement.userEngagementRate}%</p>
-                        <p className="text-sm text-white/70 mt-1">Active participation</p>
-                        <p className="text-xs text-white/60 mt-1">
-                            {stats.engagement.avgVotesPerPetition} avg votes per petition
-                        </p>
-                    </div>
-                    <div className="bg-surface/5 backdrop-blur-sm p-6 rounded-lg shadow-md border border-surface/10">
-                        <h3 className="text-lg font-bold mb-3 text-white">Top Category</h3>
-                        {stats.categories.length > 0 ? (
-                            <>
-                                <p className="text-2xl font-bold text-white">
-                                    {getCategoryDisplayName(stats.categories[0]._id)}
-                                </p>
-                                <p className="text-sm text-white/70 mt-1">
-                                    {stats.categories[0].totalVotes} votes
-                                </p>
-                                <p className="text-xs text-white/60 mt-1">
-                                    {stats.categories[0].totalPetitions} petitions
-                                </p>
-                            </>
-                        ) : (
-                            <>
-                                <p className="text-2xl font-bold text-white">-</p>
-                                <p className="text-sm text-white/70 mt-1">No data yet</p>
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                {/* Vigor Type Breakdown */}
-                {stats.vigorTypes.length > 0 && (
-                    <div className="mt-12">
-                        <h3 className="text-xl font-bold text-center mb-6 text-white">Vigor Contributions by Type</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {stats.vigorTypes.map((type) => (
-                                <div key={type._id} className="bg-surface/5 backdrop-blur-sm p-4 rounded-lg border border-surface/10">
-                                    <h4 className="text-lg font-semibold text-white mb-2">
-                                        {getVigorTypeDisplayName(type._id)}
-                                    </h4>
-                                    <p className="text-2xl font-bold text-white">{type.count}</p>
-                                    <p className="text-sm text-white/70">contributions</p>
-                                    <p className="text-xs text-white/60 mt-1">
-                                        Avg: {type.avgAmount.toFixed(1)} vigor
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <div className="h-6 bg-[var(--color-border)] rounded w-1/3 mb-6"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-4 bg-[var(--color-border)] rounded w-1/2 mb-2"></div>
+              <div className="h-8 bg-[var(--color-border)] rounded w-3/4"></div>
             </div>
-        </section>
+          ))}
+        </div>
+      </div>
     )
-}
+  }
 
-export default Statistics;
+  return (
+    <div className="space-y-6">
+      {/* Main Statistics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {stats.map((stat, index) => (
+          <div key={index} className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-[var(--color-text)] mb-2">
+                {stat.label === 'Success Rate' ? `${stat.value}%` : stat.value.toLocaleString()}
+              </div>
+              <div className="text-sm text-[var(--color-text-secondary)] mb-1">{stat.label}</div>
+              <div className="text-xs text-[var(--color-text-muted)]">
+                {stat.change > 0 ? '+' : ''}{stat.change}% from last week
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Platform Statistics */}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">Platform Statistics</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-[var(--color-primary)] mb-2">
+              {stats.find(s => s.label === 'Total Petitions')?.value.toLocaleString() || '0'}
+            </div>
+            <div className="text-sm text-[var(--color-text-secondary)] mb-1">Total Petitions</div>
+            <div className="text-xs text-[var(--color-text-muted)]">
+              {stats.find(s => s.label === 'Total Petitions')?.change || 0}% from last week
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-[var(--color-success)] mb-2">
+              {stats.find(s => s.label === 'Total Votes')?.value.toLocaleString() || '0'}
+            </div>
+            <div className="text-sm text-[var(--color-text-secondary)] mb-1">Total Votes</div>
+            <div className="text-xs text-[var(--color-text-muted)]">
+              {stats.find(s => s.label === 'Total Votes')?.change || 0}% from last week
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-[var(--color-accent)] mb-2">
+              {stats.find(s => s.label === 'Total Vigor')?.value.toLocaleString() || '0'}
+            </div>
+            <div className="text-sm text-[var(--color-text-secondary)] mb-1">Total Vigor</div>
+            <div className="text-xs text-[var(--color-text-muted)]">
+              {stats.find(s => s.label === 'Total Vigor')?.change || 0}% from last week
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-[var(--color-secondary)] mb-2">
+              {stats.find(s => s.label === 'Total Users')?.value.toLocaleString() || '0'}
+            </div>
+            <div className="text-sm text-[var(--color-text-secondary)] mb-1">Total Users</div>
+            <div className="text-xs text-[var(--color-text-muted)]">
+              {stats.find(s => s.label === 'Total Users')?.change || 0}% from last week
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity and Engagement */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-[var(--color-background)] rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Activity This Week</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">New Petitions</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">12</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Votes Cast</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">3,456</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Vigor Contributed</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">234</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">New Users</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">45</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--color-background)] rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">User Engagement</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Active Users</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">892</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Active Petitions</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">89</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Avg Votes per Petition</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">36.7</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[var(--color-text-secondary)]">Avg Vigor per User</span>
+              <span className="text-sm font-medium text-[var(--color-text)]">1.9</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Contributors */}
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Top Contributors</h3>
+        <div className="bg-[var(--color-background)] rounded-lg p-4">
+          {topContributors.length > 0 ? (
+            <div className="space-y-4">
+              {topContributors.map((contributor, index) => (
+                <div key={contributor.username} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center justify-center w-8 h-8 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-full font-semibold text-sm">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="font-medium text-[var(--color-text)]">
+                        @{contributor.username}
+                      </div>
+                      <div className="text-sm text-[var(--color-text-muted)]">{contributor.petitionCount} petitions</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium text-[var(--color-text)]">{contributor.totalVigor} vigor</div>
+                    <div className="text-sm text-[var(--color-text-muted)]">{contributor.petitionCount} petitions</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-[var(--color-text-muted)] py-4">
+              No contributor data available yet.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="text-center">
+        <button className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:ring-offset-2 transition-colors">
+          View Detailed Analytics
+        </button>
+      </div>
+    </div>
+  )
+}

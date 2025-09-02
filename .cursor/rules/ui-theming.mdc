@@ -1,0 +1,145 @@
+# UI Theming Rules for Federal Democracy Application
+
+## Core Theming Principles
+
+### 1. Federal Color Scheme Compliance
+- **ALWAYS** use CSS custom properties (CSS variables) for colors
+- **NEVER** hardcode color values directly in components
+- Follow the established Federal color palette:
+  - Primary: `var(--color-primary)` (blue-600/indigo-600)
+  - Secondary: `var(--color-secondary)` (blue-500/indigo-500)
+  - Background: `var(--color-background)` (light gradients)
+  - Surface: `var(--color-surface)` (card/component backgrounds)
+  - Text: `var(--color-text)` (gray-900 for headings, gray-700 for body)
+  - Text Secondary: `var(--color-text-secondary)` (muted text)
+  - Border: `var(--color-border)` (component borders)
+  - Accent: `var(--color-accent)` (interactive elements)
+
+### 2. Light/Dark Theme Mode Support
+- **EVERY** component must support both light and dark themes
+- Use semantic color variables that automatically adapt:
+  - `var(--color-background-primary)` / `var(--color-background-secondary)`
+  - `var(--color-text-primary)` / `var(--color-text-secondary)`
+  - `var(--color-border-primary)` / `var(--color-border-secondary)`
+- Test component appearance in both theme modes
+
+### 3. CSS Variable Implementation
+- Define colors in `:root` or theme-specific selectors
+- Use semantic naming: `--color-{purpose}-{variant}`
+- Example structure:
+```css
+:root {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #1e293b;
+  --color-border: #e2e8f0;
+}
+
+[data-theme="dark"] {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #f1f5f9;
+  --color-border: #334155;
+}
+```
+
+## Component Theming Requirements
+
+### 4. Button Components
+- Use `var(--color-primary)` for primary buttons
+- Use `var(--color-secondary)` for secondary buttons
+- Implement hover states with `var(--color-primary-hover)`
+- Ensure proper contrast ratios in both themes
+- Use `var(--color-text-on-primary)` for button text
+
+### 5. Form Components
+- Input borders: `var(--color-border)`
+- Focus states: `var(--color-primary)` with proper outline
+- Error states: `var(--color-error)` (red-500)
+- Success states: `var(--color-success)` (green-500)
+- Background: `var(--color-surface)`
+
+### 6. Card/Container Components
+- Background: `var(--color-surface)`
+- Border: `var(--color-border)`
+- Shadow: Use CSS variables for shadow colors
+- Hover effects: Subtle color transitions using theme variables
+
+### 7. Navigation Components
+- Active states: `var(--color-primary)`
+- Hover states: `var(--color-primary-hover)`
+- Background: `var(--color-background)`
+- Border: `var(--color-border)`
+
+## Implementation Guidelines
+
+### 8. Color Usage Patterns
+```tsx
+// ✅ CORRECT - Using CSS variables
+<button className="bg-[var(--color-primary)] text-[var(--color-text-on-primary)] hover:bg-[var(--color-primary-hover)]">
+
+// ❌ INCORRECT - Hardcoded colors
+<button className="bg-blue-600 text-white hover:bg-blue-700">
+```
+
+### 9. Theme-Aware Styling
+- Use Tailwind's arbitrary value syntax with CSS variables
+- Implement theme switching with `data-theme` attribute
+- Ensure smooth transitions between themes
+- Test accessibility in both light and dark modes
+
+### 10. Accessibility Requirements
+- Maintain WCAG AA contrast ratios in both themes
+- Use `var(--color-focus-ring)` for focus indicators
+- Ensure interactive elements have sufficient contrast
+- Test with screen readers in both theme modes
+
+## File Structure Requirements
+
+### 11. CSS Variable Organization
+- Store theme variables in dedicated files:
+  - `src/styles/themes/light.css`
+  - `src/styles/themes/dark.css`
+  - `src/styles/variables.css` (common variables)
+- Import theme files in your main CSS entry point
+
+### 12. Component Theme Integration
+- Each component should import theme variables
+- Use CSS-in-JS or CSS modules with theme variables
+- Implement theme context for dynamic switching
+- Ensure theme changes trigger component re-renders
+
+## Validation Checklist
+
+Before committing any UI component, verify:
+- [ ] All colors use CSS variables (no hardcoded values)
+- [ ] Component supports both light and dark themes
+- [ ] Proper contrast ratios maintained in both themes
+- [ ] Hover/focus states use theme-appropriate colors
+- [ ] Transitions are smooth between theme changes
+- [ ] Accessibility requirements met in both themes
+- [ ] CSS variables are properly defined in theme files
+
+## Common Anti-Patterns to Avoid
+
+- ❌ `className="bg-blue-600"` (hardcoded Tailwind colors)
+- ❌ `style={{ color: '#1e293b' }}` (inline hardcoded colors)
+- ❌ `backgroundColor: 'white'` (JavaScript hardcoded colors)
+- ❌ Using only light theme colors without dark alternatives
+- ❌ Missing hover/focus states in theme variables
+
+## Theme Testing Requirements
+
+- Test each component in both light and dark modes
+- Verify color contrast meets accessibility standards
+- Ensure smooth transitions between themes
+- Test with different screen sizes and devices
+- Validate theme persistence across page refreshes
+description:
+globs:
+alwaysApply: true
+---

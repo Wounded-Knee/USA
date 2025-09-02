@@ -1,84 +1,73 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const vigorSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const Vigor = new Schema({
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true, 
+    index: true 
   },
-  vote: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vote',
-    required: true
+  vote: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Vote', 
+    required: true, 
+    index: true 
   },
-  petition: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Petition',
-    required: true
+  vigorType: { 
+    type: String, 
+    enum: ['steps', 'calories', 'duration', 'distance', 'workout', 'meditation', 'reading', 'volunteering'], 
+    required: true, 
+    index: true 
   },
-  vigorType: {
-    type: String,
-    enum: ['shake', 'voice', 'statement'],
-    required: true
+  vigorAmount: { 
+    type: Number, 
+    min: 0, 
+    required: true 
   },
-  vigorAmount: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100
+  activity: { 
+    type: Schema.Types.Mixed, 
+    required: true 
   },
-  activityData: {
-    // For shake activity
-    shakeIntensity: Number,
-    shakeDuration: Number,
-    shakeCount: Number,
-    
-    // For voice activity
-    voiceConfidence: Number,
-    voiceDuration: Number,
-    voiceClarity: Number,
-    audioRecording: String, // URL to stored audio file
-    
-    // For statement activity
-    statementText: String,
-    statementLength: Number,
-    statementEmotion: String,
-    
-    // Common metrics
-    completionTime: Number,
-    focusScore: Number,
-    emotionalIntensity: Number
+  signingStatement: { 
+    type: String, 
+    maxlength: 1000 
   },
-  signingStatement: {
-    type: String,
-    trim: true,
-    maxlength: 1000
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  isActive: { 
+    type: Boolean, 
+    default: true, 
+    index: true 
   }
-}, {
-  timestamps: true
+}, { 
+  timestamps: true 
 });
 
-// Indexes for better query performance
-vigorSchema.index({ user: 1, petition: 1 });
-vigorSchema.index({ petition: 1, vigorAmount: -1 });
-vigorSchema.index({ createdAt: -1 });
-vigorSchema.index({ vigorType: 1, isActive: 1 });
+// Indexes for common queries
+Vigor.index({ vote: 1, createdAt: -1 });
+Vigor.index({ user: 1, createdAt: -1 });
+Vigor.index({ vigorType: 1, createdAt: -1 });
+Vigor.index({ isActive: 1, createdAt: -1 });
 
-// Virtual for total vigor on a petition
-vigorSchema.virtual('totalVigor').get(function() {
-  return this.vigorAmount;
+// Guardrails: ensure vigor.user matches vote.user
+Vigor.pre('validate', async function(next) {
+  if (!this.vote || !this.user) {
+    return next(new Error('vote and user are required'));
+  }
+  
+  try {
+    const vote = await this.model('Vote').findById(this.vote).select('user').lean();
+    if (!vote) {
+      return next(new Error('vote not found'));
+    }
+    
+    if (vote.user.toString() !== this.user.toString()) {
+      return next(new Error('vigor.user must match vote.user'));
+    }
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-module.exports = mongoose.model('Vigor', vigorSchema);
+module.exports = mongoose.model('Vigor', Vigor);

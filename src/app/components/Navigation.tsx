@@ -15,15 +15,59 @@ interface NavItem {
   href: string
   icon?: string
   children?: NavItem[]
+  requiresAuth?: boolean
 }
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Petitions', href: '/petitions' },
-  { label: 'Map', href: '/map' },
-  { label: 'Library', href: '/library' },
-  { label: 'Lab', href: '/lab' },
-  { label: 'About', href: '/about' },
+  { 
+    label: 'About', 
+    href: '/about',
+    children: [
+      { label: 'Our Story', href: '/about/story' },
+      { label: 'Philosophy', href: '/about/philosophy' },
+      { label: 'FAQ', href: '/about/faq' }
+    ]
+  },
+  { 
+    label: 'For the Public', 
+    href: '/public',
+    children: [
+      { label: 'How It Works', href: '/public/how-it-works' },
+      { label: 'Why It Matters', href: '/public/why-it-matters' },
+      { label: 'Guide Us', href: '/public/guide-us' }
+    ]
+  },
+  { 
+    label: 'Participate', 
+    href: '/participate',
+    children: [
+      { label: 'As a Developer', href: '/participate/developer' },
+      { label: 'As a Civic Leader', href: '/participate/civic-leader' },
+      { label: 'As a Voter & Advocate', href: '/participate/voter-advocate' }
+    ]
+  },
+  { 
+    label: 'Initiatives', 
+    href: '/initiatives',
+    requiresAuth: true,
+    children: [
+      { label: 'Active Petitions', href: '/initiatives/active' },
+      { label: 'Past Victories', href: '/initiatives/victories' },
+      { label: 'How to Start an Initiative', href: '/initiatives/start' }
+    ]
+  },
+  { 
+    label: 'Resources', 
+    href: '/resources',
+    children: [
+      { label: 'Documentation', href: '/resources/documentation' },
+      { label: 'Media Kit', href: '/resources/media-kit' },
+      { label: 'News & Press', href: '/resources/news' },
+      { label: 'Laboratory', href: '/lab', requiresAuth: true }
+    ]
+  },
+  { label: 'Contact', href: '/contact' }
 ]
 
 export default function Navigation() {
@@ -93,6 +137,14 @@ export default function Navigation() {
     setIsAuthDialogOpen(false)
   }
 
+  // Filter nav items based on authentication requirements
+  const filteredNavItems = navItems.filter(item => {
+    if (item.requiresAuth && !user) {
+      return false
+    }
+    return true
+  })
+
   return (
     <nav className="bg-surface border-b border-neutral-light shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,7 +166,7 @@ export default function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden lg:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <div key={item.label} className="relative group">
                   <Link
                     href={item.href}
@@ -131,7 +183,9 @@ export default function Navigation() {
                   
                   {/* Desktop Dropdown */}
                   {item.children && (
-                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-surface border border-neutral-light opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="absolute left-0 top-full w-48 rounded-md shadow-lg bg-surface border border-neutral-light opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      {/* Invisible hover bridge to prevent hover loss */}
+                      <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent"></div>
                       <div className="py-1">
                         {item.children.map((child) => (
                           <Link
@@ -150,28 +204,27 @@ export default function Navigation() {
             </div>
           </div>
 
-          {/* Theme Toggle and CTA Button - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
+          {/* Right side - Theme toggle, Auth, User menu */}
+          <div className="flex items-center space-x-4">
             <ThemeToggle />
-            {!loading && (
-              <>
-                {user ? (
-                  <UserAvatar size="md" />
-                ) : (
-                  <button 
-                    onClick={handleJoinTreeClick}
-                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-                  >
-                    Join the Tree
-                  </button>
-                )}
-              </>
+            
+            {loading ? (
+              <div className="animate-pulse bg-[var(--color-border)] h-8 w-8 rounded-full"></div>
+            ) : user ? (
+              <UserAvatar size="md" />
+            ) : (
+              <button
+                onClick={() => setIsAuthDialogOpen(true)}
+                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-text-on-primary)] px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+              >
+                Sign In
+              </button>
             )}
           </div>
 
           {/* Mobile menu button and theme toggle */}
           <div className="lg:hidden flex items-center space-x-2">
-            <ThemeToggle />
+            {!user && <ThemeToggle />}
             <button
               onClick={(e) => toggleMenu(e)}
               className="text-neutral hover:text-foreground hover:bg-neutral-light p-2 rounded-md transition-colors duration-200"
@@ -208,7 +261,7 @@ export default function Navigation() {
         {isMenuOpen && (
           <div className="lg:hidden" ref={mobileMenuRef}>
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-surface border-t border-neutral-light">
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <div key={item.label}>
                   <Link
                     href={item.href}
@@ -249,7 +302,9 @@ export default function Navigation() {
                 {!loading && (
                   <>
                     {user ? (
-                      <ThemeToggleMobile />
+                      <div className="text-center text-sm text-gray-600">
+                        Welcome back!
+                      </div>
                     ) : (
                       <button 
                         onClick={handleJoinTreeClick}
@@ -267,9 +322,9 @@ export default function Navigation() {
       </div>
 
       {/* Auth Dialog */}
-      <AuthDialog 
+      <AuthDialog
         isOpen={isAuthDialogOpen}
-        onClose={handleAuthDialogClose}
+        onClose={() => setIsAuthDialogOpen(false)}
         initialMode={authMode}
       />
     </nav>

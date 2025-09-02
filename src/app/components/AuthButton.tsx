@@ -38,7 +38,7 @@ export default function AuthButton({ variant = 'default', className = '' }: Auth
         <>
           <button
             onClick={() => handleAuthClick('login')}
-            className={`bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors ${className}`}
+            className={`bg-[var(--color-primary)] text-[var(--color-text-on-primary)] px-3 py-1.5 rounded text-sm hover:bg-[var(--color-primary-hover)] transition-colors ${className}`}
           >
             Sign In
           </button>
@@ -57,13 +57,13 @@ export default function AuthButton({ variant = 'default', className = '' }: Auth
           <div className={`flex space-x-2 ${className}`}>
             <button
               onClick={() => handleAuthClick('login')}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+              className="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium text-sm transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={() => handleAuthClick('register')}
-              className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors"
+              className="bg-[var(--color-primary)] text-[var(--color-text-on-primary)] px-3 py-1.5 rounded text-sm hover:bg-[var(--color-primary-hover)] transition-colors"
             >
               Sign Up
             </button>
@@ -83,13 +83,13 @@ export default function AuthButton({ variant = 'default', className = '' }: Auth
           <div className={`flex items-center space-x-4 ${className}`}>
             <button
               onClick={() => handleAuthClick('login')}
-              className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+              className="text-[var(--color-text)] hover:text-[var(--color-text)] font-medium transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={() => handleAuthClick('register')}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium"
+              className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-text-on-primary)] px-4 py-2 rounded-lg hover:from-[var(--color-primary-hover)] hover:to-[var(--color-secondary-hover)] transition-all duration-200 font-medium"
             >
               Get Started
             </button>

@@ -115,12 +115,12 @@ export default function BaseModal({
     >
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 ${sizeClasses[size]} ${contentClassName}`}
+        className={`bg-[var(--color-surface)] rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto border border-[var(--color-border)] ${sizeClasses[size]} ${contentClassName}`}
         role="document"
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-lg">
+          <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-text-on-primary)] p-6 rounded-t-lg">
             <div className="flex justify-between items-center">
               {title && (
                 <h2 id="modal-title" className="text-xl font-semibold">
@@ -130,7 +130,7 @@ export default function BaseModal({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-white hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded"
+                  className="text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-text-on-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-primary)] rounded"
                   aria-label="Close modal"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
