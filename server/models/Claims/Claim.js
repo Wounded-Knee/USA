@@ -2,51 +2,39 @@ const mongoose = require('mongoose');
 // Import obligation schema structures
 const { 
     ObligationSchemaStructure, 
-    PromiseSchemaStructure, 
-    PetitionSchemaStructure,
-    ObligationDispositions,
-    PromiseDispositions,
-    PetitionDispositions
+    ObligationDispositions
   } = require('../Obligations');
 const { Schema } = mongoose;
+const { PromiseSchemaStructure, PromiseDispositions } = require('../Obligations');
 
 /*
-This model represents a claim made by a citizen toward various controversies in Whitepine which arise by the aggregation of citizen data en masse. Controversies do not have a distinct presence in the data model, but rather are computed by the aggregation of citizen data. Presence of claims can manifest as a split in aggregate opinion on a matter, and the attraction and collection of further claims (toward both sides of the controversy) can settle the controversy mathematically.
+This model represents a claim against an obligation or promise.
 
-A claim should involve supporting evidence, so a claim links to evidence. A claim can also be related to an obligation, in which case the claim is a claim against the obligation. In this case the claim needs an attribute to signify the disposition of the claim - ie is the claim that the obligation has been met, or that it has been broken?
+A claim can be related to an obligation or promise, in which case the disposition would be "Supporting" or "Against" or "Neutral".
+The claim can also be a general claim not tied to a specific obligation or promise.
 
-Claim disposition is not binary, it could be "This obligation was discharged" or "the representative is moving too slowly on this or "the game has changed since they promised this so they should be let off the hook"... disposition should be an enum in order to support aggregation of claims by disposition.
-
-A claim can be related to a petition, in which case the disposition would be "Supporting" or "Against" or "Neutral".
-
-A claim can be related to a promise, in which case the disposition would be "Kept" or "Broken" or "Partially Kept" or "No Action Taken". 
-
-A claim should reference evidence which supports the claim.
+Claims are used to track user positions on various issues and can be aggregated to show community sentiment.
 */
 
-// Function to get obligation attributes from schema structures
-function getObligationAttributes() {
-  // Get all schema paths from the schema structures
-  const obligationPaths = Object.keys(ObligationSchemaStructure);
-  const promisePaths = Object.keys(PromiseSchemaStructure);
-  const petitionPaths = Object.keys(PetitionSchemaStructure);
-  
-  // Combine all unique paths and filter for relevant attributes
-  const allPaths = [...new Set([...obligationPaths, ...promisePaths, ...petitionPaths])];
-  
-  // Filter out internal mongoose fields and keep only relevant attributes
-  const relevantAttributes = allPaths.filter(path => 
-    !path.startsWith('_') && 
-    !path.includes('.') && // Exclude nested fields
-    !['__v', 'createdAt', 'updatedAt', 'obligationType'].includes(path)
-  );
-  
-  // Add some common claimable attributes that might not be in the schema
-  const commonAttributes = ['status', 'progress', 'completion', 'failure', 'cancellation'];
-  
-  // Combine and return unique attributes
-  return [...new Set([...relevantAttributes, ...commonAttributes])];
-}
+// Get all possible paths from obligation and promise schemas
+const obligationPaths = Object.keys(ObligationSchemaStructure);
+const promisePaths = Object.keys(PromiseSchemaStructure);
+
+// Combine all paths for comprehensive claim validation
+const allPaths = [...new Set([...obligationPaths, ...promisePaths])];
+
+// Filter out internal mongoose fields and keep only relevant attributes
+const relevantAttributes = allPaths.filter(path => 
+  !path.startsWith('_') && 
+  !path.includes('.') && // Exclude nested fields
+  !['__v', 'createdAt', 'updatedAt', 'obligationType'].includes(path)
+);
+
+// Add some common claimable attributes that might not be in the schema
+const commonAttributes = ['status', 'progress', 'completion', 'failure', 'cancellation'];
+
+// Combine and return unique attributes
+const claimableAttributes = [...new Set([...relevantAttributes, ...commonAttributes])];
 
 const ClaimSchema = new Schema({
   // Basic claim information
@@ -68,8 +56,7 @@ const ClaimSchema = new Schema({
     type: String,
     enum: [
         ...ObligationDispositions,
-        ...PromiseDispositions,
-        ...PetitionDispositions
+        ...PromiseDispositions
     ],
     required: true,
     index: true
@@ -89,9 +76,9 @@ const ClaimSchema = new Schema({
 
   // Specific obligation attribute that this claim is against
   obligationAttribute: {
-    /* Referencing the particular data attribute of the obligation that is being claimed against. This is an enumerated list of data attributes that are supported by the obligation. */
     type: String,
-    enum: getObligationAttributes(),
+    /* Referencing the particular data attribute of the obligation that is being claimed against. This is an enumerated list of data attributes that are present in the obligation data object. */
+    enum: claimableAttributes,
     required: true,
     index: true
   },

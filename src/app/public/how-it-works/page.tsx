@@ -41,9 +41,9 @@ export default function HowItWorksPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">Digital Petitions</h3>
+              <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">Digital Initiatives</h3>
               <p className="text-[var(--color-text-secondary)]">
-                Create, sign, and track petitions with real-time progress updates and community engagement metrics.
+                Create, participate in, and track initiatives with real-time progress updates and community engagement metrics.
               </p>
             </div>
             <div className="text-center">
@@ -92,9 +92,9 @@ export default function HowItWorksPage() {
                 <span className="text-[var(--color-text-on-primary)] font-bold text-lg">2</span>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-[var(--color-text)] mb-2">Create a Petition</h3>
+                <h3 className="text-xl font-semibold text-[var(--color-text)] mb-2">Create an Initiative</h3>
                 <p className="text-[var(--color-text-secondary)]">
-                  Use our platform to create a well-crafted petition with clear goals, supporting information, 
+                  Use our platform to create a well-crafted initiative with clear goals, supporting information, 
                   and specific requests for action.
                 </p>
               </div>
@@ -106,7 +106,7 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="text-xl font-semibold text-[var(--color-text)] mb-2">Build Support</h3>
                 <p className="text-[var(--color-text-secondary)]">
-                  Share the petition with your community, gather signatures, and build momentum 
+                  Share the initiative with your community, gather support, and build momentum 
                   through social media and community outreach.
                 </p>
               </div>
@@ -118,7 +118,7 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="text-xl font-semibold text-[var(--color-text)] mb-2">Deliver & Advocate</h3>
                 <p className="text-[var(--color-text-secondary)]">
-                  Present the petition to decision-makers, advocate for your cause, and work 
+                  Present the initiative to decision-makers, advocate for your cause, and work 
                   toward implementing the requested changes.
                 </p>
               </div>

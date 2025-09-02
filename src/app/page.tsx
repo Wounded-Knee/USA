@@ -2,7 +2,6 @@
 
 import QOTD from './components/Hero/QOTD'
 import Statistics from './components/Statistics'
-import TrendingPetitions from './components/TrendingPetitions'
 import VigorLeaderboard from './components/VigorLeaderboard'
 import Link from 'next/link'
 
@@ -137,8 +136,7 @@ export default function HomePage() {
 
       {/* Existing Components */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <TrendingPetitions />
+        <div className="flex justify-center">
           <VigorLeaderboard />
         </div>
       </div>

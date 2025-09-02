@@ -2,10 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import PetitionVotesProgressbar from '../components/PetitionVotesProgressbar'
 import AuthDialog from '../components/AuthDialog'
 import AuthButton from '../components/AuthButton'
-import UserProfile from '../components/UserProfile'
 import SectionBoundary from '../components/SectionBoundary'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -22,24 +20,7 @@ export default function LabPage() {
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
-  // Sample segments for demonstration
-  const sampleSegments = [
-    {
-      name: 'Launch',
-      outcome: 'Petition goes live',
-      threshold: 100
-    },
-    {
-      name: 'Momentum',
-      outcome: 'Featured on homepage',
-      threshold: 500
-    },
-    {
-      name: 'Viral',
-      outcome: 'Social media promotion',
-      threshold: 1000
-    }
-  ]
+
 
   // Demo components
   const demoComponents: ComponentDemo[] = [
@@ -100,37 +81,7 @@ export default function LabPage() {
         </div>
       )
     },
-    {
-      id: 'petition-votes-progressbar',
-      name: 'Petition Votes Progressbar',
-      description: 'A unified progress bar component with segment support and Clout calculation. Tracks petition progress through multiple milestones using votes, vigor, and capital.',
-      category: 'progress',
-      href: '/lab/petition-votes-progressbar',
-      component: (
-        <div className="space-y-4">
-          <PetitionVotesProgressbar
-            currentVotes={750}
-            targetVotes={1000}
-            currentVigor={300}
-            currentCapital={600}
-            title="Sample Petition with Segments"
-            variant="default"
-            size="md"
-            segments={sampleSegments}
-          />
-          <PetitionVotesProgressbar
-            currentVotes={250}
-            targetVotes={1000}
-            currentVigor={100}
-            currentCapital={200}
-            title="Compact Example"
-            variant="compact"
-            size="sm"
-            segments={sampleSegments}
-          />
-        </div>
-      )
-    },
+
     {
       id: 'section-boundary',
       name: 'Section Boundary',
@@ -169,7 +120,16 @@ export default function LabPage() {
             <h4 className="font-medium text-[var(--color-text)] mb-3">Current Authentication Status</h4>
             {user ? (
               <div className="flex items-center space-x-3">
-                <UserProfile showAvatar={true} showEmail={true} showLogout={true} />
+                <div className="bg-[var(--color-primary-light)] rounded-full w-10 h-10 flex items-center justify-center">
+                  <span className="text-[var(--color-primary)] font-semibold text-lg">
+                    {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <div className="font-medium text-[var(--color-text)]">{user.firstName} {user.lastName}</div>
+                  <div className="text-sm text-[var(--color-text-secondary)]">@{user.username}</div>
+                  <div className="text-xs text-[var(--color-text-muted)]">{user.email}</div>
+                </div>
               </div>
             ) : (
               <p className="text-[var(--color-text-secondary)] text-sm">No user is currently signed in</p>

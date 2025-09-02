@@ -52,7 +52,6 @@ const navItems: NavItem[] = [
     href: '/initiatives',
     requiresAuth: true,
     children: [
-      { label: 'Active Petitions', href: '/initiatives/active' },
       { label: 'Past Victories', href: '/initiatives/victories' },
       { label: 'How to Start an Initiative', href: '/initiatives/start' }
     ]

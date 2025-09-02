@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 interface UserVote {
   _id: string
-  petition: {
+  obligation: {
     _id: string
     title: string
     description: string
@@ -62,50 +62,50 @@ export default function UserVoteCard({ vote }: UserVoteCardProps) {
           {/* Header with title and status */}
           <div className="flex items-start justify-between mb-2">
             <Link
-              href={`/petitions/${vote.petition._id}`}
+              href={`/initiatives/${vote.obligation._id}`}
               className="text-lg font-semibold text-foreground hover:text-primary transition-colors duration-200 flex-1"
             >
-              {vote.petition.title}
+              {vote.obligation.title}
             </Link>
                                <span className={`px-2 py-1 rounded-full text-xs font-medium ml-2 ${
-                     vote.petition.isActive
+                     vote.obligation.isActive
                        ? 'bg-[var(--fs-14260)]/10 text-[var(--fs-14260)]'
                        : 'bg-[var(--fs-16152)]/10 text-[var(--fs-16152)]'
                    }`}>
-                     {vote.petition.isActive ? 'Active' : 'Inactive'}
+                     {vote.obligation.isActive ? 'Active' : 'Inactive'}
                    </span>
           </div>
           
           {/* Description */}
-          <p className="text-neutral mb-3 line-clamp-2">{vote.petition.description}</p>
+          <p className="text-neutral mb-3 line-clamp-2">{vote.obligation.description}</p>
           
-          {/* Petition Progress */}
+          {/* Initiative Progress */}
           <div className="mb-3">
             <div className="flex items-center justify-between text-sm text-neutral mb-1">
-              <span>Progress: {vote.petition.voteCount} / {vote.petition.targetVotes} votes</span>
-              <span>{getProgressPercentage(vote.petition.voteCount, vote.petition.targetVotes).toFixed(1)}%</span>
+              <span>Progress: {vote.obligation.voteCount} / {vote.obligation.targetVotes} votes</span>
+              <span>{getProgressPercentage(vote.obligation.voteCount, vote.obligation.targetVotes).toFixed(1)}%</span>
             </div>
             <div className="w-full bg-neutral-light rounded-full h-2">
               <div 
                 className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${getProgressPercentage(vote.petition.voteCount, vote.petition.targetVotes)}%` }}
+                style={{ width: `${getProgressPercentage(vote.obligation.voteCount, vote.obligation.targetVotes)}%` }}
               ></div>
             </div>
           </div>
           
           {/* Tags and Metadata */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getCategoryColor(vote.petition.category)}`}>
-              {formatCategory(vote.petition.category)}
+            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getCategoryColor(vote.obligation.category)}`}>
+              {formatCategory(vote.obligation.category)}
             </span>
-                               {vote.petition.jurisdiction && (
+                               {vote.obligation.jurisdiction && (
                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-[var(--fs-15056)]/10 text-[var(--fs-15056)] border border-[var(--fs-15056)]/20">
-                       {vote.petition.jurisdiction.name} ({vote.petition.jurisdiction.level})
+                       {vote.obligation.jurisdiction.name} ({vote.obligation.jurisdiction.level})
                      </span>
                    )}
-                   {vote.petition.governingBody && (
+                   {vote.obligation.governingBody && (
                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-[var(--fs-15080)]/10 text-[var(--fs-15080)] border border-[var(--fs-15080)]/20">
-                       {vote.petition.governingBody.name} ({vote.petition.governingBody.branch})
+                       {vote.obligation.governingBody.name} ({vote.obligation.governingBody.branch})
                      </span>
                    )}
           </div>

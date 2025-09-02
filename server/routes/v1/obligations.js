@@ -1,17 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  Obligation, 
-  Promise, 
-  Petition, 
-  ObligationDispositions, 
-  PromiseDispositions, 
-  PetitionDispositions 
-} = require('../../models/Obligations');
+const { Obligation, ObligationSchema, ObligationSchemaStructure, ObligationDispositions } = require('../../models/Obligations');
+const { Promise, PromiseSchema, PromiseSchemaStructure, PromiseDispositions } = require('../../models/Obligations');
+const { getTrendingObligations, getObligationStats, validateObligationData } = require('../../utils/obligationUtils');
 const { Jurisdiction, GoverningBody, Legislation } = require('../../models/Government');
 const Vote = require('../../models/Vote');
 const User = require('../../models/User');
-const { getTrendingPetitions, getPetitionStats, validatePetitionData } = require('../../utils/petitionUtils');
 
 // GET /v1/obligations - Get all obligations with optional type filtering
 router.get('/', async (req, res) => {
@@ -56,7 +50,7 @@ router.get('/', async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Get all dispositions for claims summary
-    const dispositions = [...ObligationDispositions, ...PromiseDispositions, ...PetitionDispositions];
+    const dispositions = [...ObligationDispositions, ...PromiseDispositions];
     
     // Query obligations with population
     const obligations = await Obligation.find(filter)
@@ -120,13 +114,8 @@ router.get('/trending', async (req, res) => {
     
     let trendingObligations;
     
-    if (type === 'petition') {
-      // Use existing petition trending logic
-      trendingObligations = await getTrendingPetitions(parseInt(limit), timeFrame);
-    } else {
-      // For mixed types or other types, implement generic trending
-      trendingObligations = await getTrendingObligations(parseInt(limit), timeFrame, type);
-    }
+    // For all types, implement generic trending
+    trendingObligations = await getTrendingObligations(parseInt(limit), timeFrame, type);
     
     res.json(trendingObligations);
   } catch (error) {
@@ -205,15 +194,6 @@ router.post('/', async (req, res) => {
 
     // Create the appropriate obligation type
     switch (obligationType) {
-      case 'petition':
-        // Validate petition data
-        const validation = validatePetitionData(obligationData);
-        if (!validation.isValid) {
-          return res.status(400).json({ error: validation.errors.join(', ') });
-        }
-        newObligation = new Petition(obligationData);
-        break;
-        
       case 'promise':
         newObligation = new Promise(obligationData);
         break;
@@ -489,26 +469,6 @@ function generateClaimsSummary(claims, dispositions) {
   return summary;
 }
 
-// Helper function for generic trending obligations
-async function getTrendingObligations(limit, timeFrame, type) {
-  try {
-    const filter = {};
-    if (type) filter.obligationType = type;
-    
-    // For now, return basic trending by creation date
-    // This can be enhanced with more sophisticated trending algorithms
-    const trendingObligations = await Obligation.find(filter)
-      .populate('creator', 'username firstName lastName')
-      .populate('jurisdiction', 'name slug level')
-      .populate('governingBody', 'name slug branch')
-      .sort({ createdAt: -1 })
-      .limit(limit);
 
-    return trendingObligations;
-  } catch (error) {
-    console.error('Error getting trending obligations:', error);
-    throw error;
-  }
-}
 
 module.exports = router;

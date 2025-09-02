@@ -1,14 +1,13 @@
 const express = require('express');
-const User = require('../../models/User');
+const router = express.Router();
 const { Obligation } = require('../../models/Obligations');
 const Vote = require('../../models/Vote');
+const User = require('../../models/User');
 const Vigor = require('../../models/Vigor');
-const PetitionMetrics = require('../../models/PetitionMetrics');
+const Capital = require('../../models/Capital');
 const { verifyToken, requireScope } = require('../../middleware/authorization');
 const { generalLimiter, securityHeaders } = require('../../middleware/security');
 const { success, error } = require('../../utils/response');
-
-const router = express.Router();
 
 // Apply security headers to all analytics routes
 router.use(securityHeaders);
@@ -22,23 +21,18 @@ router.get('/platform',
     try {
       // Get total counts
       const totalUsers = await User.countDocuments({ isActive: true });
-      const totalPetitions = await Obligation.countDocuments({ obligationType: 'petition', status: 'active' });
-      
-      // Get totals from PetitionMetrics
-      const metricsTotals = await PetitionMetrics.aggregate([
+      const totalVotes = await Vote.countDocuments();
+      const totalVigor = await Vigor.countDocuments();
+      const totalVigorAmount = await Vigor.aggregate([
         {
           $group: {
             _id: null,
-            totalVotes: { $sum: '$voteCount' },
-            totalVigor: { $sum: '$vigorCount' },
-            totalVigorAmount: { $sum: '$totalVigor' }
+            totalVigorAmount: { $sum: '$vigorAmount' }
           }
         }
       ]);
       
-      const totalVotes = metricsTotals[0]?.totalVotes || 0;
-      const totalVigor = metricsTotals[0]?.totalVigor || 0;
-      const totalVigorAmount = metricsTotals[0]?.totalVigorAmount || 0;
+      const vigorAmount = totalVigorAmount[0]?.totalVigorAmount || 0;
       
       // Get recent activity (last 30 days)
       const thirtyDaysAgo = new Date();
@@ -49,8 +43,7 @@ router.get('/platform',
         createdAt: { $gte: thirtyDaysAgo }
       });
       
-      const recentPetitions = await Obligation.countDocuments({
-        obligationType: 'petition',
+      const recentInitiatives = await Obligation.countDocuments({
         isActive: true,
         createdAt: { $gte: thirtyDaysAgo }
       });
@@ -62,14 +55,13 @@ router.get('/platform',
       return success(res, {
         totals: {
           users: totalUsers,
-          petitions: totalPetitions,
           votes: totalVotes,
           vigor: totalVigor,
-          vigorAmount: totalVigorAmount,
+          vigorAmount: vigorAmount,
         },
         recentActivity: {
           users: recentUsers,
-          petitions: recentPetitions,
+          initiatives: recentInitiatives,
           votes: recentVotes,
         },
         period: '30 days',
@@ -97,19 +89,11 @@ router.get('/votes',
       // Get category statistics
       const categoryStats = await Obligation.aggregate([
         {
-          $lookup: {
-            from: 'petitionmetrics',
-            localField: '_id',
-            foreignField: 'petitionId',
-            as: 'metrics'
-          }
-        },
-        {
           $group: {
             _id: '$categoryId',
-            totalPetitions: { $sum: 1 },
-            totalVotes: { $sum: { $ifNull: [{ $arrayElemAt: ['$metrics.voteCount', 0] }, 0] } },
-            avgVotes: { $avg: { $ifNull: [{ $arrayElemAt: ['$metrics.voteCount', 0] }, 0] } }
+            totalInitiatives: { $sum: 1 },
+            totalVotes: { $sum: '$voteCount' },
+            avgVotes: { $avg: '$voteCount' }
           }
         },
         {
@@ -117,8 +101,8 @@ router.get('/votes',
         }
       ]);
       
-      // Get top petitions by votes
-      const topPetitions = await Obligation.find({ obligationType: 'petition', isActive: true })
+      // Get top initiatives by votes
+      const topInitiatives = await Obligation.find({ isActive: true })
         .sort({ voteCount: -1 })
         .limit(10)
         .populate('creator', 'username firstName lastName')
@@ -129,12 +113,12 @@ router.get('/votes',
         .sort({ createdAt: -1 })
         .limit(20)
         .populate('user', 'username firstName lastName')
-        .populate('petition', 'title')
-        .select('user petition createdAt');
+        .populate('obligation', 'title')
+        .select('user obligation createdAt');
       
       return success(res, {
         categoryStats,
-        topPetitions,
+        topInitiatives,
         recentVotes,
       });
       
@@ -150,90 +134,7 @@ router.get('/votes',
   }
 );
 
-// GET /v1/analytics/petitions/trending
-router.get('/petitions/trending',
-  verifyToken,
-  requireScope('analytics:read'),
-  generalLimiter,
-  async (req, res) => {
-    try {
-      const { limit = 10 } = req.query;
-      
-      // Calculate trending score based on recent activity
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      // Get petitions with recent votes
-      const trendingPetitions = await Vote.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: sevenDaysAgo }
-          }
-        },
-        {
-          $group: {
-            _id: '$petition',
-            recentVotes: { $sum: 1 }
-          }
-        },
-        {
-          $sort: { recentVotes: -1 }
-        },
-        {
-          $limit: parseInt(limit)
-        },
-        {
-          $lookup: {
-            from: 'petitions',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'petition'
-          }
-        },
-        {
-          $unwind: '$petition'
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'petition.creator',
-            foreignField: '_id',
-            as: 'creator'
-          }
-        },
-        {
-          $unwind: '$creator'
-        },
-        {
-          $project: {
-            _id: '$petition._id',
-            title: '$petition.title',
-            category: '$petition.category',
-            voteCount: '$petition.voteCount',
-            recentVotes: '$recentVotes',
-            creator: {
-              _id: '$creator._id',
-              username: '$creator.username',
-              firstName: '$creator.firstName',
-              lastName: '$creator.lastName'
-            }
-          }
-        }
-      ]);
-      
-      return success(res, trendingPetitions);
-      
-    } catch (err) {
-      console.error('Get trending petitions error:', err);
-      return error(res, {
-        type: 'https://api.example.com/errors/internal',
-        title: 'Failed to get trending petitions',
-        status: 500,
-        detail: 'Failed to retrieve trending petitions',
-      });
-    }
-  }
-);
+
 
 // GET /v1/analytics/vigor
 router.get('/vigor',

@@ -178,7 +178,7 @@ export default function GuideUsPage() {
           <h2 className="text-3xl font-bold text-[var(--color-text)] mb-6 text-center">Community-Driven Success Stories</h2>
           <div className="space-y-6">
             <div className="p-6 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]">
-              <h3 className="text-xl font-semibold text-[var(--color-text)] mb-3">Enhanced Petition Creation</h3>
+                              <h3 className="text-xl font-semibold text-[var(--color-text)] mb-3">Enhanced Initiative Creation</h3>
               <p className="text-[var(--color-text-secondary)] mb-4">
                 Based on community feedback, we completely redesigned the petition creation process, 
                 making it more intuitive and user-friendly. The new interface has increased successful 

@@ -40,7 +40,7 @@ interface Position {
   is_current: boolean
 }
 
-interface Petition {
+interface Initiative {
   _id: string
   title: string
   description: string
@@ -64,7 +64,7 @@ const ProfilePage: React.FC = () => {
   const { user: currentUser, token } = useAuth()
   const [user, setUser] = useState<User | null>(null)
   const [positions, setPositions] = useState<Position[]>([])
-  const [petitions, setPetitions] = useState<Petition[]>([])
+  const [initiatives, setInitiatives] = useState<Initiative[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOwnProfile, setIsOwnProfile] = useState(false)
@@ -115,9 +115,9 @@ const ProfilePage: React.FC = () => {
         const positionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/positions/person/${userData._id}`)
         setPositions(positionsResponse.data || [])
         
-        // Fetch user's created petitions
-        const petitionsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations?type=petition&creator=${userData._id}`)
-        setPetitions(petitionsResponse.data.petitions || [])
+        // Fetch user's created initiatives
+        const initiativesResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/obligations?creator=${userData._id}`)
+        setInitiatives(initiativesResponse.data.obligations || [])
       } else {
         setError('User not found')
       }
@@ -302,26 +302,26 @@ const ProfilePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Created Petitions */}
-              {petitions.length > 0 && (
+              {/* Created Initiatives */}
+              {initiatives.length > 0 && (
                 <div className="bg-surface rounded-lg shadow-lg border border-neutral-light p-6">
-                  <h2 className="text-xl font-semibold text-foreground mb-4">Created Petitions</h2>
+                  <h2 className="text-xl font-semibold text-foreground mb-4">Created Initiatives</h2>
                   <div className="space-y-4">
-                    {petitions.map((petition) => (
+                    {initiatives.map((initiative) => (
                       <Link 
-                        key={petition._id}
-                        href={`/petitions/${petition._id}`}
+                        key={initiative._id}
+                        href={`/initiatives/${initiative._id}`}
                         className="block border border-neutral-light rounded-lg p-4 hover:border-primary transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-foreground mb-1">{petition.title}</h3>
-                            <p className="text-neutral text-sm mb-2 line-clamp-2">{petition.description}</p>
+                            <h3 className="font-semibold text-foreground mb-1">{initiative.title}</h3>
+                            <p className="text-neutral text-sm mb-2 line-clamp-2">{initiative.description}</p>
                             <div className="flex items-center space-x-4 text-xs text-neutral-light">
-                              <span>{petition.voteCount} votes</span>
-                              <span>{petition.category}</span>
-                              <span>{petition.jurisdiction.name}</span>
-                              <span>{formatDate(petition.createdAt)}</span>
+                              <span>{initiative.voteCount} votes</span>
+                              <span>{initiative.category}</span>
+                              <span>{initiative.jurisdiction.name}</span>
+                              <span>{formatDate(initiative.createdAt)}</span>
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-neutral-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -334,9 +334,9 @@ const ProfilePage: React.FC = () => {
                 </div>
               )}
 
-              {positions.length === 0 && petitions.length === 0 && (
+              {positions.length === 0 && initiatives.length === 0 && (
                 <div className="bg-surface rounded-lg shadow-lg border border-neutral-light p-6 text-center">
-                  <p className="text-neutral">No government positions or petitions found.</p>
+                  <p className="text-neutral">No government positions or initiatives found.</p>
                 </div>
               )}
             </div>
@@ -378,8 +378,8 @@ const ProfilePage: React.FC = () => {
                     <span className="font-semibold text-foreground">{positions.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-neutral">Petitions Created</span>
-                    <span className="font-semibold text-foreground">{petitions.length}</span>
+                    <span className="text-neutral">Initiatives Created</span>
+                    <span className="font-semibold text-foreground">{initiatives.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-neutral">Current Positions</span>

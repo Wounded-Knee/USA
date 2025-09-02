@@ -113,12 +113,12 @@ export default function VoterAdvocatePage() {
                   the issues that matter most to you.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Link 
-                    href="/petitions"
-                    className="inline-flex items-center px-6 py-3 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] transition-colors duration-200 font-medium"
-                  >
-                    Browse Petitions
-                  </Link>
+                                  <Link
+                  href="/initiatives"
+                  className="inline-flex items-center px-6 py-3 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-md hover:bg-[var(--color-primary-hover)] transition-colors duration-200 font-medium"
+                >
+                  Browse Initiatives
+                </Link>
                   <Link 
                     href="/resources"
                     className="inline-flex items-center px-6 py-3 border border-[var(--color-border)] text-[var(--color-text)] bg-[var(--color-surface)] rounded-md hover:bg-[var(--color-background)] transition-colors duration-200 font-medium"
