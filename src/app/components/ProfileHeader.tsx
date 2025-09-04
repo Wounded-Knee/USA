@@ -53,7 +53,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, onProfileUpdate }) 
 
       // Use the new v1 unified media endpoint
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/media`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/media`,
         formData,
         {
           headers: {
@@ -120,7 +120,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, onProfileUpdate }) 
     if (user.profile?.banner) {
       return user.profile.banner.startsWith('http') 
         ? user.profile.banner 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.profile.banner}`;
+        : `${process.env.NEXT_PUBLIC_API_URL}${user.profile.banner}`;
     }
     return '/api/placeholder/1200/300';
   };
@@ -129,7 +129,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, onProfileUpdate }) 
     if (user.profile?.avatar) {
       return user.profile.avatar.startsWith('http') 
         ? user.profile.avatar 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.profile.avatar}`;
+        : `${process.env.NEXT_PUBLIC_API_URL}${user.profile.avatar}`;
     }
     return '/api/placeholder/150/150';
   };

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const authConfig = require('../config/auth');
 
 // Middleware to verify JWT token
 const authenticateToken = async (req, res, next) => {
@@ -57,7 +58,7 @@ const generateToken = (userId) => {
   return jwt.sign(
     { userId },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: authConfig.jwt.refreshTokenExpiry }
   );
 };
 

@@ -56,7 +56,9 @@ server/
 - Include proper HTTP status codes
 
 ## Development Workflow
-- Use `npm run dev:full` to start both frontend and backend
+- Use `npm run dev` to start both frontend and backend
+- Use /scripts/killServer.sh to kill running server processes. Run this command before attempting to start the server.
+- If you start the app in the foreground to see what messages appear, then run the command so that it will automatically terminate after a reasonable duration because if you don't then the terminal will hang forever.
 - Frontend runs on port 3000
 - Backend runs on port 5000
 - MongoDB Atlas connection required for full functionality
@@ -81,3 +83,4 @@ server/
 
 ## Documentation
 If you choose to create a README regarding a system you create, store it as markdown in /public/library/project-specs and then rebuild the library database accordingly.
+

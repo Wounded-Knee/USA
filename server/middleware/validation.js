@@ -21,14 +21,44 @@ const userCreateSchema = z.object({
   password: z.string().min(8),
   firstName: z.string().min(1).max(50),
   lastName: z.string().min(1).max(50),
+  birthdate: z.string().datetime().optional(),
+  race: z.string().max(100).optional(),
+  gender: z.string().max(50).optional(),
+  income: z.enum(['under_25k', '25k_50k', '50k_75k', '75k_100k', '100k_150k', '150k_200k', 'over_200k', 'prefer_not_to_say']).optional(),
+  religion: z.string().max(100).optional(),
+  politicalPriorities: z.array(z.string().max(200)).optional(),
 });
 
 const userUpdateSchema = z.object({
   firstName: z.string().min(1).max(50).optional(),
   lastName: z.string().min(1).max(50).optional(),
+  birthdate: z.string().datetime().optional(),
+  race: z.string().max(100).optional(),
+  gender: z.string().max(50).optional(),
+  income: z.enum(['under_25k', '25k_50k', '50k_75k', '75k_100k', '100k_150k', '150k_200k', 'over_200k', 'prefer_not_to_say']).optional(),
+  religion: z.string().max(100).optional(),
+  politicalPriorities: z.array(z.string().max(200)).optional(),
   bio: z.string().max(500).optional(),
   location: z.string().max(100).optional(),
   website: z.string().url().optional(),
+});
+
+// Political identity validation schemas
+const politicalIdentityCreateSchema = z.object({
+  identityId: z.number().int().positive(),
+  rank: z.number().int().min(1),
+});
+
+const politicalIdentityUpdateSchema = z.object({
+  identityId: z.number().int().positive().optional(),
+  rank: z.number().int().min(1).optional(),
+});
+
+const politicalIdentitiesUpdateSchema = z.object({
+  identities: z.array(z.object({
+    identityId: z.number().int().positive(),
+    rank: z.number().int().min(1),
+  })).min(1),
 });
 
 // Auth validation schemas
@@ -38,33 +68,6 @@ const loginSchema = z.object({
 });
 
 const registerSchema = userCreateSchema;
-
-// Petition validation schemas
-const petitionCreateSchema = z.object({
-  title: z.string().min(1).max(200),
-  description: z.string().min(1).max(5000),
-  category: z.string().min(1), // This will be mapped to categoryId
-  jurisdictionId: z.string().min(1),
-  governingBodyId: z.string().optional(),
-  legislationId: z.string().optional(),
-});
-
-const petitionUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
-  description: z.string().min(1).max(5000).optional(),
-  category: z.string().min(1).optional(), // This will be mapped to categoryId
-});
-
-// Vote validation schemas
-const voteCreateSchema = z.object({});
-
-// Vigor validation schemas
-const vigorCreateSchema = z.object({
-  type: z.string().min(1),
-  amount: z.number().min(1),
-  activityData: z.record(z.any()).optional(),
-  signingStatement: z.string().max(500).optional(),
-});
 
 // Media validation schemas
 const mediaCreateSchema = z.object({
@@ -102,7 +105,7 @@ const validate = (schema) => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(422).json({
-          type: 'https://api.example.com/errors/validation',
+          type: `${process.env.NEXT_PUBLIC_API_URL}/errors/validation`,
           title: 'Validation failed',
           status: 422,
           detail: 'Request validation failed',
@@ -128,12 +131,11 @@ module.exports = {
     filter: filterSchema,
     userCreate: userCreateSchema,
     userUpdate: userUpdateSchema,
+    politicalIdentityCreate: politicalIdentityCreateSchema,
+    politicalIdentityUpdate: politicalIdentityUpdateSchema,
+    politicalIdentitiesUpdate: politicalIdentitiesUpdateSchema,
     login: loginSchema,
     register: registerSchema,
-    petitionCreate: petitionCreateSchema,
-    petitionUpdate: petitionUpdateSchema,
-    voteCreate: voteCreateSchema,
-    vigorCreate: vigorCreateSchema,
     mediaCreate: mediaCreateSchema,
     roleAssignment: roleAssignmentSchema,
     roleUpdate: roleUpdateSchema,

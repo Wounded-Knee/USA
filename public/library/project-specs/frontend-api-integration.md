@@ -12,7 +12,7 @@ Create a centralized API client using axios:
 // lib/api-client.ts
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -121,8 +121,8 @@ export interface Petition {
   description: string;
   category: string;
   voteCount: number;
-  vigorCount: number;
-  totalVigor: number;
+  // vigorCount: number; // REMOVED
+// totalVigor: number; // REMOVED
   isActive: boolean;
   creator: {
     _id: string;

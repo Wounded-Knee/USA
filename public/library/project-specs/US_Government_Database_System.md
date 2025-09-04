@@ -193,58 +193,7 @@ Represents contact details for government entities and officials.
 
 ## Utility Functions
 
-The system includes comprehensive utility functions in `server/utils/governmentUtils.js`:
-
-### Path Management
-- `generatePath()` - Generate materialized paths
-- `calculateDepth()` - Calculate hierarchy depth
-- `getAncestors()` - Get jurisdiction ancestors
-- `getDescendants()` - Get jurisdiction descendants
-
-### Data Creation
-- `createJurisdiction()` - Create jurisdiction with proper path/depth
-- `createGoverningBody()` - Create governing body with validation
-- `getJurisdictionHierarchy()` - Get complete hierarchy tree
-
-### Queries
-- `getCurrentOfficeHolders()` - Get current office holders
-- `getPersonOfficeHistory()` - Get person's office history
-- `getUpcomingElections()` - Get upcoming elections
-- `getRecentLegislation()` - Get recent legislation
-- `getVotingRecord()` - Get person's voting record
-- `getVoteBreakdown()` - Get vote breakdown for legislation
-- `getCommittees()` - Get committees for governing body
-- `getDistricts()` - Get districts for jurisdiction
-
-### Contact & Search
-- `getContactInfo()` - Get contact information
-- `upsertContactInfo()` - Create/update contact information
-- `searchGovernmentEntities()` - Search across entities
-
-### Validation
-- `validateJurisdictionData()` - Validate jurisdiction data
-- `validateGoverningBodyData()` - Validate governing body data
-
-## Data Seeding
-
-The system includes a comprehensive seeding script (`server/utils/seedGovernment.js`) that creates:
-
-### Initial Data
-- **Jurisdictions**: USA, California, San Mateo County, San Francisco
-- **Governing Bodies**: US Congress, US Senate, US House, CA Legislature, CA Senate, CA Assembly
-- **Offices**: President, Vice President, Senators, Representatives, Governor, State Legislators
-- **Districts**: Sample congressional, state senate, and assembly districts
-- **Contact Information**: Addresses, phone numbers, websites, social media
-
-### Running the Seeder
-```bash
-# Run the seeder directly
-node server/utils/seedGovernment.js
-
-# Or import and run programmatically
-const { seedGovernmentData } = require('./server/utils/seedGovernment');
-await seedGovernmentData();
-```
+*Note: Government utility functions and seeding scripts have been removed from the codebase.*
 
 ## Integration with Existing System
 
@@ -265,35 +214,7 @@ await seedGovernmentData();
 
 ## Usage Examples
 
-### Creating a New Jurisdiction
-```javascript
-const { createJurisdiction } = require('./utils/governmentUtils');
-
-const newJurisdiction = await createJurisdiction({
-  name: 'Los Angeles County',
-  slug: 'los-angeles-county',
-  level: 'county',
-  parent: californiaId, // Parent jurisdiction ID
-  identifiers: {
-    ocd_id: 'ocd-division/country:us/state:ca/county:los_angeles',
-    fips: '06037'
-  }
-});
-```
-
-### Getting Current Office Holders
-```javascript
-const { getCurrentOfficeHolders } = require('./utils/governmentUtils');
-
-const officeHolders = await getCurrentOfficeHolders(californiaId, 'governor');
-```
-
-### Searching Government Entities
-```javascript
-const { searchGovernmentEntities } = require('./utils/governmentUtils');
-
-const results = await searchGovernmentEntities('senate', ['governing_body', 'office']);
-```
+*Note: Government utility functions have been removed from the codebase. Direct database operations should be used instead.*
 
 ## Performance Considerations
 

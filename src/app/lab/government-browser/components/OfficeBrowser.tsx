@@ -76,7 +76,7 @@ export default function OfficeBrowser({
     const fetchGoverningBodies = async () => {
       try {
         // Use the new v1 API endpoint
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/governing-bodies?page_size=1000`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/governing-bodies?page_size=1000`);
         const data = await response.json();
         const options = data.data?.map((governingBody: any) => ({
           value: governingBody._id,
@@ -128,7 +128,7 @@ export default function OfficeBrowser({
       }
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/offices?${params.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/offices?${params.toString()}`);
       const data = await response.json();
       
       if (data.data) {
@@ -146,7 +146,7 @@ export default function OfficeBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/offices`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/offices`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +176,7 @@ export default function OfficeBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/offices/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/offices/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +206,7 @@ export default function OfficeBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/offices/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/offices/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`

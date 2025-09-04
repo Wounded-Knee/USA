@@ -70,7 +70,7 @@ export default function PositionBrowser({
     const fetchOffices = async () => {
       try {
         // Use the new v1 API endpoint
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/offices?page_size=1000`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/offices?page_size=1000`);
         const data = await response.json();
         const options = data.data?.map((office: any) => ({
           value: office._id,
@@ -127,7 +127,7 @@ export default function PositionBrowser({
       }
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/positions?${params.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/positions?${params.toString()}`);
       const data = await response.json();
       
       if (data.data) {

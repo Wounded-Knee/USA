@@ -93,7 +93,7 @@ export default function MediaBrowser({
       }
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/media?${params.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/media?${params.toString()}`);
       const data = await response.json();
       
       if (data.data) {

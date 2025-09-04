@@ -45,7 +45,7 @@ export default function EditProfilePage() {
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/users/profile`,
         {
           firstName: formData.firstName,
           lastName: formData.lastName,

@@ -39,25 +39,6 @@ export const quotes: Quote[] = [
     tags: ['peace', 'unity', 'consensus', 'harmony']
   },
   {
-    id: 'many-voices',
-    text: {
-      abbreviated: "Many voices, one tree.",
-      direct: "Many voices, one tree. Each bead strengthens the belt, each testimony strengthens the whole."
-    },
-    source: {
-      name: "Whitepine Philosophy",
-      url: "#"
-    },
-    attribution: {
-      name: "Whitepine Civic Platform",
-      url: "#"
-    },
-    date: "2024-01-01",
-    explanation: "This quote embodies the Whitepine philosophy of collective strength through individual contributions, where every voice matters and contributes to the greater whole, like beads in a wampum belt.",
-    backgroundIds: ['whitepine-tree'],
-    tags: ['collective', 'individual', 'strength', 'unity']
-  },
-  {
     id: 'roots-every-direction',
     text: {
       abbreviated: "Roots in every direction.",
@@ -187,7 +168,7 @@ export const quotes: Quote[] = [
     },
     date: "1968-10-02",
     explanation: "This quote compares the enduring nature of California's ancient redwood forests to the lasting strength of democratic principles, emphasizing the importance of preserving both natural and political heritage.",
-    backgroundIds: ['redwood-forest', 'us-capitol'],
+    backgroundIds: ['redwood-forest'],
     tags: ['democracy', 'endurance', 'nature', 'heritage']
   },
   {

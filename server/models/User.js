@@ -46,8 +46,9 @@ const User = new Schema({
     maxlength: 50 
   },
   roles: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Role', 
+    type: String, 
+    enum: ['user', 'moderator', 'admin', 'developer'],
+    default: ['user'],
     index: true 
   }],
   isActive: { 
@@ -67,10 +68,6 @@ const User = new Schema({
     location: { 
       type: String, 
       maxlength: 100 
-    },
-    website: { 
-      type: String, 
-      maxlength: 200 
     }
   },
   authProviders: { 

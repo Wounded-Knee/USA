@@ -24,33 +24,13 @@ const Media = new Schema({
     type: String, 
     required: true 
   },
-  url: { 
-    type: String, 
-    required: true 
-  },
   description: { 
     type: String, 
     maxlength: 500 
   },
-  isPrimary: { 
-    type: Boolean, 
-    default: false, 
-    index: true 
-  },
   uploadedBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
-    required: true, 
-    index: true 
-  },
-  entityType: { 
-    type: String, 
-    enum: ['User', 'Petition', 'Jurisdiction', 'GoverningBody', 'Office', 'Position', 'Legislation'], 
-    required: true, 
-    index: true 
-  },
-  entityId: { 
-    type: mongoose.Schema.Types.ObjectId, 
     required: true, 
     index: true 
   },

@@ -79,7 +79,6 @@ app.use('/v1/identities', require('./routes/v1/identities'));
 app.use('/v1/obligations', require('./routes/v1/obligations'));
 app.use('/v1/gov', require('./routes/v1/gov'));
 app.use('/v1/media', require('./routes/v1/media'));
-app.use('/v1/analytics', require('./routes/v1/analytics'));
 
 // API Documentation
 app.get('/v1/docs', (req, res) => {
@@ -174,16 +173,6 @@ app.get('/v1/docs', (req, res) => {
           'DELETE /:mediaId - Delete media'
         ]
       },
-      analytics: {
-        description: 'Analytics endpoints',
-        base: '/v1/analytics',
-        endpoints: [
-          'GET /platform - Platform statistics',
-          'GET /votes - Vote analytics',
-          'GET /obligations/trending - Trending obligations',
-          'GET /vigor - Vigor analytics'
-        ]
-      }
     },
     authentication: {
       type: 'Bearer Token',
@@ -213,7 +202,7 @@ app.get('/v1/docs', (req, res) => {
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
-    type: 'https://api.example.com/errors/not-found',
+    type: '${process.env.NEXT_PUBLIC_API_URL}/errors/not-found',
     title: 'Route not found',
     status: 404,
     detail: `The requested route ${req.originalUrl} was not found`,

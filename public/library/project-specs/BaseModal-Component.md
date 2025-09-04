@@ -107,10 +107,9 @@ The following components have been refactored to use BaseModal:
 - **After**: Uses BaseModal with `size="md"` and `position="center"`
 - **Benefits**: Consistent styling, improved accessibility
 
-### 2. VigorActivity (`src/app/components/VigorActivity.tsx`)
-- **Before**: Custom overlay with `bg-black bg-opacity-50`
-- **After**: Uses BaseModal with `size="md"` and `position="center"`
-- **Benefits**: Normalized backdrop, focus management
+### 2. VigorActivity (REMOVED)
+- **Status**: Component has been removed from the architecture
+- **Note**: Vigor functionality simplified to focus on core obligations
 
 ### 3. MediaBrowser Upload Modal (`src/app/lab/government-browser/components/MediaBrowser.tsx`)
 - **Before**: Custom modal with theme-aware styling

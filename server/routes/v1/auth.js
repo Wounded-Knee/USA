@@ -8,6 +8,7 @@ const { validate, schemas } = require('../../middleware/validation');
 const { verifyToken, requireScope } = require('../../middleware/authorization');
 const { authLimiter, securityHeaders } = require('../../middleware/security');
 const { success, error, unauthorized, validationError } = require('../../utils/response');
+const authConfig = require('../../config/auth');
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.use(securityHeaders);
 async function getUserScopes(user) {
   if (!user.roles || user.roles.length === 0) return [];
   
-  const roles = await Role.find({ _id: { $in: user.roles } }).select('scopes');
+  const roles = await Role.find({ name: { $in: user.roles } }).select('scopes');
   const scopes = roles.reduce((acc, role) => {
     if (role.scopes) {
       acc.push(...role.scopes);
@@ -49,29 +50,17 @@ router.post('/register',
         });
       }
       
-      // Get default user role
-      const userRole = await Role.findOne({ name: 'user' });
-      if (!userRole) {
-        return error(res, {
-          type: 'https://api.example.com/errors/internal',
-          title: 'Registration failed',
-          status: 500,
-          detail: 'Default user role not found. Please contact administrator.',
-        });
-      }
-      
       // Hash password
-      const saltRounds = 12;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const hashedPassword = await bcrypt.hash(password, authConfig.password.saltRounds);
       
-      // Create user with proper role ObjectId
+      // Create user with default role name
       const user = new User({
         username,
         email,
         password: hashedPassword,
         firstName,
         lastName,
-        roles: [userRole._id], // Use the actual Role ObjectId
+        roles: ['user'], // Use role name directly
         isActive: true,
       });
       
@@ -84,10 +73,10 @@ router.post('/register',
           username: user.username,
           email: user.email,
           roles: user.roles,
-          scopes: ['users:read', 'votes:read', 'vigor:read', 'media:read', 'gov:read'],
+          scopes: authConfig.defaultScopes,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: authConfig.jwt.accessTokenExpiry }
       );
       
       const refreshToken = jwt.sign(
@@ -97,15 +86,15 @@ router.post('/register',
           type: 'refresh',
         },
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: authConfig.jwt.refreshTokenExpiry }
       );
       
       // Set refresh token in HTTP-only cookie
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      res.cookie(authConfig.cookies.refreshTokenName, refreshToken, {
+        httpOnly: authConfig.cookies.httpOnly,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+        maxAge: authConfig.cookies.maxAge,
       });
       
       return success(res, {
@@ -124,7 +113,7 @@ router.post('/register',
     } catch (err) {
       console.error('Registration error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Registration failed',
         status: 500,
         detail: 'Failed to create user account',
@@ -176,7 +165,7 @@ router.post('/login',
           scopes: scopes,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: authConfig.jwt.accessTokenExpiry }
       );
       
       const refreshToken = jwt.sign(
@@ -186,15 +175,15 @@ router.post('/login',
           type: 'refresh',
         },
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: authConfig.jwt.refreshTokenExpiry }
       );
       
       // Set refresh token in HTTP-only cookie
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      res.cookie(authConfig.cookies.refreshTokenName, refreshToken, {
+        httpOnly: authConfig.cookies.httpOnly,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+        maxAge: authConfig.cookies.maxAge,
       });
       
       return success(res, {
@@ -214,7 +203,7 @@ router.post('/login',
     } catch (err) {
       console.error('Login error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Login failed',
         status: 500,
         detail: 'Failed to authenticate user',
@@ -229,10 +218,10 @@ router.post('/logout',
   async (req, res) => {
     try {
       // Clear refresh token cookie
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+      res.clearCookie(authConfig.cookies.refreshTokenName, {
+        httpOnly: authConfig.cookies.httpOnly,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
       });
       
       // TODO: Add refresh token to blacklist/revocation list
@@ -242,7 +231,7 @@ router.post('/logout',
     } catch (err) {
       console.error('Logout error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Logout failed',
         status: 500,
         detail: 'Failed to logout user',
@@ -255,7 +244,7 @@ router.post('/logout',
 router.post('/refresh',
   async (req, res) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies[authConfig.cookies.refreshTokenName];
       
       if (!refreshToken) {
         return unauthorized(res, 'Refresh token required');
@@ -285,10 +274,10 @@ router.post('/refresh',
           username: user.username,
           email: user.email,
           roles: user.roles,
-          scopes: ['users:read', 'votes:read', 'vigor:read', 'media:read', 'gov:read'],
+          scopes: sharedConfig.auth.defaultScopes,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: authConfig.jwt.accessTokenExpiry }
       );
       
       const newRefreshToken = jwt.sign(
@@ -298,7 +287,7 @@ router.post('/refresh',
           type: 'refresh',
         },
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: authConfig.jwt.refreshTokenExpiry }
       );
       
       // Set new refresh token in HTTP-only cookie
@@ -330,7 +319,7 @@ router.post('/refresh',
       
       console.error('Token refresh error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Token refresh failed',
         status: 500,
         detail: 'Failed to refresh token',
@@ -344,7 +333,8 @@ router.get('/me',
   verifyToken,
   async (req, res) => {
     try {
-      const user = await User.findById(req.user.id).select('-password');
+      const user = await User.findById(req.user.id)
+        .select('-password');
       
       if (!user) {
         return unauthorized(res, 'User not found');
@@ -369,7 +359,7 @@ router.get('/me',
     } catch (err) {
       console.error('Get user profile error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get user profile',
         status: 500,
         detail: 'Failed to retrieve user information',
@@ -383,9 +373,9 @@ router.get('/oauth/:provider',
   (req, res, next) => {
     const { provider } = req.params;
     
-    if (!['google', 'apple'].includes(provider)) {
+    if (!authConfig.oauth.supportedProviders.includes(provider)) {
       return error(res, {
-        type: 'https://api.example.com/errors/bad-request',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/bad-request',
         title: 'Unsupported OAuth provider',
         status: 400,
         detail: `Provider '${provider}' is not supported`,
@@ -394,7 +384,7 @@ router.get('/oauth/:provider',
     
     // Configure passport strategy based on provider
     passport.authenticate(provider, {
-      scope: ['profile', 'email'],
+      scope: authConfig.oauth.scopes,
       state: req.query.redirect_uri || '/',
     })(req, res, next);
   }
@@ -408,7 +398,7 @@ router.get('/oauth/:provider/callback',
     passport.authenticate(provider, { session: false }, (err, user, info) => {
       if (err) {
         return error(res, {
-          type: 'https://api.example.com/errors/oauth',
+          type: '${process.env.NEXT_PUBLIC_API_URL}/errors/oauth',
           title: 'OAuth authentication failed',
           status: 500,
           detail: err.message,
@@ -417,7 +407,7 @@ router.get('/oauth/:provider/callback',
       
       if (!user) {
         return error(res, {
-          type: 'https://api.example.com/errors/oauth',
+          type: '${process.env.NEXT_PUBLIC_API_URL}/errors/oauth',
           title: 'OAuth authentication failed',
           status: 401,
           detail: 'Failed to authenticate with OAuth provider',
@@ -431,10 +421,10 @@ router.get('/oauth/:provider/callback',
           username: user.username,
           email: user.email,
           roles: user.roles,
-          scopes: ['users:read', 'votes:read', 'vigor:read', 'media:read', 'gov:read'],
+          scopes: sharedConfig.auth.defaultScopes,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: authConfig.jwt.accessTokenExpiry }
       );
       
       const refreshToken = jwt.sign(
@@ -444,20 +434,20 @@ router.get('/oauth/:provider/callback',
           type: 'refresh',
         },
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: authConfig.jwt.refreshTokenExpiry }
       );
       
       // Set refresh token in HTTP-only cookie
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      res.cookie(authConfig.cookies.refreshTokenName, refreshToken, {
+        httpOnly: authConfig.cookies.httpOnly,
+        secure: authConfig.cookies.secure,
+        sameSite: authConfig.cookies.sameSite,
+        maxAge: authConfig.cookies.maxAge,
       });
       
       // Redirect to frontend with token
       const redirectUri = req.query.state || '/';
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL;
       
       res.redirect(`${frontendUrl}${redirectUri}?token=${accessToken}`);
     })(req, res, next);

@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const authConfig = require('../config/auth');
 require('dotenv').config();
 
 // Test configuration
@@ -98,7 +99,7 @@ function generateToken(user) {
       ]
     },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: authConfig.jwt.testTokenExpiry }
   );
 }
 

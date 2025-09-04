@@ -97,7 +97,7 @@ export default function EntityProfileAndEditor({ entity }: EntityProfileAndEdito
     setIsLoadingMedia(true)
     try {
       const entityType = getEntityType()
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/media/entity/${entityType}/${entity._id}`)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/entity/${entityType}/${entity._id}`)
       setMediaItems(response.data.media || [])
     } catch (error) {
       console.error('Error fetching media:', error)
@@ -110,7 +110,7 @@ export default function EntityProfileAndEditor({ entity }: EntityProfileAndEdito
   // Fetch parent options for jurisdiction form
   const fetchParentOptions = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/government/jurisdictions`)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/government/jurisdictions`)
       const jurisdictions = response.data.jurisdictions || []
       const options = jurisdictions
         .filter((j: any) => j._id !== entity._id) // Exclude current entity
@@ -156,7 +156,7 @@ export default function EntityProfileAndEditor({ entity }: EntityProfileAndEdito
     if (!confirm('Are you sure you want to delete this media item?')) return
     
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/media/${mediaId}`)
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}`)
       fetchMedia() // Refresh media list
     } catch (error) {
       console.error('Error deleting media:', error)
@@ -167,7 +167,7 @@ export default function EntityProfileAndEditor({ entity }: EntityProfileAndEdito
   // Set primary media
   const setPrimaryMedia = async (mediaId: string) => {
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/media/${mediaId}/set-primary`)
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}/set-primary`)
       fetchMedia() // Refresh media list
     } catch (error) {
       console.error('Error setting primary media:', error)

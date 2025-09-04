@@ -28,7 +28,7 @@ router.get('/',
     } catch (err) {
       console.error('Get roles error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get roles',
         status: 500,
         detail: 'Failed to retrieve available roles',
@@ -56,7 +56,7 @@ router.get('/scopes',
     } catch (err) {
       console.error('Get scopes error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get scopes',
         status: 500,
         detail: 'Failed to retrieve available scopes',

@@ -30,10 +30,9 @@ Fine-grained permissions for different operations:
 - `users:read`, `users:write`
 - `petitions:read`, `petitions:write`
 - `votes:read`, `votes:write`
-- `vigor:read`, `vigor:write`
+- `vigor:read`, `vigor:write` (REMOVED - vigor system simplified)
 - `media:read`, `media:write`
 - `gov:read`, `gov:write`
-- `analytics:read`
 - `roles:assign`
 
 ## Core Endpoints
@@ -195,7 +194,7 @@ List petitions with filtering, sorting, and pagination.
       "tags": ["string"],
       "snapshot": {
         "voteCount": "number",
-        "totalVigor": "number"
+        "totalVigor": "number (REMOVED)"
       },
       "createdAt": "string",
       "updatedAt": "string"
@@ -271,38 +270,13 @@ Cast a vote on a petition (idempotent).
 #### GET /v1/petitions/:petitionId/votes/:voteId
 Get a specific vote.
 
-### Vigor
+### Vigor (REMOVED)
 
-#### GET /v1/petitions/:petitionId/vigor
-List vigor contributions for a petition.
+The vigor system has been simplified to focus on core obligation functionality.
 
-**Query Parameters:**
-- `page`: Page number
-- `page_size`: Items per page
-
-**Notes:**
-- Vigor is linked through votes, not directly to petitions
-- Only users who have voted can contribute vigor
-
-#### POST /v1/petitions/:petitionId/vigor
-Contribute vigor to a petition.
-
-**Request Body:**
-```json
-{
-  "type": "string", // steps, calories, duration, distance, workout, meditation, reading, volunteering
-  "amount": "number",
-  "activityData": "object",
-  "signingStatement": "string"
-}
-```
-
-**Required Scopes:** `vigor:write`
-
-**Notes:**
-- User must have voted on the petition first
-- Vigor is automatically linked to the user's vote
-- Automatically updates petition metrics
+**Note:**
+- Vigor components and endpoints have been removed
+- Core petition/obligation functionality remains intact
 
 ### Media
 
@@ -348,39 +322,6 @@ List position terms (office holders) with time-based filtering.
 #### GET /v1/gov/legislation
 List legislation with status tracking.
 
-### Analytics
-
-#### GET /v1/analytics/platform
-Get platform-wide statistics.
-
-**Required Scopes:** `analytics:read`
-
-**Response:**
-```json
-{
-  "data": {
-    "totals": {
-      "users": "number",
-      "petitions": "number",
-      "votes": "number",
-      "vigor": "number",
-      "vigorAmount": "number"
-    },
-    "recentActivity": {
-      "users": "number",
-      "petitions": "number",
-      "votes": "number"
-    },
-    "period": "string"
-  }
-}
-```
-
-#### GET /v1/analytics/votes
-Get vote analytics and statistics.
-
-#### GET /v1/analytics/vigor
-Get vigor analytics and leaderboards.
 
 ### Users
 
@@ -427,7 +368,7 @@ List available roles and their scopes.
 ### Error Response (RFC 7807)
 ```json
 {
-  "type": "https://api.example.com/errors/validation",
+  "type": "${process.env.NEXT_PUBLIC_API_URL}/errors/validation",
   "title": "Validation failed",
   "status": 422,
   "detail": "Request validation failed",
@@ -492,7 +433,7 @@ GET /v1/petitions?fields=title,creator.username,createdAt
 ### Breaking Changes from Legacy API
 1. **Base URL**: Changed from `/api` to `/v1`
 2. **Petition fields**: `category` → `categoryId`, `isActive` → `status`
-3. **Vigor creation**: Now requires existing vote, no direct petition reference
+3. **Vigor creation**: REMOVED (vigor system simplified)
 4. **Response structure**: Updated to include `data` wrapper and `meta` information
 5. **Authentication**: Enhanced with roles and scopes
 

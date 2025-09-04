@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { PoliticalIdentityProvider } from "./contexts/PoliticalIdentityContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BackgroundProvider } from "./contexts/BackgroundContext";
 import ForestBackground from "./components/ForestBackground";
@@ -53,13 +54,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative min-h-screen`}
       >
         <ThemeProvider>
-          <AuthProvider>
-            <BackgroundProvider>
-              <ForestBackground />
-              <Navigation />
-              {children}
-            </BackgroundProvider>
-          </AuthProvider>
+          <PoliticalIdentityProvider>
+            <AuthProvider>
+              <BackgroundProvider>
+                <ForestBackground />
+                <Navigation />
+                {children}
+              </BackgroundProvider>
+            </AuthProvider>
+          </PoliticalIdentityProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -127,7 +127,7 @@ export default function OfficeForm({ office, onSave, onCancel, currentJurisdicti
   useEffect(() => {
     const fetchJurisdictions = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/government/jurisdictions?limit=1000`)
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/government/jurisdictions?limit=1000`)
         setJurisdictionOptions(response.data.jurisdictions || [])
       } catch (error) {
         console.error('Error fetching jurisdictions:', error)
@@ -140,7 +140,7 @@ export default function OfficeForm({ office, onSave, onCancel, currentJurisdicti
   useEffect(() => {
     const fetchGoverningBodies = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/government/governing-bodies?limit=1000`)
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/government/governing-bodies?limit=1000`)
         setGoverningBodyOptions(response.data.governingBodies || [])
       } catch (error) {
         console.error('Error fetching governing bodies:', error)
@@ -154,7 +154,7 @@ export default function OfficeForm({ office, onSave, onCancel, currentJurisdicti
     const fetchDistricts = async () => {
       if (formData.jurisdiction) {
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/government/districts?jurisdiction=${formData.jurisdiction}&limit=1000`)
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/government/districts?jurisdiction=${formData.jurisdiction}&limit=1000`)
           setDistrictOptions(response.data.districts || [])
         } catch (error) {
           console.error('Error fetching districts:', error)

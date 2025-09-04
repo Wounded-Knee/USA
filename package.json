@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "kill": "sh scripts/killServer.sh",
     "server": "node server/index.js",
     "server:dev": "nodemon server/index.js",
     "seed:vigor": "node server/utils/seedVigor.js",

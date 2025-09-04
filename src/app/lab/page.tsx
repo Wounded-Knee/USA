@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AuthDialog from '../components/AuthDialog'
 import AuthButton from '../components/AuthButton'
 import SectionBoundary from '../components/SectionBoundary'
+import QOTDEditorDemo from '../components/QOTDEditor/QOTDEditorDemo'
 import { useAuth } from '../contexts/AuthContext'
 
 interface ComponentDemo {
@@ -24,6 +25,14 @@ export default function LabPage() {
 
   // Demo components
   const demoComponents: ComponentDemo[] = [
+    {
+      id: 'qotd-editor',
+      name: 'QOTD Editor',
+      description: 'Advanced editor for managing the Quote of the Day system. Create, edit, and delete quotes and backgrounds with full CRUD functionality. Features JSON export and role-based access control for Developer users only.',
+      category: 'content',
+      href: '/lab/qotd-editor',
+      component: <QOTDEditorDemo />
+    },
     {
       id: 'government-browser',
       name: 'Government Browser',
@@ -104,6 +113,35 @@ export default function LabPage() {
              <SectionBoundary topColor="var(--background)" bottomColor="var(--secondary)" variant="Forest-4" />
              <SectionBoundary topColor="var(--background)" bottomColor="var(--accent)" variant="Forest-5" />
            </div>
+        </div>
+      )
+    },
+    {
+      id: 'identity-chips',
+      name: 'Identity Chips',
+      description: 'Interactive identity chip components for displaying various types of identity data. Features specialized chips for economic, educational, political, racial, religious, and other identity categories with unique styling and data visualization.',
+      category: 'components',
+      href: '/lab/identity-chips',
+      component: (
+        <div className="space-y-4">
+          <div className="bg-[var(--color-primary-light)] border border-[var(--color-primary)] rounded-lg p-4">
+            <h4 className="font-medium text-[var(--color-primary)] mb-2">Identity Chips Features</h4>
+            <ul className="text-sm text-[var(--color-primary)] space-y-1">
+              <li>• Base chip with common identity properties</li>
+              <li>• Specialized chips for different identity types</li>
+              <li>• Color-coded styling for each category</li>
+              <li>• Population estimates and metadata display</li>
+              <li>• Interactive click functionality</li>
+            </ul>
+          </div>
+          <div className="text-center">
+            <Link 
+              href="/lab/identity-chips"
+              className="inline-flex items-center px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-on-primary)] rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium"
+            >
+              Open Identity Chips
+            </Link>
+          </div>
         </div>
       )
     },

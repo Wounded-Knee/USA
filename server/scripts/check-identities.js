@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Identity = require('../models/Identity');
+const { Identity } = require('../models/Identity/Identity');
 require('dotenv').config();
 
 async function checkIdentities() {

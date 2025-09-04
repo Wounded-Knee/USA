@@ -2,7 +2,7 @@ const express = require('express');
 const { verifyToken, requireScope } = require('../../middleware/authorization');
 const { generalLimiter, securityHeaders } = require('../../middleware/security');
 const { success, error } = require('../../utils/response');
-const Identity = require('../../models/Identity');
+const { Identity } = require('../../models/Identity/Identity');
 
 const router = express.Router();
 
@@ -81,7 +81,7 @@ router.get('/',
     } catch (err) {
       console.error('Get identities error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get identities',
         status: 500,
         detail: 'Failed to retrieve identities',
@@ -148,7 +148,7 @@ router.get('/hierarchy',
     } catch (err) {
       console.error('Get identities hierarchy error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get identities hierarchy',
         status: 500,
         detail: 'Failed to retrieve identities hierarchy',
@@ -176,7 +176,7 @@ router.get('/categories',
     } catch (err) {
       console.error('Get identity categories error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get identity categories',
         status: 500,
         detail: 'Failed to retrieve identity categories',
@@ -206,7 +206,7 @@ router.get('/:id',
 
       if (!identity) {
         return error(res, {
-          type: 'https://api.example.com/errors/not-found',
+          type: '${process.env.NEXT_PUBLIC_API_URL}/errors/not-found',
           title: 'Identity not found',
           status: 404,
           detail: 'The requested identity could not be found',
@@ -218,7 +218,7 @@ router.get('/:id',
     } catch (err) {
       console.error('Get identity error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get identity',
         status: 500,
         detail: 'Failed to retrieve identity',
@@ -246,7 +246,7 @@ router.get('/:id/descendants',
 
       if (!identity) {
         return error(res, {
-          type: 'https://api.example.com/errors/not-found',
+          type: '${process.env.NEXT_PUBLIC_API_URL}/errors/not-found',
           title: 'Identity not found',
           status: 404,
           detail: 'The requested identity could not be found',
@@ -265,7 +265,7 @@ router.get('/:id/descendants',
     } catch (err) {
       console.error('Get identity descendants error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get identity descendants',
         status: 500,
         detail: 'Failed to retrieve identity descendants',

@@ -1,0 +1,7 @@
+Where the constitution begins, Whitepine ends.
+
+Our mission is to the appropriate freedom of the people who inhabit the land is documented, and their government's alignment with that freedom is measured by those same people and documented, day after day, year after year, forever.
+
+The US Constitution codified a lot of Natural law, but the spirit of natural law is difficult to capture in a man's tongue like English. The parts left out are still law, and fell into a jurisdictional crevice where they are invisible to the world of human law. The founding law of the united states of america is indeed natural law, and upon that other suppositions are made which lead us to a more humanized version of natural law and probably biased and opinionated toward the culture of those who transcribed natural law into human law. But you still did receive a piece of natural law in a functional model.
+
+Natural law says that when someone is speaking to you, listen. That's sacred breath. And so, we honor that by ensuring that listening happens when someone is speaking. And we have various methods for doing that not least of which is aggregated sentiment analysis. These metrics are the dashboard of an entire campaign or office!

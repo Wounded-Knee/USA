@@ -32,7 +32,7 @@ const success = (res, data, statusCode = 200, meta = {}) => {
 // Standard error response following RFC 7807 Problem Details
 const error = (res, errorData) => {
   const {
-    type = 'https://api.example.com/errors/general',
+    type = `${process.env.NEXT_PUBLIC_API_URL}/errors/general`,
     title = 'An error occurred',
     status = 500,
     detail = 'Internal server error',
@@ -203,7 +203,7 @@ const buildFilter = (filter) => {
 // Conflict response for idempotent operations
 const conflict = (res, detail, existingId = null) => {
   return error(res, {
-    type: 'https://api.example.com/errors/conflict',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/conflict`,
     title: 'Resource conflict',
     status: 409,
     detail,
@@ -214,7 +214,7 @@ const conflict = (res, detail, existingId = null) => {
 // Not found response
 const notFound = (res, resource = 'Resource') => {
   return error(res, {
-    type: 'https://api.example.com/errors/not-found',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/not-found`,
     title: 'Not found',
     status: 404,
     detail: `${resource} not found`,
@@ -224,7 +224,7 @@ const notFound = (res, resource = 'Resource') => {
 // Validation error response
 const validationError = (res, errors, instance = null) => {
   return error(res, {
-    type: 'https://api.example.com/errors/validation',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/validation`,
     title: 'Validation failed',
     status: 422,
     detail: 'Request validation failed',
@@ -236,7 +236,7 @@ const validationError = (res, errors, instance = null) => {
 // Unauthorized response
 const unauthorized = (res, detail = 'Authentication required') => {
   return error(res, {
-    type: 'https://api.example.com/errors/unauthorized',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
     title: 'Unauthorized',
     status: 401,
     detail,
@@ -246,7 +246,7 @@ const unauthorized = (res, detail = 'Authentication required') => {
 // Forbidden response
 const forbidden = (res, detail = 'Access denied') => {
   return error(res, {
-    type: 'https://api.example.com/errors/forbidden',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/forbidden`,
     title: 'Forbidden',
     status: 403,
     detail,

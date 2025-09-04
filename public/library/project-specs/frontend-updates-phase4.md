@@ -78,23 +78,12 @@ Phase 4 of the data model refactor has been completed, focusing on updating the 
 - Updated vigor display to use `snapshot.totalVigor`
 - Fixed category display to use `categoryId`
 
-### 5. Vigor Display (`src/app/components/VigorDisplay.tsx`)
+### 5. Vigor Display (REMOVED)
 
-✅ **Interface Updates**
-- Updated `VigorContribution` interface for new model
-- Changed `_id` to `id`
-- Changed `activityData` to `activity`
-- Updated vigor types to match new enum values
-
-✅ **Vigor Type Support**
-- Added support for new vigor types: `workout`, `meditation`, `reading`, `volunteering`
-- Updated type labels and formatting functions
-- Removed deprecated `custom` type
-
-✅ **Data Display**
-- Updated all field references to use new structure
-- Fixed activity data access
-- Updated user reference fields
+⚠️ **Component Removed**
+- `VigorDisplay.tsx` component has been removed from the architecture
+- Vigor functionality has been simplified to focus on core obligations
+- Core petition/obligation functionality remains intact
 
 ## Key Benefits Achieved
 
@@ -225,7 +214,7 @@ The frontend is now fully aligned with the refactored backend and ready for prod
 - `src/app/components/CreatePetitionForm.tsx` - Petition creation form
 - `src/app/petitions/page.tsx` - Main petitions listing page
 - `src/app/components/TrendingPetitions.tsx` - Trending petitions display
-- `src/app/components/VigorDisplay.tsx` - Vigor contributions display
+- `src/app/components/VigorDisplay.tsx` - REMOVED (vigor functionality simplified)
 
 ## Status
 

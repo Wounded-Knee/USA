@@ -180,6 +180,13 @@ export const libraryDocuments: LibraryDocument[] = [
     section: "project-specs"
   },
   {
+    title: "QOTD Editor System",
+    filename: "qotd-editor-system.md",
+    excerpt: "The QOTD (Quote of the Day) Editor is a comprehensive content management system designed for Developer users to manage the Quote of the Day functionality. It provides full CRUD operations for both quo...",
+    category: "API Documentation",
+    section: "project-specs"
+  },
+  {
     title: "S3 + CloudFront Deployment Guide",
     filename: "s3-cloudfront-deployment.md",
     excerpt: "This project is configured for automated deployment to AWS S3 with CloudFront CDN using GitHub Actions.",
@@ -218,13 +225,6 @@ export const libraryDocuments: LibraryDocument[] = [
     title: "User Role System",
     filename: "User_Role_System.md",
     excerpt: "The User Role System provides role-based access control (RBAC) for the USA application. It allows administrators to assign specific roles to users, which determine their permissions and access levels ...",
-    category: "Platform Features",
-    section: "project-specs"
-  },
-  {
-    title: "Vigor Feature Guide",
-    filename: "Vigor_Feature_Guide.md",
-    excerpt: "The Vigor feature is a revolutionary addition to the Whitepine civic platform that allows users to channel their emotional conviction and dedication into their votes through gamified activities. This ...",
     category: "Platform Features",
     section: "project-specs"
   },

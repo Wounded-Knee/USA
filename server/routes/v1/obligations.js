@@ -4,7 +4,6 @@ const { Obligation, ObligationSchema, ObligationSchemaStructure, ObligationDispo
 const { Promise, PromiseSchema, PromiseSchemaStructure, PromiseDispositions } = require('../../models/Obligations');
 const { getTrendingObligations, getObligationStats, validateObligationData } = require('../../utils/obligationUtils');
 const { Jurisdiction, GoverningBody, Legislation } = require('../../models/Government');
-const Vote = require('../../models/Vote');
 const User = require('../../models/User');
 
 // GET /v1/obligations - Get all obligations with optional type filtering
@@ -55,9 +54,6 @@ router.get('/', async (req, res) => {
     // Query obligations with population
     const obligations = await Obligation.find(filter)
       .populate('creator', 'username firstName lastName')
-      .populate('jurisdiction', 'name slug level')
-      .populate('governingBody', 'name slug branch')
-      .populate('legislation', 'title bill_number status')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
@@ -165,10 +161,7 @@ router.get('/stats', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const obligation = await Obligation.findById(req.params.id)
-      .populate('creator', 'username firstName lastName')
-      .populate('jurisdiction', 'name slug level path')
-      .populate('governingBody', 'name slug branch entity_type')
-      .populate('legislation', 'title bill_number status introduced_date');
+      .populate('creator', 'username firstName lastName');
 
     if (!obligation) {
       return res.status(404).json({ error: 'Obligation not found' });
@@ -206,9 +199,6 @@ router.post('/', async (req, res) => {
 
     // Populate references before sending response
     await newObligation.populate('creator', 'username firstName lastName');
-    await newObligation.populate('jurisdiction', 'name slug level');
-    await newObligation.populate('governingBody', 'name slug branch');
-    await newObligation.populate('legislation', 'title bill_number status');
 
     res.status(201).json(newObligation);
   } catch (error) {
@@ -236,9 +226,6 @@ router.put('/:id', async (req, res) => {
 
     // Populate references before sending response
     await obligation.populate('creator', 'username firstName lastName');
-    await obligation.populate('jurisdiction', 'name slug level');
-    await obligation.populate('governingBody', 'name slug branch');
-    await obligation.populate('legislation', 'title bill_number status');
 
     res.json(obligation);
   } catch (error) {
@@ -269,97 +256,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// POST /v1/obligations/:id/vigor - Add vigor to an obligation
-router.post('/:id/vigor', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { vigorType, vigorAmount, description } = req.body;
-    
-    // Verify obligation exists
-    const obligation = await Obligation.findById(id);
-    if (!obligation) {
-      return res.status(404).json({ error: 'Obligation not found' });
-    }
 
-    // Check if user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Create new vigor entry
-    const Vigor = require('../../models/Vigor');
-    const vigor = new Vigor({
-      user: req.user._id,
-      entity: id,
-      entityType: 'obligation',
-      vigorType: vigorType || 'support',
-      vigorAmount: vigorAmount || 1,
-      description: description || '',
-      createdAt: new Date()
-    });
-
-    await vigor.save();
-
-    res.status(201).json({ 
-      message: 'Vigor added successfully',
-      data: vigor 
-    });
-  } catch (error) {
-    console.error('Error adding vigor:', error);
-    res.status(500).json({ error: 'Failed to add vigor' });
-  }
-});
-
-// POST /v1/obligations/:id/votes - Vote on an obligation
-router.post('/:id/votes', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Verify obligation exists
-    const obligation = await Obligation.findById(id);
-    if (!obligation) {
-      return res.status(404).json({ error: 'Obligation not found' });
-    }
-
-    // Check if user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Check if user has already voted
-    const existingVote = await Vote.findOne({ 
-      user: req.user._id, 
-      entity: id, 
-      entityType: 'obligation' 
-    });
-
-    if (existingVote) {
-      return res.status(409).json({ 
-        error: 'User has already voted on this obligation',
-        voteId: existingVote._id 
-      });
-    }
-
-    // Create new vote
-    const vote = new Vote({
-      user: req.user._id,
-      entity: id,
-      entityType: 'obligation',
-      voteType: 'support', // Default vote type for obligations
-      createdAt: new Date()
-    });
-
-    await vote.save();
-
-    res.status(201).json({ 
-      message: 'Vote recorded successfully',
-      data: vote 
-    });
-  } catch (error) {
-    console.error('Error creating vote:', error);
-    res.status(500).json({ error: 'Failed to create vote' });
-  }
-});
 
 // GET /v1/obligations/:id/claims - Get detailed claims for an obligation
 router.get('/:id/claims', async (req, res) => {

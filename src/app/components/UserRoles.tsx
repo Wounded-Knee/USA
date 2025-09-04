@@ -36,7 +36,7 @@ const UserRoles: React.FC<UserRolesProps> = ({ userId, onRolesUpdate }) => {
       setError(null);
       
       // Use the new v1 API endpoint
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users/${userId}/roles`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/users/${userId}/roles`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -56,7 +56,7 @@ const UserRoles: React.FC<UserRolesProps> = ({ userId, onRolesUpdate }) => {
   const fetchAvailableRoles = async () => {
     try {
       // Use the new v1 API endpoint for available roles
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/roles`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/roles`);
       
       if (response.data && response.data.data) {
         setAvailableRoles(response.data.data);
@@ -80,7 +80,7 @@ const UserRoles: React.FC<UserRolesProps> = ({ userId, onRolesUpdate }) => {
 
       if (userRoles.includes(roleName)) {
         // Remove role
-        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users/${userId}/roles/${roleName}`, {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/v1/users/${userId}/roles/${roleName}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
           }
@@ -90,7 +90,7 @@ const UserRoles: React.FC<UserRolesProps> = ({ userId, onRolesUpdate }) => {
         setSuccess(`Role "${roleName}" removed successfully`);
       } else {
         // Add role
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/users/${userId}/roles`, {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/users/${userId}/roles`, {
           role: roleName
         }, {
           headers: {

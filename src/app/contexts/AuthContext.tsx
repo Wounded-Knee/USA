@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/shared/config.js';
 
 interface User {
   id: string;
@@ -9,6 +10,12 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  birthdate?: string;
+  race?: string;
+  gender?: string;
+  income?: string;
+  religion?: string;
+  politicalPriorities?: string[];
   roles: string[];
   scopes: string[];
   profile?: {
@@ -64,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize axios with base URL
   const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1',
+    baseURL: getApiUrl(),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -156,7 +163,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await api.get('/auth/google');
       // If we get here, it means Google OAuth is configured and we can redirect
-      const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/auth/oauth/google`;
+      const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/oauth/google`;
       window.location.href = googleAuthUrl;
     } catch (error: any) {
       if (error.response?.status === 503) {

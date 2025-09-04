@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Role = require('../models/Role');
-const Identity = require('../models/Identity');
+const { Identity } = require('../models/Identity/Identity');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const authConfig = require('../config/auth');
 require('dotenv').config();
 
 // Test configuration
@@ -66,7 +67,7 @@ async function createTestUser() {
         password: hashedPassword,
         firstName: TEST_USER.firstName,
         lastName: TEST_USER.lastName,
-        roles: [userRole._id],
+        roles: ['user'], // Use string role name, not ObjectId
         isActive: true
       });
       
@@ -103,7 +104,7 @@ function generateToken(user) {
       ]
     },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: authConfig.jwt.testTokenExpiry }
   );
 }
 

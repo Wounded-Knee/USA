@@ -1,15 +1,30 @@
 'use client'
 
 import QOTD from './components/Hero/QOTD'
-import Statistics from './components/Statistics'
-import VigorLeaderboard from './components/VigorLeaderboard'
+import PoliticalIdentityDisplay from './components/PoliticalIdentityDisplay'
 import Link from 'next/link'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
       <QOTD />
-      <Statistics />
+      
+      {/* Political Identity Demo Section */}
+      <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Political Identity Context
+            </h2>
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              Select your political identity in the navigation bar above to see how it's shared throughout the app.
+            </p>
+          </div>
+          <div className="max-w-md mx-auto">
+            <PoliticalIdentityDisplay />
+          </div>
+        </div>
+      </section>
       
       {/* Public-Facing Pages Summary Section */}
       <section className="bg-gradient-to-br from-[var(--color-background-secondary)] via-[var(--color-background)] to-[var(--color-surface-secondary)] py-16">
@@ -134,12 +149,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Existing Components */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="flex justify-center">
-          <VigorLeaderboard />
-        </div>
-      </div>
+
     </div>
   )
 }

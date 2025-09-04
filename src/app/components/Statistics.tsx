@@ -12,7 +12,6 @@ interface Statistic {
 
 interface TopContributor {
   username: string
-  totalVigor: number
   initiativeCount: number
 }
 
@@ -30,18 +29,16 @@ export default function Statistics() {
       const mockStats: Statistic[] = [
         { label: 'Total Users', value: 1234, change: 5, changeType: 'increase' },
         { label: 'Active Users', value: 456, change: 12, changeType: 'increase' },
-        { label: 'Total Votes', value: 45678, change: 8, changeType: 'increase' },
-        { label: 'Total Vigor', value: 2345, change: 15, changeType: 'increase' },
         { label: 'Total Initiatives', value: 89, change: -3, changeType: 'decrease' },
         { label: 'Success Rate', value: 23, change: 2, changeType: 'increase' }
       ]
       
       const mockContributors: TopContributor[] = [
-        { username: 'civic_leader_1', totalVigor: 156, initiativeCount: 8 },
-        { username: 'democracy_advocate', totalVigor: 142, initiativeCount: 6 },
-        { username: 'community_organizer', totalVigor: 128, initiativeCount: 7 },
-        { username: 'policy_wonk', totalVigor: 115, initiativeCount: 5 },
-        { username: 'grassroots_hero', totalVigor: 98, initiativeCount: 4 }
+        { username: 'civic_leader_1', initiativeCount: 8 },
+        { username: 'democracy_advocate', initiativeCount: 6 },
+        { username: 'community_organizer', initiativeCount: 7 },
+        { username: 'policy_wonk', initiativeCount: 5 },
+        { username: 'grassroots_hero', initiativeCount: 4 }
       ]
       
       setStats(mockStats)
@@ -201,7 +198,7 @@ export default function Statistics() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium text-[var(--color-text)]">{contributor.totalVigor} vigor</div>
+                    <div className="font-medium text-[var(--color-text)]">{contributor.initiativeCount} initiatives</div>
                     <div className="text-sm text-[var(--color-text-muted)]">{contributor.initiativeCount} initiatives</div>
                   </div>
                 </div>

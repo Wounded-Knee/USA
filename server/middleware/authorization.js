@@ -17,18 +17,7 @@ const SCOPES = {
   'users:write': 'Create and update users',
   'users:delete': 'Delete users',
   
-  // Petition management
-  'petitions:read': 'Read petitions',
-  'petitions:write': 'Create and update petitions',
-  'petitions:delete': 'Delete petitions',
-  
-  // Voting
-  'votes:read': 'Read votes',
-  'votes:write': 'Cast votes',
-  
-  // Vigor
-  'vigor:read': 'Read vigor contributions',
-  'vigor:write': 'Contribute vigor',
+
   
   // Media
   'media:read': 'Read media',
@@ -42,8 +31,6 @@ const SCOPES = {
   // Government data
   'gov:read': 'Read government data',
   
-  // Analytics
-  'analytics:read': 'Read analytics data',
   
   // Identities
   'identities:read': 'Read political identities',
@@ -53,41 +40,26 @@ const SCOPES = {
 const ROLE_SCOPES = {
   [ROLES.ADMIN]: [
     'users:read', 'users:write', 'users:delete',
-    'petitions:read', 'petitions:write', 'petitions:delete',
-    'votes:read', 'votes:write',
-    'vigor:read', 'vigor:write',
     'media:read', 'media:write', 'media:delete',
     'roles:read', 'roles:assign',
     'gov:read',
-    'analytics:read',
     'identities:read',
   ],
   [ROLES.MODERATOR]: [
     'users:read',
-    'petitions:read', 'petitions:write',
-    'votes:read', 'votes:write',
-    'vigor:read', 'vigor:write',
     'media:read', 'media:write',
     'gov:read',
-    'analytics:read',
     'identities:read',
   ],
   [ROLES.DEVELOPER]: [
     'users:read', 'users:write',
-    'petitions:read', 'petitions:write',
-    'votes:read', 'votes:write',
-    'vigor:read', 'vigor:write',
     'media:read', 'media:write',
     'roles:read',
     'gov:read',
-    'analytics:read',
     'identities:read',
   ],
   [ROLES.USER]: [
     'users:read',
-    'petitions:read', 'petitions:write',
-    'votes:read', 'votes:write',
-    'vigor:read', 'vigor:write',
     'media:read', 'media:write',
     'gov:read',
     'identities:read',
@@ -101,7 +73,7 @@ const verifyToken = async (req, res, next) => {
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Authentication required',
         status: 401,
         detail: 'Bearer token is required',
@@ -118,7 +90,7 @@ const verifyToken = async (req, res, next) => {
     
     if (!user || !user.isActive) {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Invalid token',
         status: 401,
         detail: 'User not found or inactive',
@@ -128,11 +100,10 @@ const verifyToken = async (req, res, next) => {
     // Resolve scopes from roles
     const scopes = [];
     if (user.roles && Array.isArray(user.roles)) {
-      // Get role names from the database
-      const roles = await Role.find({ _id: { $in: user.roles } }).select('name');
-      roles.forEach(role => {
-        if (ROLE_SCOPES[role.name]) {
-          scopes.push(...ROLE_SCOPES[role.name]);
+      // user.roles contains role names as strings, so we can directly use them
+      user.roles.forEach(roleName => {
+        if (ROLE_SCOPES[roleName]) {
+          scopes.push(...ROLE_SCOPES[roleName]);
         }
       });
     }
@@ -150,7 +121,7 @@ const verifyToken = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Invalid token',
         status: 401,
         detail: 'Token is invalid or expired',
@@ -159,7 +130,7 @@ const verifyToken = async (req, res, next) => {
     
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Token expired',
         status: 401,
         detail: 'Token has expired',
@@ -175,7 +146,7 @@ const requireScope = (requiredScope) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Authentication required',
         status: 401,
         detail: 'User must be authenticated',
@@ -184,7 +155,7 @@ const requireScope = (requiredScope) => {
     
     if (!req.user.scopes.includes(requiredScope)) {
       return res.status(403).json({
-        type: 'https://api.example.com/errors/forbidden',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/forbidden`,
         title: 'Insufficient permissions',
         status: 403,
         detail: `Scope '${requiredScope}' is required`,
@@ -200,7 +171,7 @@ const requireRole = (requiredRole) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Authentication required',
         status: 401,
         detail: 'User must be authenticated',
@@ -209,7 +180,7 @@ const requireRole = (requiredRole) => {
     
     if (!req.user.roles.includes(requiredRole)) {
       return res.status(403).json({
-        type: 'https://api.example.com/errors/forbidden',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/forbidden`,
         title: 'Insufficient permissions',
         status: 403,
         detail: `Role '${requiredRole}' is required`,
@@ -225,7 +196,7 @@ const requireOwnership = (resourceType) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        type: 'https://api.example.com/errors/unauthorized',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/unauthorized`,
         title: 'Authentication required',
         status: 401,
         detail: 'User must be authenticated',
@@ -239,7 +210,7 @@ const requireOwnership = (resourceType) => {
     
     if (!isOwner && !isAdmin) {
       return res.status(403).json({
-        type: 'https://api.example.com/errors/forbidden',
+        type: `${process.env.NEXT_PUBLIC_API_URL}/errors/forbidden`,
         title: 'Access denied',
         status: 403,
         detail: `You can only access your own ${resourceType}`,
@@ -264,9 +235,9 @@ const optionalAuth = async (req, res, next) => {
       if (user && user.isActive) {
         const scopes = [];
         if (user.roles && Array.isArray(user.roles)) {
-          user.roles.forEach(role => {
-            if (ROLE_SCOPES[role]) {
-              scopes.push(...ROLE_SCOPES[role]);
+          user.roles.forEach(roleName => {
+            if (ROLE_SCOPES[roleName]) {
+              scopes.push(...ROLE_SCOPES[roleName]);
             }
           });
         }

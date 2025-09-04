@@ -104,7 +104,7 @@ router.get('/',
     } catch (err) {
       console.error('Get media error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get media',
         status: 500,
         detail: 'Failed to retrieve media',
@@ -193,7 +193,7 @@ router.post('/',
     } catch (err) {
       console.error('Upload media error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to upload media',
         status: 500,
         detail: 'Failed to upload media file',
@@ -235,7 +235,7 @@ router.get('/:mediaId',
     } catch (err) {
       console.error('Get media error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get media',
         status: 500,
         detail: 'Failed to retrieve media',
@@ -285,7 +285,7 @@ router.patch('/:mediaId',
     } catch (err) {
       console.error('Update media error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to update media',
         status: 500,
         detail: 'Failed to update media',
@@ -325,7 +325,7 @@ router.delete('/:mediaId',
     } catch (err) {
       console.error('Delete media error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to delete media',
         status: 500,
         detail: 'Failed to delete media',

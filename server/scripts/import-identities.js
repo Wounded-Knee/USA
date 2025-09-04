@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Identity = require('../models/Identity');
+const { Identity } = require('../models/Identity/Identity');
 require('dotenv').config();
 
 // Identity data to import
@@ -136,13 +136,15 @@ async function importIdentities() {
     let mongoUri = process.env.MONGODB_URI;
     if (!mongoUri.includes('/usa')) {
       // Add database name if not present
-      mongoUri = mongoUri.replace('mongodb+srv://', 'mongodb+srv://');
       if (mongoUri.includes('?')) {
         mongoUri = mongoUri.replace('?', '/usa?');
       } else {
         mongoUri = mongoUri + '/usa';
       }
     }
+    
+    // Fix double slashes that might occur
+    mongoUri = mongoUri.replace('//usa', '/usa');
     
     await mongoose.connect(mongoUri, {
       maxPoolSize: 10,

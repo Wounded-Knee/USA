@@ -10,7 +10,7 @@ This document outlines the implementation of the comprehensive data model refact
 
 ✅ **User** creates **Petition**
 ✅ **User** casts exactly one **Vote** per **Petition** (enforced by unique compound index)
-✅ **Vigor** always points to **Vote** and **User** (with validation that vigor.user matches vote.user)
+⚠️ **Vigor** system has been removed to simplify the architecture
 ✅ **Position** references **Office** and **User** (via PositionTerm)
 ✅ **PositionTerm** records time slices for clean history
 
@@ -35,7 +35,7 @@ This document outlines the implementation of the comprehensive data model refact
 
 #### PetitionMetrics Model (`server/models/PetitionMetrics.js`)
 - Materialized view for analytics counts
-- Single source of truth for vote and vigor statistics
+- Simplified architecture focusing on core obligation functionality
 - Supports trending score calculations
 
 #### Vote Model (`server/models/Vote.js`)
@@ -43,10 +43,9 @@ This document outlines the implementation of the comprehensive data model refact
 - Enforces one vote per user per petition
 - Includes signing statement and active status
 
-#### Vigor Model (`server/models/Vigor.js`)
-- Always attached to a Vote, never directly to Petition
-- Pre-validation hook ensures vigor.user matches vote.user
-- Supports multiple vigor types (steps, calories, duration, etc.)
+#### Vigor Model (REMOVED)
+- **Status**: Component has been removed from the architecture
+- **Note**: Vigor functionality simplified to focus on core obligations
 
 #### Government Hierarchy Models
 - **Jurisdiction**: Materialized path via `ancestors` array
@@ -73,7 +72,7 @@ This document outlines the implementation of the comprehensive data model refact
 ### 3. Validation and Constraints
 
 ✅ **Votes**: Unique compound index `(user, petition)` blocks duplicates
-✅ **Vigor**: Pre-validate hook verifies `vigor.user === vote.user`
+⚠️ **Vigor**: System has been removed
 ✅ **PositionTerm**: Constraint prevents overlapping terms for same position
 ✅ **Slugs**: Unique within parent scope (jurisdiction, governing body, office)
 
@@ -81,7 +80,7 @@ This document outlines the implementation of the comprehensive data model refact
 
 - **Common list views**: jurisdiction + status + createdAt
 - **Vote queries**: user + createdAt, petition + createdAt
-- **Vigor queries**: vote + createdAt, user + createdAt
+- **Vigor queries**: REMOVED (vigor system simplified)
 - **Media queries**: entityType + entityId + createdAt
 - **Government queries**: parent + slug uniqueness
 

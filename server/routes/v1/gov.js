@@ -56,7 +56,7 @@ router.get('/jurisdictions',
     } catch (err) {
       console.error('Get jurisdictions error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get jurisdictions',
         status: 500,
         detail: 'Failed to retrieve jurisdictions',
@@ -116,7 +116,7 @@ router.get('/jurisdictions/:id',
     } catch (err) {
       console.error('Get jurisdiction error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get jurisdiction',
         status: 500,
         detail: 'Failed to retrieve jurisdiction',
@@ -175,7 +175,7 @@ router.get('/governing-bodies',
     } catch (err) {
       console.error('Get governing bodies error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get governing bodies',
         status: 500,
         detail: 'Failed to retrieve governing bodies',
@@ -216,7 +216,7 @@ router.get('/governing-bodies/:id',
     } catch (err) {
       console.error('Get governing body error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get governing body',
         status: 500,
         detail: 'Failed to retrieve governing body',
@@ -273,7 +273,7 @@ router.get('/offices',
     } catch (err) {
       console.error('Get offices error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get offices',
         status: 500,
         detail: 'Failed to retrieve offices',
@@ -314,7 +314,7 @@ router.get('/offices/:id',
     } catch (err) {
       console.error('Get office error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get office',
         status: 500,
         detail: 'Failed to retrieve office',
@@ -374,7 +374,7 @@ router.get('/positions',
     } catch (err) {
       console.error('Get positions error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get positions',
         status: 500,
         detail: 'Failed to retrieve positions',
@@ -417,7 +417,7 @@ router.get('/positions/:id',
     } catch (err) {
       console.error('Get position error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get position',
         status: 500,
         detail: 'Failed to retrieve position',
@@ -475,7 +475,7 @@ router.get('/elections',
     } catch (err) {
       console.error('Get elections error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get elections',
         status: 500,
         detail: 'Failed to retrieve elections',
@@ -516,7 +516,7 @@ router.get('/elections/:id',
     } catch (err) {
       console.error('Get election error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get election',
         status: 500,
         detail: 'Failed to retrieve election',
@@ -575,7 +575,7 @@ router.get('/legislation',
     } catch (err) {
       console.error('Get legislation error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get legislation',
         status: 500,
         detail: 'Failed to retrieve legislation',
@@ -616,7 +616,7 @@ router.get('/legislation/:id',
     } catch (err) {
       console.error('Get legislation error:', err);
       return error(res, {
-        type: 'https://api.example.com/errors/internal',
+        type: '${process.env.NEXT_PUBLIC_API_URL}/errors/internal',
         title: 'Failed to get legislation',
         status: 500,
         detail: 'Failed to retrieve legislation',

@@ -3,7 +3,6 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
-  hasRole, 
   hasAnyRole, 
   isAdmin, 
   isDeveloper, 
@@ -15,7 +14,7 @@ import {
 import UserRoles from '../../components/UserRoles';
 
 const RoleTestPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
 
   if (!user) {
     return (
@@ -75,26 +74,26 @@ const RoleTestPage: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span>Has Developer role:</span>
-                      <span className={hasRole(user, 'Developer') ? 'text-green-600' : 'text-red-600'}>
-                        {hasRole(user, 'Developer') ? '✓ Yes' : '✗ No'}
+                      <span className={hasRole('developer') ? 'text-green-600' : 'text-red-600'}>
+                        {hasRole('developer') ? '✓ Yes' : '✗ No'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Has Admin role:</span>
-                      <span className={hasRole(user, 'Admin') ? 'text-green-600' : 'text-red-600'}>
-                        {hasRole(user, 'Admin') ? '✓ Yes' : '✗ No'}
+                      <span className={hasRole('admin') ? 'text-green-600' : 'text-red-600'}>
+                        {hasRole('admin') ? '✓ Yes' : '✗ No'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Has Moderator role:</span>
-                      <span className={hasRole(user, 'Moderator') ? 'text-green-600' : 'text-red-600'}>
-                        {hasRole(user, 'Moderator') ? '✓ Yes' : '✗ No'}
+                      <span className={hasRole('moderator') ? 'text-green-600' : 'text-red-600'}>
+                        {hasRole('moderator') ? '✓ Yes' : '✗ No'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Has User role:</span>
-                      <span className={hasRole(user, 'User') ? 'text-green-600' : 'text-red-600'}>
-                        {hasRole(user, 'User') ? '✓ Yes' : '✗ No'}
+                      <span className={hasRole('user') ? 'text-green-600' : 'text-red-600'}>
+                        {hasRole('user') ? '✓ Yes' : '✗ No'}
                       </span>
                     </div>
                   </div>

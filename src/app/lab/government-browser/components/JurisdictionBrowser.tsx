@@ -73,7 +73,7 @@ export default function JurisdictionBrowser({
     const fetchJurisdictions = async () => {
       try {
         // Use the new v1 API endpoint
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions?page_size=1000`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/jurisdictions?page_size=1000`);
         const data = await response.json();
         const options = data.data?.map((jurisdiction: any) => ({
           value: jurisdiction._id,
@@ -125,7 +125,7 @@ export default function JurisdictionBrowser({
       }
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions?${params.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/jurisdictions?${params.toString()}`);
       const data = await response.json();
       
       if (data.data) {
@@ -143,7 +143,7 @@ export default function JurisdictionBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/jurisdictions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ export default function JurisdictionBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/jurisdictions/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ export default function JurisdictionBrowser({
       setIsLoading(true);
       
       // Use the new v1 API endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/gov/jurisdictions/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/gov/jurisdictions/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`

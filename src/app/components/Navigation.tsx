@@ -9,6 +9,7 @@ import ThemeAwareLogo from './ThemeAwareLogo'
 import UserAvatar from './UserAvatar'
 import AuthDialog from './AuthDialog'
 import { useAuth } from '../contexts/AuthContext'
+import PoliticalIdentitySelector from './PoliticalIdentitySelector'
 
 interface NavItem {
   label: string
@@ -26,44 +27,44 @@ const navItems: NavItem[] = [
     children: [
       { label: 'Our Story', href: '/about/story' },
       { label: 'Philosophy', href: '/about/philosophy' },
-      { label: 'FAQ', href: '/about/faq' }
-    ]
-  },
-  { 
-    label: 'For the Public', 
-    href: '/public',
-    children: [
-      { label: 'How It Works', href: '/public/how-it-works' },
-      { label: 'Why It Matters', href: '/public/why-it-matters' },
-      { label: 'Guide Us', href: '/public/guide-us' }
-    ]
-  },
-  { 
-    label: 'Participate', 
-    href: '/participate',
-    children: [
-      { label: 'As a Developer', href: '/participate/developer' },
-      { label: 'As a Civic Leader', href: '/participate/civic-leader' },
-      { label: 'As a Voter & Advocate', href: '/participate/voter-advocate' }
-    ]
-  },
-  { 
-    label: 'Initiatives', 
-    href: '/initiatives',
-    requiresAuth: true,
-    children: [
-      { label: 'Past Victories', href: '/initiatives/victories' },
-      { label: 'How to Start an Initiative', href: '/initiatives/start' }
-    ]
-  },
-  { 
-    label: 'Resources', 
-    href: '/resources',
-    children: [
-      { label: 'Documentation', href: '/resources/documentation' },
-      { label: 'Media Kit', href: '/resources/media-kit' },
-      { label: 'News & Press', href: '/resources/news' },
-      { label: 'Laboratory', href: '/lab', requiresAuth: true }
+      { label: 'FAQ', href: '/about/faq' },
+      { 
+        label: 'For the Public', 
+        href: '/public',
+        children: [
+          { label: 'How It Works', href: '/public/how-it-works' },
+          { label: 'Why It Matters', href: '/public/why-it-matters' },
+          { label: 'Guide Us', href: '/public/guide-us' }
+        ]
+      },
+      { 
+        label: 'Participate', 
+        href: '/participate',
+        children: [
+          { label: 'As a Developer', href: '/participate/developer' },
+          { label: 'As a Civic Leader', href: '/participate/civic-leader' },
+          { label: 'As a Voter & Advocate', href: '/participate/voter-advocate' }
+        ]
+      },
+      { 
+        label: 'Initiatives', 
+        href: '/initiatives',
+        requiresAuth: true,
+        children: [
+          { label: 'Past Victories', href: '/initiatives/victories' },
+          { label: 'How to Start an Initiative', href: '/initiatives/start' }
+        ]
+      },
+      { 
+        label: 'Resources', 
+        href: '/resources',
+        children: [
+          { label: 'Documentation', href: '/resources/documentation' },
+          { label: 'Media Kit', href: '/resources/media-kit' },
+          { label: 'News & Press', href: '/resources/news' },
+          { label: 'Laboratory', href: '/lab', requiresAuth: true }
+        ]
+      }
     ]
   },
   { label: 'Contact', href: '/contact' }
@@ -187,13 +188,36 @@ export default function Navigation() {
                       <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent"></div>
                       <div className="py-1">
                         {item.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            className="block px-4 py-2 text-sm text-neutral hover:text-foreground hover:bg-neutral-light transition-colors duration-200"
-                          >
-                            {child.label}
-                          </Link>
+                          <div key={child.label} className="relative group/submenu">
+                            <Link
+                              href={child.href}
+                              className="block px-4 py-2 text-sm text-neutral hover:text-foreground hover:bg-neutral-light transition-colors duration-200 flex items-center justify-between"
+                            >
+                              <span>{child.label}</span>
+                              {child.children && (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              )}
+                            </Link>
+                            
+                            {/* Nested Submenu */}
+                            {child.children && (
+                              <div className="absolute left-full top-0 w-48 rounded-md shadow-lg bg-surface border border-neutral-light opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-200 z-50">
+                                <div className="py-1">
+                                  {child.children.map((grandchild) => (
+                                    <Link
+                                      key={grandchild.label}
+                                      href={grandchild.href}
+                                      className="block px-4 py-2 text-sm text-neutral hover:text-foreground hover:bg-neutral-light transition-colors duration-200"
+                                    >
+                                      {grandchild.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -205,6 +229,7 @@ export default function Navigation() {
 
           {/* Right side - Theme toggle, Auth, User menu */}
           <div className="flex items-center space-x-4">
+            <PoliticalIdentitySelector />
             <ThemeToggle />
             
             {loading ? (
@@ -260,6 +285,12 @@ export default function Navigation() {
         {isMenuOpen && (
           <div className="lg:hidden" ref={mobileMenuRef}>
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-surface border-t border-neutral-light">
+              {/* Mobile Political Identity Selector */}
+              <div className="px-3 py-2">
+                <p className="text-xs text-neutral mb-2">Political Identity</p>
+                <PoliticalIdentitySelector />
+              </div>
+              
               {filteredNavItems.map((item) => (
                 <div key={item.label}>
                   <Link
@@ -284,14 +315,41 @@ export default function Navigation() {
                   {item.children && activeDropdown === item.label && (
                     <div className="ml-4 mt-1 space-y-1">
                       {item.children.map((child) => (
-                        <Link
-                          key={child.label}
-                          href={child.href}
-                          onClick={closeMenu}
-                          className="text-neutral hover:text-foreground hover:bg-neutral-light block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                        >
-                          {child.label}
-                        </Link>
+                        <div key={child.label}>
+                          <Link
+                            href={child.href}
+                            onClick={(e) => child.children ? handleDropdownClick(e, child) : closeMenu()}
+                            className="text-neutral hover:text-foreground hover:bg-neutral-light block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-between"
+                          >
+                            <span>{child.label}</span>
+                            {child.children && (
+                              <svg 
+                                className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === child.label ? 'rotate-180' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                          </Link>
+                          
+                          {/* Mobile Nested Submenu */}
+                          {child.children && activeDropdown === child.label && (
+                            <div className="ml-4 mt-1 space-y-1">
+                              {child.children.map((grandchild) => (
+                                <Link
+                                  key={grandchild.label}
+                                  href={grandchild.href}
+                                  onClick={closeMenu}
+                                  className="text-neutral hover:text-foreground hover:bg-neutral-light block px-3 py-2 rounded-md text-xs font-medium transition-colors duration-200"
+                                >
+                                  {grandchild.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}

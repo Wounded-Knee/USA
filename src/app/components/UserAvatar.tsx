@@ -61,7 +61,7 @@ export default function UserAvatar({ size = 'md', showDropdown = true }: UserAva
       >
         {user.avatar ? (
           <Image
-            src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${user.avatar}`}
+            src={user.avatar.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}`}
             alt={`${user.firstName} ${user.lastName}`}
             width={size === 'xl' ? 144 : 48}
             height={size === 'xl' ? 144 : 48}

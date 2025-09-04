@@ -1,13 +1,21 @@
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
+const config = require('../shared/config');
+
+const allowedOrigins = [
+  config.api.frontendDevUrl,
+  config.api.frontendTestUrl,
+  config.api.frontendUrl,
+  config.api.baseUrl?.replace('/v1', ''),
+].filter(Boolean);
 
 // Rate limiting configurations
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 requests per window
   message: {
-    type: 'https://api.example.com/errors/rate-limit',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/rate-limit`,
     title: 'Too many authentication attempts',
     status: 429,
     detail: 'Please try again later',
@@ -20,7 +28,7 @@ const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // 100 requests per window
   message: {
-    type: 'https://api.example.com/errors/rate-limit',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/rate-limit`,
     title: 'Too many requests',
     status: 429,
     detail: 'Please try again later',
@@ -33,7 +41,7 @@ const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 uploads per window
   message: {
-    type: 'https://api.example.com/errors/rate-limit',
+    type: `${process.env.NEXT_PUBLIC_API_URL}/errors/rate-limit`,
     title: 'Too many uploads',
     status: 429,
     detail: 'Please try again later',
@@ -44,10 +52,7 @@ const uploadLimiter = rateLimit({
 
 // Enhanced CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Hardcode allowed origins to avoid environment variable issues
-    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
-    
+  origin: function (origin, callback) {    
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
@@ -118,7 +123,7 @@ const uploadSecurity = (req, res, next) => {
   const maxFileSize = 10 * 1024 * 1024; // 10MB
   if (req.headers['content-length'] && parseInt(req.headers['content-length']) > maxFileSize) {
     return res.status(413).json({
-      type: 'https://api.example.com/errors/file-too-large',
+      type: `${process.env.NEXT_PUBLIC_API_URL}/errors/file-too-large`,
       title: 'File too large',
       status: 413,
       detail: 'File size exceeds maximum allowed size of 10MB',
